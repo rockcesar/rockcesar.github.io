@@ -1,0 +1,70 @@
+<html>
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Calculadora Bolívar Soberano a Bolívar Digital</title>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, user-scalable=yes">
+        
+        <!-- ios support -->
+        <meta name="apple-mobile-web-app-status-bar" content="#db4938" />
+        <meta name="theme-color" content="#db4938" />
+        
+        <meta name="application-name" content="Calculadora Bolívar Soberano a Bolívar Digital">
+        
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        
+        <script src="https://unpkg.com/js-big-decimal@1.3.1/dist/web/js-big-decimal.min.js"></script>
+    </head>
+
+    <body>
+        <div class="container form-group" style="text-align:center">
+            Bolívar Soberano:<br/><input id="bss" name="bss" class="form-text" type="number" min="0" step="any" lang="es-VE"/>
+            <br/>Bolívar Digital:<br/><input id="bsd" name="bsd" class="form-text" type="number" min="0" step="any" lang="es-VE"/>
+            <!--<br/><br/><input id="convertir_bss_bsd" name="convertir_bss_bsd" value="Convertir BSS a BSD" type="button" class="btn btn-primary"/>
+            <input id="convertir_bsd_bss" name="convertir_bsd_bss" value="Convertir BSD a BSS" type="button" class="btn btn-primary"/>-->
+            
+            <br/><br/>
+            <a href="https://github.com/rockcesar/js_code/" target="_blank" class="btn btn-link">Watch code</a>
+            
+            <br /><br />
+            Añádelo a tu Web, copia y pega el siguiente código en tu HTML:
+            <br /><br />
+            &lt;iframe height="500px" width="100%" id="calc_bss_bsd" src="https://dev-rockcesar.blogspot.com/2021/09/calculadora-bolivar-sobera-bolivar.html" title="Calculadora BSS a BSD" /&gt;
+        </div>
+
+        <script type="text/javascript">
+            $( document ).ready(function() {
+                $( "#bss" ).keyup(function() {
+                    if(parseFloat($("#bss").val()) > 0)
+                    {
+                        var val1 = new bigDecimal($("#bss").val());
+                        var val2 = new bigDecimal(1000000);
+                        var result = val1.divide(val2);
+                        $("#bsd").val(result.round(8).getValue());
+                    }else{
+                        $("#bsd").val("");
+                    }
+                });
+                $( "#bsd" ).keyup(function() {
+                    if(parseFloat($("#bsd").val()) > 0)
+                    {
+                        var val1 = new bigDecimal($("#bsd").val());
+                        var val2 = new bigDecimal(1000000);
+                        var result = val1.multiply(val2);
+                        $("#bss").val(result.round(2).getValue());
+                    }else{ 
+                        $("#bss").val("");
+                    }
+                });
+            });
+        </script>
+
+    </body>
+
+</html>
