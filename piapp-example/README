@@ -1,0 +1,14 @@
+You should use a Sandbox at https://developers.minepi.com
+
+You have to put all the code in the root of the HTTP Server. Example: /var/www/html.
+
+If you have KYC done and want to donate something, use my username in Pi Network: rockcesar
+
+index.html # Client side example
+server1.php # Server side example
+
+
+
+The code in this example is GPLv3, you can use it to develop your apps. Free to copy, study and modify:
+
+https://www.gnu.org/licenses/gpl-3.0.html
