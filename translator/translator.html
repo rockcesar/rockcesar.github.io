@@ -1,81 +1,156 @@
-<! DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Translate Dynamic Hash</title>
+    <!-- Tailwind CSS for basic styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados para ocultar la barra superior de Google Translate y el pie de página */
+        .goog-te-banner-frame.skiptranslate {
+            display: none !important;
+        }
+        
+        /* Ocultar el iframe oculto que crea Google */
+        .skiptranslate > iframe {
+            display: none !important;
+        }
+        
+        /* Restablecer el padding/margin del cuerpo añadido por Google Translate */
+        body {
+            top: 0px !important;
+        }
 
-<!--<div id="google_translate_element"></div>
-<script type="text/javascript">
-function googleTranslateElementInit() {
-  new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
-}
-</script>
-<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+        /* Ajustes de estilo para el menú desplegable principal */
+        .goog-te-menu-frame {
+            max-width: 100% !important;
+        }
+        .goog-te-menu2 { 
+            max-width: 100% !important;
+            overflow-x: scroll !important;
+            box-sizing: border-box !important; 
+            height: auto !important; 
+        }
 
-Hello!-->
+        /* Ocultar los molestos popups de globo/tooltip */
+        #goog-gt-tt, #goog-gt-, .goog-te-balloon-frame {
+            display: none !important;
+        } 
+        .goog-text-highlight { 
+            background: none !important; 
+            box-shadow: none !important;
+        }
 
-<style>
-                        .goog-te-banner-frame.skiptranslate {
-                            display: none !important;
-                        }
-                        .skiptranslate > iframe {
-                            display: none !important;
-                        }
-                        
-                        body {
-                            top: 0px !important; 
-                        }
+        /* Ocultar el enlace del logo de "Google Translate" */
+        .goog-logo-link {
+            display: none !important;
+        }
 
-                        .goog-te-menu-frame {
-                            max-width:100% !important; 
-                        }
-                        .goog-te-menu2 { 
-                            max-width: 100% !important;
-                            overflow-x: scroll !important;
-                            box-sizing:border-box !important; 
-                            height:auto !important; 
-                        }
-                        
-                        #goog-gt-tt, #goog-gt-, .goog-te-balloon-frame{display: none !important;} 
-                        .goog-text-highlight { background: none !important; box-shadow: none !important;}
-                        
-                        .goog-logo-link{display: none !important;}
-                        /*.goog-te-gadget{height: 28px !important;  overflow: hidden;}*/
-</style>
+        /* Centrar el contenedor */
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8 font-sans">
 
-<script type="text/javascript">
-                        function googleTranslateElementInit() {
-                              var lang_google='es';
-                              
-                              new google.translate.TranslateElement({pageLanguage: lang_google,
-                                                                    autoDisplay: true,
-                                                                    layout: google.translate.TranslateElement.InlineLayout.VERTICAL}, 
-                                                                    'google_translate_element');
-                                
-                                //const el = document.querySelector('#goog-gt-');
-                                //const el2 = document.querySelector('.skiptranslate');
-                                const el3 = document.querySelector('circle');
-                                //const el4 = document.querySelector('.goog-te-gadget');
-                                const observer = new window.IntersectionObserver(([entry]) => {
-                                    /*for(var i = 0; i &lt; document.getElementsByClassName("skiptranslate").length; i++)
-                                    {
-                                        for(var j = 0; j &lt; document.getElementsByClassName("skiptranslate")[i].childNodes.length; j++)
-                                        {
-                                            if(document.getElementsByClassName("skiptranslate")[i].childNodes[j].tagName == "IFRAME")
-                                                document.getElementsByClassName("skiptranslate")[i].style.display = "none";
-                                        }
-                                    }
-                                    document.getElementById("goog-gt-").style.display = "none";*/
-                                    document.getElementsByTagName("circle")[0].parentNode.parentNode.style.display = "none";
-                                }, {
-                                    root: null,
-                                    threshold: 0.1, // set offset 0.1 means trigger if atleast 10% of element in viewport
-                                });
+    <div class="container">
+        <div class="bg-white p-10 rounded-xl shadow-2xl max-w-lg w-full text-center">
+            
+            <h1 class="text-3xl font-extrabold text-blue-600 mb-4">Página de Prueba</h1>
+            
+            <!-- El desplegable de Google Translate se colocará aquí -->
+            <div id="google_translate_element" class="mb-6"></div>
+            
+            <p class="text-xl text-gray-700 mt-6">
+                Hola, desde mi PC.
+            </p>
+            <p class="text-sm text-gray-500 mt-2">
+                (Este contenido está en español. El idioma que elija se guardará en su navegador.)
+            </p>
+            
+        </div>
+    </div>
 
-                                //observer.observe(el);
-                                //observer.observe(el2);
-                                observer.observe(el3);
-                                //observer.observe(el4);
-                        }
-</script>
+    <script type="text/javascript">
+        /**
+         * Inicializa el elemento de Google Translate y gestiona la carga/guardado del idioma
+         * de destino usando localStorage.
+         */
+        function googleTranslateElementInit() {
+            
+            const defaultSourceLang = 'es'; // Idioma original de la página (Español)
+            const LAST_LANG_KEY = 'g_translate_target_lang';
+            
+            // --- 1. Cargar el último idioma guardado y establecer el Hash Inicial ---
+            const savedTargetLang = localStorage.getItem(LAST_LANG_KEY);
+            
+            // Usar el idioma guardado, si existe y no es 'undefined', de lo contrario, usar el idioma de origen.
+            let initialTargetLang = (savedTargetLang && savedTargetLang !== 'undefined') 
+                                    ? savedTargetLang 
+                                    : defaultSourceLang;
 
-<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-<div id="google_translate_element"></div>
+            // Establecer el hash ANTES de que el script de Google se ejecute, fuerza el estado de traducción.
+            window.location.hash = `#googtrans(${defaultSourceLang}|${initialTargetLang})`;
+            console.log(`Cargando estado inicial de traducción: ${defaultSourceLang} -> ${initialTargetLang}`);
 
-Hola, desde mi PC.
+            // --- 2. Inicializar el widget de Google Translate ---
+            new google.translate.TranslateElement({
+                pageLanguage: defaultSourceLang,
+                autoDisplay: true,
+                layout: google.translate.TranslateElement.InlineLayout.VERTICAL 
+            }, 'google_translate_element');
+            
+            // --- 3. Adjuntar el Listener Dinámico para guardar selecciones futuras ---
+            // Esperar a que se cree el menú desplegable y adjuntar el listener.
+            attachDynamicHashUpdater(defaultSourceLang, LAST_LANG_KEY);
+            
+            const el3 = document.querySelector('circle');
+            
+            const observer = new window.IntersectionObserver(([entry]) => {
+                document.getElementsByTagName("circle")[0].parentNode.parentNode.style.display = "none";
+            }, {
+                root: null,
+                threshold: 0.1, // set offset 0.1 means trigger if atleast 10% of element in viewport
+            });
+
+            observer.observe(el3);
+        }
+
+        /**
+         * Adjunta un listener al menú desplegable de Google Translate para guardar la selección.
+         */
+        function attachDynamicHashUpdater(sourceLang, key) {
+            // El elemento desplegable creado por el script de Google Translate
+            const selectElement = document.querySelector('.goog-te-combo');
+            
+            if (selectElement) {
+                var targetLang = false;
+                // Desplegable encontrado, adjuntar listener 'change'
+                selectElement.addEventListener('change', (event) => {
+                    targetLang = event.target.value;
+                    if (targetLang) {
+                        // 1. Actualizar Hash para reflejar la nueva traducción
+                        window.location.hash = `#googtrans(${sourceLang}|${targetLang})`;
+                        // 2. Guardar el idioma seleccionado en localStorage
+                        localStorage.setItem(key, targetLang);
+                        console.log(`Idioma seleccionado y guardado: ${sourceLang} -> ${targetLang}`);
+                    }
+                });
+            } else {
+                // El desplegable aún no está disponible, reintentar después de un breve retraso
+                setTimeout(() => attachDynamicHashUpdater(sourceLang, key), 100);
+            }
+        }
+    </script>
+    
+    <!-- Cargar el script de Google Translate. Esto llama automáticamente a googleTranslateElementInit() -->
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+</body>
+</html>
