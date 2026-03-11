@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greenbriar Local Market | Fresh & Community Driven</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Config for Custom Colors/Fonts -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* Custom styles for specific needs not covered by Tailwind utilities */
+        .hero-overlay {
+            background: linear-gradient(to right, rgba(6, 78, 59, 0.9) 0%, rgba(6, 78, 59, 0.4) 100%);
+        }
+        
+        .hide-scroll-bar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .hide-scroll-bar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="font-sans text-gray-800 antialiased bg-gray-50">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 transition-all duration-300 bg-white shadow-sm" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer">
+                    <i data-lucide="leaf" class="text-brand-600 h-8 w-8"></i>
+                    <span class="font-serif font-bold text-2xl text-gray-900 tracking-tight">Greenbriar<span class="text-brand-600">.</span></span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#about" class="text-gray-600 hover:text-brand-600 font-medium transition-colors">About</a>
+                    <a href="#vendors" class="text-gray-600 hover:text-brand-600 font-medium transition-colors">Our Vendors</a>
+                    <a href="#visit" class="text-gray-600 hover:text-brand-600 font-medium transition-colors">Visit Us</a>
+                    <a href="#contact" class="bg-brand-600 text-white px-6 py-2.5 rounded-full font-medium hover:bg-brand-700 transition-colors shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        Become a Vendor
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-gray-600 hover:text-brand-600 focus:outline-none">
+                        <i data-lucide="menu" class="h-6 w-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100">
+            <div class="px-4 pt-2 pb-6 space-y-2">
+                <a href="#about" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-brand-600 hover:bg-brand-50 rounded-md">About</a>
+                <a href="#vendors" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-brand-600 hover:bg-brand-50 rounded-md">Our Vendors</a>
+                <a href="#visit" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-brand-600 hover:bg-brand-50 rounded-md">Visit Us</a>
+                <a href="#contact" class="block px-3 py-2 mt-4 text-center text-base font-medium bg-brand-600 text-white rounded-md hover:bg-brand-700">Become a Vendor</a>
+            </div>
+        </div>
+    </nav>
+
+    <br/>
+
+    <!-- Hero Section -->
+    <section class="relative pt-20 pb-32 lg:pt-48 lg:pb-48 flex items-center min-h-[90vh]">
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1488459716781-31db52582fe9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" alt="Fresh local market produce" class="w-full h-full object-cover" />
+            <div class="absolute inset-0 hero-overlay"></div>
+        </div>
+        
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white w-full">
+            <div class="max-w-2xl">
+                <span class="inline-block py-1 px-3 rounded-full bg-brand-500/20 text-brand-100 text-sm font-semibold tracking-wider mb-4 border border-brand-400/30 backdrop-blur-sm">
+                    OPEN EVERY WEEKEND
+                </span>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold leading-tight mb-6">
+                    Fresh. Local.<br/>Community.
+                </h1>
+                <p class="text-lg sm:text-xl text-gray-200 mb-8 max-w-xl font-light leading-relaxed">
+                    Experience the finest locally sourced produce, artisanal goods, and vibrant community spirit at the heart of the city.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="#visit" class="bg-brand-500 hover:bg-brand-600 text-white px-8 py-4 rounded-full font-semibold text-center transition-all shadow-lg hover:shadow-brand-500/30 flex items-center justify-center gap-2">
+                        Plan Your Visit
+                        <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#vendors" class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 px-8 py-4 rounded-full font-semibold text-center transition-all flex items-center justify-center">
+                        Meet the Makers
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Value Proposition / Highlights -->
+    <section id="about" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-brand-600 font-semibold tracking-wide uppercase text-sm mb-2">Why Choose Us</h2>
+                <h3 class="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4">More than just a market</h3>
+                <p class="text-gray-600 text-lg">We bring together the best local farmers, craftsmen, and food artisans to create a sustainable and thriving community hub.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-10">
+                <!-- Feature 1 -->
+                <div class="p-8 rounded-2xl bg-brand-50 border border-brand-100 transition-transform duration-300 hover:-translate-y-2">
+                    <div class="w-14 h-14 bg-brand-100 rounded-xl flex items-center justify-center mb-6 text-brand-600">
+                        <i data-lucide="apple" class="w-8 h-8"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-3">Farm Fresh</h4>
+                    <p class="text-gray-600 leading-relaxed">Produce harvested within 24 hours of market day. Taste the difference of truly fresh, seasonal fruits and vegetables.</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="p-8 rounded-2xl bg-orange-50 border border-orange-100 transition-transform duration-300 hover:-translate-y-2">
+                    <div class="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center mb-6 text-orange-600">
+                        <i data-lucide="users" class="w-8 h-8"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-3">Support Local</h4>
+                    <p class="text-gray-600 leading-relaxed">100% of our vendors are independent businesses from within a 50-mile radius. Keep your dollars in the community.</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="p-8 rounded-2xl bg-blue-50 border border-blue-100 transition-transform duration-300 hover:-translate-y-2">
+                    <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-6 text-blue-600">
+                        <i data-lucide="recycle" class="w-8 h-8"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-3">Sustainable</h4>
+                    <p class="text-gray-600 leading-relaxed">Committed to zero-waste practices. We encourage reusable bags, composting on-site, and sustainable packaging.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories / What you'll find -->
+    <section id="vendors" class="py-24 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12">
+                <div class="max-w-2xl">
+                    <h2 class="text-brand-600 font-semibold tracking-wide uppercase text-sm mb-2">Explore</h2>
+                    <h3 class="text-3xl md:text-4xl font-serif font-bold text-gray-900">What you'll find here</h3>
+                </div>
+                <a href="#" class="hidden md:flex items-center text-brand-600 font-semibold hover:text-brand-700 transition-colors">
+                    View Vendor Directory <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Category 1 -->
+                <a href="#" class="group relative h-80 rounded-2xl overflow-hidden shadow-md">
+                    <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1074&q=80" alt="Fresh Produce" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-6">
+                        <h4 class="text-white text-xl font-bold mb-1">Fresh Produce</h4>
+                        <p class="text-gray-300 text-sm">24 Vendors</p>
+                    </div>
+                </a>
+
+                <!-- Category 2 -->
+                <a href="#" class="group relative h-80 rounded-2xl overflow-hidden shadow-md">
+                    <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=1472&q=80" alt="Artisan Bakery" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-6">
+                        <h4 class="text-white text-xl font-bold mb-1">Artisan Bakery</h4>
+                        <p class="text-gray-300 text-sm">8 Vendors</p>
+                    </div>
+                </a>
+
+                <!-- Category 3 -->
+                <a href="#" class="group relative h-80 rounded-2xl overflow-hidden shadow-md">
+                    <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1074&q=80" alt="Dairy & Meats" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-6">
+                        <h4 class="text-white text-xl font-bold mb-1">Dairy & Meats</h4>
+                        <p class="text-gray-300 text-sm">12 Vendors</p>
+                    </div>
+                </a>
+
+                <!-- Category 4 -->
+                <a href="#" class="group relative h-80 rounded-2xl overflow-hidden shadow-md">
+                    <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1073&q=80" alt="Handcrafted Goods" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-6">
+                        <h4 class="text-white text-xl font-bold mb-1">Handcrafted Goods</h4>
+                        <p class="text-gray-300 text-sm">15 Vendors</p>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="mt-8 text-center md:hidden">
+                 <a href="#" class="inline-flex items-center text-brand-600 font-semibold hover:text-brand-700 transition-colors">
+                    View Vendor Directory <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visit Us / Location & Hours -->
+    <section id="visit" class="py-24 bg-white relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-brand-900 rounded-3xl overflow-hidden shadow-2xl flex flex-col lg:flex-row">
+                
+                <!-- Text Content -->
+                <div class="lg:w-1/2 p-10 lg:p-16 text-white flex flex-col justify-center">
+                    <h2 class="text-brand-300 font-semibold tracking-wide uppercase text-sm mb-2">Plan Your Visit</h2>
+                    <h3 class="text-3xl md:text-4xl font-serif font-bold mb-8">Join us this weekend</h3>
+                    
+                    <div class="space-y-6 mb-10">
+                        <div class="flex items-start">
+                            <div class="bg-brand-800 p-3 rounded-lg mr-4 mt-1">
+                                <i data-lucide="clock" class="w-6 h-6 text-brand-300"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold mb-1">Opening Hours</h4>
+                                <p class="text-brand-100">Saturdays: 8:00 AM - 2:00 PM</p>
+                                <p class="text-brand-100">Sundays: 9:00 AM - 3:00 PM</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="bg-brand-800 p-3 rounded-lg mr-4 mt-1">
+                                <i data-lucide="map-pin" class="w-6 h-6 text-brand-300"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold mb-1">Location</h4>
+                                <p class="text-brand-100">100 Market Square Plaza</p>
+                                <p class="text-brand-100">Downtown District, Cityville</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="bg-brand-800 p-3 rounded-lg mr-4 mt-1">
+                                <i data-lucide="car" class="w-6 h-6 text-brand-300"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold mb-1">Parking</h4>
+                                <p class="text-brand-100">Free parking available in the West Lot and City Hall Garage on weekends.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="#" class="inline-block bg-white text-brand-900 px-8 py-3 rounded-full font-bold text-center hover:bg-gray-100 transition-colors self-start">
+                        Get Directions
+                    </a>
+                </div>
+
+                <!-- Image/Map Placeholder -->
+                <div class="lg:w-1/2 min-h-[400px] relative">
+                    <img src="https://images.unsplash.com/photo-1533900298318-6b8da08a523e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80" alt="Market Location" class="absolute inset-0 w-full h-full object-cover">
+                    <!-- Overlay to make it look slightly map-ish or stylized -->
+                    <div class="absolute inset-0 bg-brand-900/20 mix-blend-multiply"></div>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="bg-gray-900 text-white pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+                
+                <!-- Brand Info -->
+                <div class="lg:col-span-1">
+                    <div class="flex items-center gap-2 mb-6">
+                        <i data-lucide="leaf" class="text-brand-500 h-6 w-6"></i>
+                        <span class="font-serif font-bold text-xl tracking-tight">Greenbriar<span class="text-brand-500">.</span></span>
+                    </div>
+                    <p class="text-gray-400 mb-6 leading-relaxed">
+                        Cultivating community through fresh food, local craftsmanship, and sustainable practices since 2018.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i data-lucide="instagram" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i data-lucide="facebook" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i data-lucide="twitter" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Links -->
+                <div>
+                    <h4 class="text-lg font-bold mb-6">Quick Links</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-brand-400 transition-colors">Home</a></li>
+                        <li><a href="#about" class="text-gray-400 hover:text-brand-400 transition-colors">About Us</a></li>
+                        <li><a href="#vendors" class="text-gray-400 hover:text-brand-400 transition-colors">Vendor Directory</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-brand-400 transition-colors">Events Calendar</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-brand-400 transition-colors">FAQ</a></li>
+                    </ul>
+                </div>
+
+                <!-- Vendor Apply -->
+                <div>
+                    <h4 class="text-lg font-bold mb-6">For Vendors</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-brand-400 transition-colors">Apply to Sell</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-brand-400 transition-colors">Vendor Guidelines</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-brand-400 transition-colors">Market Map</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-brand-400 transition-colors">Vendor Portal Login</a></li>
+                    </ul>
+                </div>
+
+                <!-- Newsletter -->
+                <div>
+                    <h4 class="text-lg font-bold mb-6">Stay Updated</h4>
+                    <p class="text-gray-400 mb-4">Subscribe to our newsletter for weekly vendor updates and seasonal recipes.</p>
+                    <form class="flex">
+                        <input type="email" placeholder="Your email" class="bg-gray-800 text-white px-4 py-2 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-brand-500 w-full" required>
+                        <button type="submit" class="bg-brand-600 hover:bg-brand-500 px-4 py-2 rounded-r-lg transition-colors font-medium">
+                            Join
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
+                <p>&copy; 2026 Greenbriar Local Market. All rights reserved.</p>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Mobile Menu Toggle
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+        // Close mobile menu when a link is clicked
+        const mobileLinks = menu.querySelectorAll('a');
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                menu.classList.add('hidden');
+            });
+        });
+
+        // Navbar Scroll Effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) {
+                navbar.classList.add('shadow-md');
+                navbar.classList.remove('shadow-sm');
+            } else {
+                navbar.classList.remove('shadow-md');
+                navbar.classList.add('shadow-sm');
+            }
+        });
+    </script>
+</body>
+</html>

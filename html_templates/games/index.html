@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus - The Ultimate Gaming Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            900: '#134e4a',
+                            950: '#042f2e',
+                        },
+                        dark: {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                        }
+                    },
+                    animation: {
+                        'blob': 'blob 7s infinite',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .game-card-hover {
+            transition: all 0.3s ease;
+        }
+        .game-card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+        }
+        .game-card-hover:hover .game-img {
+            transform: scale(1.05);
+        }
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: linear-gradient(to right, #2dd4bf, #3b82f6);
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col overflow-x-hidden">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass-nav transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-400 to-blue-600 flex items-center justify-center shadow-lg shadow-brand-500/30">
+                        <i data-lucide="gamepad-2" class="text-white w-6 h-6"></i>
+                    </div>
+                    <span class="font-bold text-2xl tracking-tight">Nexus</span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#store" class="text-gray-300 hover:text-white transition-colors font-medium">Store</a>
+                    <a href="#library" class="text-gray-300 hover:text-white transition-colors font-medium">Library</a>
+                    <a href="#community" class="text-gray-300 hover:text-white transition-colors font-medium">Community</a>
+                    <a href="#about" class="text-gray-300 hover:text-white transition-colors font-medium">About</a>
+                </div>
+
+                <!-- Auth Buttons -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <button class="text-gray-300 hover:text-white font-medium transition-colors">Log In</button>
+                    <button class="bg-white text-dark-900 px-6 py-2.5 rounded-full font-semibold hover:bg-brand-50 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                        Play Free
+                    </button>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-gray-300 hover:text-white focus:outline-none p-2">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-dark-800 border-t border-gray-700/50 absolute w-full">
+            <div class="px-4 pt-2 pb-6 space-y-1">
+                <a href="#store" class="block px-3 py-3 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-dark-700">Store</a>
+                <a href="#library" class="block px-3 py-3 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-dark-700">Library</a>
+                <a href="#community" class="block px-3 py-3 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-dark-700">Community</a>
+                <div class="mt-4 pt-4 border-t border-gray-700/50 flex flex-col gap-3">
+                    <button class="w-full text-center px-4 py-3 text-gray-300 font-medium hover:text-white hover:bg-dark-700 rounded-md">Log In</button>
+                    <button class="w-full text-center px-4 py-3 bg-brand-500 text-white font-semibold rounded-md hover:bg-brand-600">Play Free</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        <!-- Background Effects -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full overflow-hidden -z-10">
+            <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-brand-500/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob"></div>
+            <div class="absolute top-[20%] right-[-10%] w-96 h-96 bg-blue-500/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000"></div>
+            <div class="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-purple-500/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-4000"></div>
+            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>
+            <!-- Gradient Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-b from-dark-900/50 via-dark-900/80 to-dark-900"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-dark-800/50 border border-gray-700 backdrop-blur-sm mb-8">
+                <span class="flex h-2 w-2 relative">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
+                </span>
+                <span class="text-sm font-medium text-gray-300">Nexus Cloud Beta is now live</span>
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 max-w-4xl mx-auto leading-tight">
+                Unlock the Next Era of <br class="hidden md:block" />
+                <span class="text-gradient">Limitless Gaming</span>
+            </h1>
+            
+            <p class="mt-6 text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+                Dive into a massive library of blockbuster hits, indie darlings, and multiplayer epics. Play anywhere, across all your devices with cloud saves.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <button class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-brand-500 to-blue-600 text-white rounded-full font-bold text-lg hover:shadow-[0_0_30px_rgba(45,212,191,0.4)] transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2">
+                    <i data-lucide="download" class="w-5 h-5"></i>
+                    Download for Windows
+                </button>
+                <button class="w-full sm:w-auto px-8 py-4 bg-dark-800 text-white border border-gray-700 hover:border-gray-500 hover:bg-dark-700 rounded-full font-bold text-lg transition-all flex items-center justify-center gap-2">
+                    Browse Catalog
+                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="mt-12 flex items-center justify-center gap-6 text-sm text-gray-500 font-medium">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="check-circle-2" class="w-4 h-4 text-brand-500"></i> Free to join
+                </div>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="check-circle-2" class="w-4 h-4 text-brand-500"></i> No credit card required
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Games Section -->
+    <section id="store" class="py-20 bg-dark-900 border-t border-gray-800/50 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-end mb-12">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-3">Trending Now</h2>
+                    <p class="text-gray-400">The most played games on Nexus this week.</p>
+                </div>
+                <a href="#" class="hidden sm:flex items-center text-brand-400 hover:text-brand-300 font-medium transition-colors">
+                    View all <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i>
+                </a>
+            </div>
+
+            <!-- Game Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Game 1 -->
+                <div class="game-card-hover group relative rounded-2xl overflow-hidden bg-dark-800 border border-gray-800 cursor-pointer">
+                    <div class="relative h-64 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800&auto=format&fit=crop" alt="Cyber Protocol" class="w-full h-full object-cover game-img transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark-800 to-transparent"></div>
+                        <div class="absolute top-3 right-3 bg-brand-500 text-white text-xs font-bold px-2 py-1 rounded">NEW</div>
+                    </div>
+                    <div class="p-5 relative">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold group-hover:text-brand-400 transition-colors">Cyber Protocol</h3>
+                            <span class="font-bold text-lg">$59.99</span>
+                        </div>
+                        <p class="text-sm text-gray-400 mb-4 line-clamp-2">Immerse yourself in a neon-drenched dystopian future. Stealth, hack, and survive.</p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs bg-dark-900 border border-gray-700 px-2 py-1 rounded text-gray-300">RPG</span>
+                            <span class="text-xs bg-dark-900 border border-gray-700 px-2 py-1 rounded text-gray-300">Sci-Fi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game 2 -->
+                <div class="game-card-hover group relative rounded-2xl overflow-hidden bg-dark-800 border border-gray-800 cursor-pointer">
+                    <div class="relative h-64 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800&auto=format&fit=crop" alt="Fantasy Realms" class="w-full h-full object-cover game-img transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark-800 to-transparent"></div>
+                        <div class="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">-20%</div>
+                    </div>
+                    <div class="p-5 relative">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold group-hover:text-brand-400 transition-colors">Fantasy Realms</h3>
+                            <div class="text-right">
+                                <span class="text-xs text-gray-500 line-through mr-1">$49.99</span>
+                                <span class="font-bold text-lg text-brand-400">$39.99</span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-400 mb-4 line-clamp-2">An epic open-world adventure filled with magic, dragons, and endless exploration.</p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs bg-dark-900 border border-gray-700 px-2 py-1 rounded text-gray-300">Action</span>
+                            <span class="text-xs bg-dark-900 border border-gray-700 px-2 py-1 rounded text-gray-300">Open World</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game 3 -->
+                <div class="game-card-hover group relative rounded-2xl overflow-hidden bg-dark-800 border border-gray-800 cursor-pointer">
+                    <div class="relative h-64 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800&auto=format&fit=crop" alt="Apex Racers" class="w-full h-full object-cover game-img transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark-800 to-transparent"></div>
+                    </div>
+                    <div class="p-5 relative">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold group-hover:text-brand-400 transition-colors">Apex Racers</h3>
+                            <span class="font-bold text-lg text-green-400">Free</span>
+                        </div>
+                        <p class="text-sm text-gray-400 mb-4 line-clamp-2">High-octane competitive racing with fully customizable hypercars and global leaderboards.</p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs bg-dark-900 border border-gray-700 px-2 py-1 rounded text-gray-300">Racing</span>
+                            <span class="text-xs bg-dark-900 border border-gray-700 px-2 py-1 rounded text-gray-300">Multiplayer</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game 4 -->
+                <div class="game-card-hover group relative rounded-2xl overflow-hidden bg-dark-800 border border-gray-800 cursor-pointer">
+                    <div class="relative h-64 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1552820728-8b83bb6b773f?q=80&w=800&auto=format&fit=crop" alt="Tactical Ops 4" class="w-full h-full object-cover game-img transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark-800 to-transparent"></div>
+                    </div>
+                    <div class="p-5 relative">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold group-hover:text-brand-400 transition-colors">Tactical Ops 4</h3>
+                            <span class="font-bold text-lg">$29.99</span>
+                        </div>
+                        <p class="text-sm text-gray-400 mb-4 line-clamp-2">Squad-based tactical shooter requiring precision, communication, and strategy.</p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs bg-dark-900 border border-gray-700 px-2 py-1 rounded text-gray-300">Shooter</span>
+                            <span class="text-xs bg-dark-900 border border-gray-700 px-2 py-1 rounded text-gray-300">Co-op</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center sm:hidden">
+                <a href="#" class="inline-flex items-center text-brand-400 font-medium">
+                    View all games <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-24 bg-dark-800 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold mb-6">Why Play on Nexus?</h2>
+                <p class="text-gray-400 text-lg">We've built the ultimate ecosystem for gamers. Everything you need to manage, play, and connect in one seamless application.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="bg-dark-900/50 p-8 rounded-3xl border border-gray-700 hover:border-brand-500/50 transition-colors">
+                    <div class="w-14 h-14 rounded-2xl bg-brand-500/20 flex items-center justify-center mb-6">
+                        <i data-lucide="cloud" class="w-7 h-7 text-brand-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Universal Cloud Saves</h3>
+                    <p class="text-gray-400 leading-relaxed">Start playing on your PC, pick up exactly where you left off on your laptop or mobile device. Your progress follows you everywhere.</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="bg-dark-900/50 p-8 rounded-3xl border border-gray-700 hover:border-blue-500/50 transition-colors">
+                    <div class="w-14 h-14 rounded-2xl bg-blue-500/20 flex items-center justify-center mb-6">
+                        <i data-lucide="users" class="w-7 h-7 text-blue-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Massive Community</h3>
+                    <p class="text-gray-400 leading-relaxed">Join millions of players. Form guilds, hop into voice chats instantly, and share your greatest moments with built-in streaming tools.</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="bg-dark-900/50 p-8 rounded-3xl border border-gray-700 hover:border-purple-500/50 transition-colors">
+                    <div class="w-14 h-14 rounded-2xl bg-purple-500/20 flex items-center justify-center mb-6">
+                        <i data-lucide="zap" class="w-7 h-7 text-purple-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Lightning Fast Updates</h3>
+                    <p class="text-gray-400 leading-relaxed">Background patching ensures your games are always ready to play the moment you launch them. Say goodbye to download screens.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="py-20 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-brand-900/40 to-blue-900/40"></div>
+        <div class="max-w-4xl mx-auto px-4 relative z-10 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">Ready to Join the Revolution?</h2>
+            <p class="text-xl text-gray-300 mb-10">Download the Nexus client today and get your first month of Nexus+ entirely free.</p>
+            <button class="px-10 py-5 bg-white text-dark-900 rounded-full font-bold text-lg hover:bg-gray-100 transition-colors shadow-xl flex items-center mx-auto gap-3">
+                <i data-lucide="monitor" class="w-6 h-6"></i>
+                Download Nexus Client
+            </button>
+            <p class="mt-6 text-sm text-gray-400">Available for Windows, macOS, and Linux.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark-950 pt-16 pb-8 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="col-span-1 md:col-span-1">
+                    <div class="flex items-center gap-2 mb-6">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-400 to-blue-600 flex items-center justify-center">
+                            <i data-lucide="gamepad-2" class="text-white w-4 h-4"></i>
+                        </div>
+                        <span class="font-bold text-xl tracking-tight">Nexus</span>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-6">The premier destination for downloading, playing, and connecting with gamers worldwide.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors"><i data-lucide="youtube" class="w-5 h-5"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors"><i data-lucide="twitch" class="w-5 h-5"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold mb-6 text-white">Platform</h4>
+                    <ul class="space-y-3 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-brand-400 transition-colors">Download App</a></li>
+                        <li><a href="#" class="hover:text-brand-400 transition-colors">Browse Games</a></li>
+                        <li><a href="#" class="hover:text-brand-400 transition-colors">Nexus+ Subscription</a></li>
+                        <li><a href="#" class="hover:text-brand-400 transition-colors">Supported Devices</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold mb-6 text-white">Resources</h4>
+                    <ul class="space-y-3 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-brand-400 transition-colors">Support Center</a></li>
+                        <li><a href="#" class="hover:text-brand-400 transition-colors">Community Forums</a></li>
+                        <li><a href="#" class="hover:text-brand-400 transition-colors">Developer Portal</a></li>
+                        <li><a href="#" class="hover:text-brand-400 transition-colors">System Status</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold mb-6 text-white">Company</h4>
+                    <ul class="space-y-3 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-brand-400 transition-colors">About Us</a></li>
+                        <li><a href="#" class="hover:text-brand-400 transition-colors">Careers</a></li>
+                        <li><a href="#" class="hover:text-brand-400 transition-colors">Press & Media</a></li>
+                        <li><a href="#" class="hover:text-brand-400 transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-sm text-gray-500">© 2026 Nexus Gaming. All rights reserved.</p>
+                <div class="flex space-x-6 text-sm text-gray-500">
+                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+                    <a href="#" class="hover:text-white transition-colors">Cookie Settings</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Navbar blur effect on scroll
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 20) {
+                nav.classList.add('shadow-lg');
+            } else {
+                nav.classList.remove('shadow-lg');
+            }
+        });
+    </script>
+</body>
+</html>

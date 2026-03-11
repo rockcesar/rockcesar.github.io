@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wanderlust - Discover Your Next Adventure</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                        },
+                        dark: '#1e293b',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom Styles for things Tailwind doesn't cover easily out of the box */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .hero-overlay {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%);
+        }
+        .card-zoom:hover .card-img {
+            transform: scale(1.05);
+        }
+        .card-img {
+            transition: transform 0.5s ease;
+        }
+    </style>
+</head>
+<body class="font-sans text-gray-800 bg-gray-50 antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Navigation -->
+    <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 py-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-plane-departure text-brand-500 text-2xl"></i>
+                    <span id="nav-logo-text" class="font-serif font-bold text-2xl text-white transition-colors duration-300">Wanderlust</span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#destinations" class="nav-link text-white font-medium hover:text-brand-500 transition-colors">Destinations</a>
+                    <a href="#tours" class="nav-link text-white font-medium hover:text-brand-500 transition-colors">Tours</a>
+                    <a href="#about" class="nav-link text-white font-medium hover:text-brand-500 transition-colors">About Us</a>
+                    <a href="#" class="bg-brand-500 hover:bg-brand-600 text-white px-6 py-2.5 rounded-full font-medium transition-colors shadow-lg shadow-brand-500/30">
+                        Book Now
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-white hover:text-brand-500 focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Panel -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white absolute top-full left-0 w-full shadow-xl border-t border-gray-100">
+            <div class="px-4 pt-2 pb-6 space-y-2">
+                <a href="#destinations" class="block px-3 py-3 text-gray-800 font-medium hover:bg-brand-50 hover:text-brand-600 rounded-md">Destinations</a>
+                <a href="#tours" class="block px-3 py-3 text-gray-800 font-medium hover:bg-brand-50 hover:text-brand-600 rounded-md">Tours</a>
+                <a href="#about" class="block px-3 py-3 text-gray-800 font-medium hover:bg-brand-50 hover:text-brand-600 rounded-md">About Us</a>
+                <a href="#" class="block px-3 py-3 mt-4 text-center bg-brand-500 text-white font-medium rounded-md">Book Now</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative h-screen min-h-[600px] flex items-center justify-center">
+        <!-- Background Image -->
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=2021&q=80" alt="Beautiful travel destination" class="w-full h-full object-cover" />
+            <div class="absolute inset-0 hero-overlay"></div>
+        </div>
+
+        <!-- Hero Content -->
+        <div class="relative z-10 text-center px-4 sm:px-6 lg:px-8 w-full max-w-5xl mt-16">
+            <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-white mb-6 leading-tight drop-shadow-lg">
+                Discover Your Next <br/> <span class="text-brand-500 italic">Great Adventure</span>
+            </h1>
+            <p class="mt-4 text-lg sm:text-xl text-gray-200 mb-10 max-w-2xl mx-auto drop-shadow-md">
+                Explore the world's most breathtaking destinations with our expertly curated travel experiences. Your journey begins here.
+            </p>
+
+            <!-- Search Widget -->
+            <div class="glass-panel rounded-2xl p-4 sm:p-6 shadow-2xl mx-auto max-w-4xl text-left transform translate-y-8 sm:translate-y-12">
+                <form class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <!-- Location -->
+                    <div class="relative">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1"><i class="fa-solid fa-location-dot text-brand-500 mr-2"></i>Location</label>
+                        <input type="text" placeholder="Where are you going?" class="w-full border-b-2 border-gray-200 focus:border-brand-500 py-2 outline-none bg-transparent transition-colors placeholder-gray-400">
+                    </div>
+                    <!-- Date -->
+                    <div class="relative">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1"><i class="fa-regular fa-calendar text-brand-500 mr-2"></i>Date</label>
+                        <input type="date" class="w-full border-b-2 border-gray-200 focus:border-brand-500 py-2 outline-none bg-transparent transition-colors text-gray-600">
+                    </div>
+                    <!-- Guests -->
+                    <div class="relative">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1"><i class="fa-solid fa-user-group text-brand-500 mr-2"></i>Guests</label>
+                        <select class="w-full border-b-2 border-gray-200 focus:border-brand-500 py-2 outline-none bg-transparent transition-colors text-gray-600 cursor-pointer">
+                            <option>1 Guest</option>
+                            <option selected>2 Guests</option>
+                            <option>3 Guests</option>
+                            <option>4+ Guests</option>
+                        </select>
+                    </div>
+                    <!-- Button -->
+                    <div>
+                        <button type="button" class="w-full bg-dark hover:bg-gray-800 text-white font-semibold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-magnifying-glass"></i> Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <!-- Popular Destinations Section -->
+    <section id="destinations" class="py-24 bg-white pt-32 sm:pt-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12">
+                <div class="max-w-2xl">
+                    <span class="text-brand-500 font-semibold tracking-wider uppercase text-sm">Top Destinations</span>
+                    <h2 class="text-3xl md:text-4xl font-serif font-bold text-dark mt-2 mb-4">Explore Top Destinations</h2>
+                    <p class="text-gray-600">From pristine beaches to bustling cities, discover the places travelers are loving right now.</p>
+                </div>
+                <a href="#" class="hidden md:inline-flex items-center gap-2 text-brand-600 font-medium hover:text-brand-800 transition-colors">
+                    View All <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="group card-zoom rounded-2xl overflow-hidden bg-white shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 cursor-pointer relative block">
+                    <div class="relative h-64 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Kyoto, Japan" class="card-img w-full h-full object-cover">
+                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur text-dark text-sm font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                            <i class="fa-solid fa-star text-yellow-400"></i> 4.9
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h3 class="text-xl font-bold text-dark mb-1 group-hover:text-brand-500 transition-colors">Kyoto, Japan</h3>
+                                <p class="text-gray-500 text-sm"><i class="fa-solid fa-location-dot mr-1"></i> Asia</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-gray-500">Starting from</p>
+                                <p class="text-lg font-bold text-brand-600">$1,299</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mt-3 line-clamp-2">Experience the harmony of ancient temples, sublime gardens, and vibrant modern culture.</p>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="group card-zoom rounded-2xl overflow-hidden bg-white shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 cursor-pointer relative block">
+                    <div class="relative h-64 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Paris, France" class="card-img w-full h-full object-cover">
+                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur text-dark text-sm font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                            <i class="fa-solid fa-star text-yellow-400"></i> 4.8
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h3 class="text-xl font-bold text-dark mb-1 group-hover:text-brand-500 transition-colors">Paris, France</h3>
+                                <p class="text-gray-500 text-sm"><i class="fa-solid fa-location-dot mr-1"></i> Europe</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-gray-500">Starting from</p>
+                                <p class="text-lg font-bold text-brand-600">$950</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mt-3 line-clamp-2">The city of light awaits with its iconic architecture, world-class art, and culinary masterpieces.</p>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="group card-zoom rounded-2xl overflow-hidden bg-white shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 cursor-pointer relative block">
+                    <div class="relative h-64 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1512100356356-de1b84283e18?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Santorini, Greece" class="card-img w-full h-full object-cover">
+                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur text-dark text-sm font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                            <i class="fa-solid fa-star text-yellow-400"></i> 5.0
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h3 class="text-xl font-bold text-dark mb-1 group-hover:text-brand-500 transition-colors">Santorini, Greece</h3>
+                                <p class="text-gray-500 text-sm"><i class="fa-solid fa-location-dot mr-1"></i> Europe</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-gray-500">Starting from</p>
+                                <p class="text-lg font-bold text-brand-600">$1,450</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mt-3 line-clamp-2">Breathtaking sunsets, whitewashed villages, and the deep blue Aegean sea.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center md:hidden">
+                 <a href="#" class="inline-flex items-center gap-2 text-brand-600 font-medium hover:text-brand-800 transition-colors bg-brand-50 px-6 py-3 rounded-full">
+                    View All Destinations <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features / Why Choose Us -->
+    <section id="about" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-brand-500 font-semibold tracking-wider uppercase text-sm">Why Choose Us</span>
+                <h2 class="text-3xl md:text-4xl font-serif font-bold text-dark mt-2 mb-4">We Make Travel Unforgettable</h2>
+                <p class="text-gray-600">Our platform is designed to provide you with a seamless and remarkable travel booking experience from start to finish.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <!-- Feature 1 -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 mx-auto bg-brand-50 rounded-2xl flex items-center justify-center mb-6 transform rotate-3">
+                        <i class="fa-solid fa-tags text-2xl text-brand-500 -rotate-3"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark mb-3">Best Price Guarantee</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">We negotiate with hotels and tour operators directly to ensure you get the absolute best rates available anywhere.</p>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 mx-auto bg-brand-50 rounded-2xl flex items-center justify-center mb-6 transform rotate-3">
+                        <i class="fa-solid fa-map-location-dot text-2xl text-brand-500 -rotate-3"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark mb-3">Expert Local Guides</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">Discover hidden gems and authentic experiences with our network of passionate, highly-rated local guides.</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 mx-auto bg-brand-50 rounded-2xl flex items-center justify-center mb-6 transform rotate-3">
+                        <i class="fa-solid fa-headset text-2xl text-brand-500 -rotate-3"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark mb-3">24/7 Global Support</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">Travel with peace of mind knowing our dedicated support team is available around the clock, wherever you are.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter CTA -->
+    <section class="py-20 bg-dark relative overflow-hidden">
+        <!-- Abstract Shapes -->
+        <div class="absolute top-0 left-0 w-64 h-64 bg-brand-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 transform -translate-x-1/2 -translate-y-1/2"></div>
+        <div class="absolute bottom-0 right-0 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 transform translate-x-1/3 translate-y-1/3"></div>
+
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <h2 class="text-3xl md:text-4xl font-serif font-bold text-white mb-4">Get Special Offers and Travel Inspiration</h2>
+            <p class="text-gray-300 mb-8 max-w-2xl mx-auto">Join our newsletter to receive exclusive deals, destination guides, and travel tips directly to your inbox.</p>
+            
+            <form class="flex flex-col sm:flex-row gap-3 justify-center max-w-xl mx-auto">
+                <input type="email" placeholder="Enter your email address" required class="flex-1 px-6 py-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white/10 text-white placeholder-gray-400 border border-white/20 backdrop-blur-sm">
+                <button type="button" class="bg-brand-500 hover:bg-brand-600 text-white font-semibold py-4 px-8 rounded-xl transition-colors whitespace-nowrap shadow-lg shadow-brand-500/20">
+                    Subscribe
+                </button>
+            </form>
+            <p class="text-xs text-gray-500 mt-4">We respect your privacy. Unsubscribe at any time.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white pt-16 pb-8 border-t border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <!-- Brand Info -->
+                <div class="col-span-1 md:col-span-1">
+                    <div class="flex items-center gap-2 mb-4">
+                        <i class="fa-solid fa-plane-departure text-brand-500 text-2xl"></i>
+                        <span class="font-serif font-bold text-2xl text-dark">Wanderlust</span>
+                    </div>
+                    <p class="text-gray-500 text-sm leading-relaxed mb-6">Making your travel dreams a reality with curated experiences and unmatched service.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-brand-500 hover:text-white transition-colors"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-brand-500 hover:text-white transition-colors"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-brand-500 hover:text-white transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                    </div>
+                </div>
+
+                <!-- Links 1 -->
+                <div>
+                    <h4 class="font-bold text-dark mb-4">Company</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-500 hover:text-brand-500 text-sm transition-colors">About Us</a></li>
+                        <li><a href="#" class="text-gray-500 hover:text-brand-500 text-sm transition-colors">Careers</a></li>
+                        <li><a href="#" class="text-gray-500 hover:text-brand-500 text-sm transition-colors">Travel Blog</a></li>
+                        <li><a href="#" class="text-gray-500 hover:text-brand-500 text-sm transition-colors">Press & Media</a></li>
+                    </ul>
+                </div>
+
+                <!-- Links 2 -->
+                <div>
+                    <h4 class="font-bold text-dark mb-4">Support</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-500 hover:text-brand-500 text-sm transition-colors">Contact Us</a></li>
+                        <li><a href="#" class="text-gray-500 hover:text-brand-500 text-sm transition-colors">Help Center</a></li>
+                        <li><a href="#" class="text-gray-500 hover:text-brand-500 text-sm transition-colors">Cancellation Policy</a></li>
+                        <li><a href="#" class="text-gray-500 hover:text-brand-500 text-sm transition-colors">Terms of Service</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div>
+                    <h4 class="font-bold text-dark mb-4">Contact</h4>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-3 text-gray-500 text-sm">
+                            <i class="fa-solid fa-location-dot mt-1 text-brand-500"></i>
+                            <span>123 Travel Avenue, Suite 400<br>New York, NY 10001</span>
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-500 text-sm">
+                            <i class="fa-solid fa-phone text-brand-500"></i>
+                            <span>+1 (555) 123-4567</span>
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-500 text-sm">
+                            <i class="fa-solid fa-envelope text-brand-500"></i>
+                            <span>hello@wanderlust.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-gray-400 text-sm">© 2023 Wanderlust Travel. All rights reserved.</p>
+                <div class="flex items-center gap-4 text-sm text-gray-400">
+                    <a href="#" class="hover:text-brand-500 transition-colors">Privacy Policy</a>
+                    <span>•</span>
+                    <a href="#" class="hover:text-brand-500 transition-colors">Terms</a>
+                    <span>•</span>
+                    <a href="#" class="hover:text-brand-500 transition-colors">Sitemap</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navbar = document.getElementById('navbar');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const navLogoText = document.getElementById('nav-logo-text');
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            // Handle Scroll for Navbar styling
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('bg-white', 'shadow-md', 'py-3');
+                    navbar.classList.remove('py-4');
+                    navLogoText.classList.remove('text-white');
+                    navLogoText.classList.add('text-dark');
+                    mobileMenuBtn.classList.remove('text-white');
+                    mobileMenuBtn.classList.add('text-dark');
+                    
+                    navLinks.forEach(link => {
+                        link.classList.remove('text-white');
+                        link.classList.add('text-gray-700');
+                    });
+                } else {
+                    navbar.classList.remove('bg-white', 'shadow-md', 'py-3');
+                    navbar.classList.add('py-4');
+                    navLogoText.classList.remove('text-dark');
+                    navLogoText.classList.add('text-white');
+                    mobileMenuBtn.classList.remove('text-dark');
+                    mobileMenuBtn.classList.add('text-white');
+
+                    navLinks.forEach(link => {
+                        link.classList.remove('text-gray-700');
+                        link.classList.add('text-white');
+                    });
+                }
+            });
+
+            // Mobile Menu Toggle
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+                const icon = mobileMenuBtn.querySelector('i');
+                if(mobileMenu.classList.contains('hidden')) {
+                    icon.classList.remove('fa-xmark');
+                    icon.classList.add('fa-bars');
+                } else {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-xmark');
+                }
+            });
+
+            // Close mobile menu when clicking a link
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                    const icon = mobileMenuBtn.querySelector('i');
+                    icon.classList.remove('fa-xmark');
+                    icon.classList.add('fa-bars');
+                });
+            });
+            
+            // Trigger initial scroll check in case of page refresh mid-page
+            window.dispatchEvent(new Event('scroll'));
+        });
+    </script>
+</body>
+</html>
