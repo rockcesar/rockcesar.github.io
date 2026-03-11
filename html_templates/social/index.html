@@ -3,10 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus - Connect Meaningfully</title>
+    <title>Nexus - The Professional Social Network</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Tailwind Config for Custom Colors/Fonts -->
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind Config for Custom Brand Colors -->
     <script>
         tailwind.config = {
             theme: {
@@ -16,193 +26,220 @@
                     },
                     colors: {
                         brand: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            900: '#1e3a8a',
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e',
                         }
                     },
                     animation: {
                         'float': 'float 6s ease-in-out infinite',
-                        'float-delayed': 'float 6s ease-in-out 3s infinite',
+                        'blob': 'blob 7s infinite',
                     },
                     keyframes: {
                         float: {
                             '0%, 100%': { transform: 'translateY(0)' },
                             '50%': { transform: 'translateY(-20px)' },
+                        },
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
                         }
                     }
                 }
             }
         }
     </script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        /* Custom scrollbar for a polished look */
-        ::-webkit-scrollbar {
-            width: 8px;
+        /* Custom styles for things Tailwind is too verbose for */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
         }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8; 
-        }
+        
         .gradient-text {
-            background-clip: text;
+            background: linear-gradient(135deg, #0284c7, #3b82f6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+
+        .hero-pattern {
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
     </style>
 </head>
-<body class="font-sans text-slate-800 bg-slate-50 antialiased selection:bg-brand-100 selection:text-brand-900">
+<body class="font-sans text-slate-800 bg-slate-50 antialiased selection:bg-brand-500 selection:text-white">
 
     <!-- Navigation -->
-    <header class="fixed w-full top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 transition-all duration-300" id="navbar">
+    <nav class="fixed w-full z-50 glass-nav transition-all duration-300" id="navbar">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
+            <div class="flex justify-between h-20 items-center">
                 <!-- Logo -->
                 <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer">
-                    <div class="w-10 h-10 bg-gradient-to-br from-brand-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
-                        <i data-lucide="network" class="w-6 h-6"></i>
+                    <div class="w-10 h-10 bg-gradient-to-br from-brand-500 to-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
+                        <i class="ph ph-hexagon text-2xl font-bold"></i>
                     </div>
                     <span class="font-bold text-2xl tracking-tight text-slate-900">Nexus</span>
                 </div>
 
                 <!-- Desktop Menu -->
-                <nav class="hidden md:flex space-x-8 items-center">
+                <div class="hidden md:flex items-center space-x-8">
                     <a href="#features" class="text-slate-600 hover:text-brand-600 font-medium transition-colors">Features</a>
                     <a href="#community" class="text-slate-600 hover:text-brand-600 font-medium transition-colors">Community</a>
-                    <a href="#safety" class="text-slate-600 hover:text-brand-600 font-medium transition-colors">Safety</a>
-                </nav>
+                    <a href="#pricing" class="text-slate-600 hover:text-brand-600 font-medium transition-colors">Pricing</a>
+                </div>
 
-                <!-- Auth Buttons -->
+                <!-- Auth Buttons (Desktop) -->
                 <div class="hidden md:flex items-center space-x-4">
-                    <button class="text-slate-600 hover:text-brand-600 font-medium transition-colors px-4 py-2">Log in</button>
-                    <button class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 rounded-full font-medium transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <a href="#" class="text-slate-600 hover:text-slate-900 font-medium transition-colors">Log in</a>
+                    <a href="#" class="bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-lg font-medium transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
                         Get Started
-                    </button>
+                    </a>
                 </div>
 
                 <!-- Mobile menu button -->
                 <div class="md:hidden flex items-center">
-                    <button class="text-slate-600 hover:text-slate-900 focus:outline-none p-2">
-                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    <button id="mobile-menu-btn" class="text-slate-600 hover:text-slate-900 focus:outline-none p-2">
+                        <i class="ph ph-list text-3xl" id="menu-icon"></i>
                     </button>
                 </div>
             </div>
         </div>
-    </header>
+
+        <!-- Mobile Menu Panel -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white border-b border-slate-200 absolute w-full shadow-xl">
+            <div class="px-4 pt-2 pb-6 space-y-1">
+                <a href="#features" class="block px-3 py-3 rounded-md text-base font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50">Features</a>
+                <a href="#community" class="block px-3 py-3 rounded-md text-base font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50">Community</a>
+                <a href="#pricing" class="block px-3 py-3 rounded-md text-base font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50">Pricing</a>
+                <div class="mt-6 pt-6 border-t border-slate-100 flex flex-col gap-3">
+                    <a href="#" class="block w-full text-center px-4 py-3 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50">Log in</a>
+                    <a href="#" class="block w-full text-center px-4 py-3 bg-brand-600 text-white rounded-lg font-medium hover:bg-brand-700 shadow-md">Get Started</a>
+                </div>
+            </div>
+        </div>
+    </nav>
 
     <!-- Hero Section -->
-    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-        <!-- Background decorative elements -->
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl mx-auto -z-10 pointer-events-none">
-            <div class="absolute top-20 -left-20 w-72 h-72 bg-brand-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
-            <div class="absolute top-40 -right-20 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float-delayed"></div>
-            <div class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
-        </div>
+    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-slate-50 hero-pattern">
+        <!-- Background decorative blobs -->
+        <div class="absolute top-0 -left-4 w-72 h-72 bg-brand-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div class="absolute top-0 -right-4 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div class="absolute -bottom-8 left-20 w-72 h-72 bg-indigo-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <div class="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
-                <!-- Hero Content -->
-                <div class="max-w-2xl text-center lg:text-left mx-auto lg:mx-0">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 border border-brand-100 text-brand-600 text-sm font-semibold mb-6">
-                        <span class="flex h-2 w-2 rounded-full bg-brand-500"></span>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="lg:grid lg:grid-cols-12 lg:gap-16 items-center">
+                
+                <!-- Hero Text -->
+                <div class="lg:col-span-6 text-center lg:text-left mb-16 lg:mb-0">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-sm font-semibold mb-6">
+                        <span class="flex h-2 w-2 relative">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-brand-600"></span>
+                        </span>
                         Nexus 2.0 is now live
                     </div>
-                    <h1 class="text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight mb-6">
-                        The social network built for <span class="bg-gradient-to-r from-brand-600 to-indigo-600 gradient-text">authentic connection.</span>
+                    <h1 class="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 mb-6 leading-[1.1]">
+                        Connect with <br class="hidden sm:block" />
+                        <span class="gradient-text">professionals</span> <br class="hidden sm:block" />
+                        who matter.
                     </h1>
-                    <p class="text-lg lg:text-xl text-slate-600 mb-8 leading-relaxed">
-                        Leave the noise behind. Discover a community where meaningful conversations, genuine privacy, and your well-being come first.
+                    <p class="text-lg sm:text-xl text-slate-600 mb-8 max-w-2xl mx-auto lg:mx-0">
+                        The definitive social network for modern professionals. Build meaningful relationships, share industry insights, and advance your career in a noise-free environment.
                     </p>
-                    
                     <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                        <form class="flex-1 max-w-md flex relative shadow-sm rounded-full">
-                            <input type="email" placeholder="Enter your email" class="w-full pl-6 pr-32 py-4 rounded-full border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent text-slate-900 placeholder-slate-400">
-                            <button type="submit" class="absolute right-2 top-2 bottom-2 bg-brand-600 hover:bg-brand-700 text-white px-6 rounded-full font-medium transition-colors">
-                                Join Free
-                            </button>
-                        </form>
+                        <a href="#" class="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all shadow-lg hover:shadow-xl shadow-brand-500/30 transform hover:-translate-y-1 flex items-center justify-center gap-2">
+                            Join the Network <i class="ph ph-arrow-right font-bold"></i>
+                        </a>
+                        <a href="#" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-8 py-4 rounded-xl font-semibold text-lg transition-all shadow-sm flex items-center justify-center gap-2">
+                            <i class="ph ph-play-circle text-xl"></i> Watch Demo
+                        </a>
                     </div>
-                    
-                    <div class="mt-8 flex items-center justify-center lg:justify-start gap-6 text-sm text-slate-500">
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500"></i>
-                            No ads, ever.
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500"></i>
-                            End-to-end encrypted.
-                        </div>
-                    </div>
+                    <p class="mt-6 text-sm text-slate-500">
+                        Join over <span class="font-semibold text-slate-700">2 million</span> professionals already on Nexus.
+                    </p>
                 </div>
 
-                <!-- Hero Mockup (CSS only, no external images needed) -->
-                <div class="relative mx-auto w-full max-w-lg lg:max-w-none perspective-1000">
-                    <div class="relative bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 transform rotate-y-[-5deg] rotate-x-[5deg] hover:rotate-y-0 hover:rotate-x-0 transition-transform duration-700 ease-out z-10">
-                        <!-- App Header -->
-                        <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden">
-                                    <i data-lucide="user" class="w-5 h-5 text-slate-500"></i>
-                                </div>
-                                <div>
-                                    <div class="h-4 w-24 bg-slate-200 rounded animate-pulse mb-1"></div>
-                                    <div class="h-3 w-16 bg-slate-100 rounded animate-pulse"></div>
-                                </div>
+                <!-- Hero Graphic/UI Mockup -->
+                <div class="lg:col-span-6 relative lg:ml-10">
+                    <div class="relative rounded-2xl bg-white shadow-2xl border border-slate-100 animate-float p-2">
+                        <!-- Mockup Header -->
+                        <div class="flex items-center gap-3 border-b border-slate-100 pb-3 px-4 pt-2">
+                            <div class="flex gap-1.5">
+                                <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                                <div class="w-3 h-3 rounded-full bg-amber-400"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-400"></div>
                             </div>
-                            <div class="flex gap-2">
-                                <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center"><i data-lucide="bell" class="w-4 h-4 text-slate-400"></i></div>
-                                <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center"><i data-lucide="search" class="w-4 h-4 text-slate-400"></i></div>
-                            </div>
-                        </div>
-                        <!-- Feed Item 1 -->
-                        <div class="mb-6">
-                            <div class="flex items-center gap-3 mb-3">
-                                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500"></div>
-                                <div>
-                                    <div class="text-sm font-semibold text-slate-800">Sarah Jenkins</div>
-                                    <div class="text-xs text-slate-500">2 hours ago</div>
-                                </div>
-                            </div>
-                            <p class="text-sm text-slate-600 mb-3 line-clamp-2">Just finished my hike up the incredible mountains. The view up here is absolutely breathtaking. Nature is the best therapy! 🏔️✨</p>
-                            <div class="h-40 w-full bg-slate-100 rounded-xl mb-3 overflow-hidden relative">
-                                <div class="absolute inset-0 bg-gradient-to-br from-emerald-100 to-teal-50 opacity-50"></div>
-                                <i data-lucide="image" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 text-slate-300"></i>
-                            </div>
-                            <div class="flex gap-4 border-t border-slate-50 pt-3">
-                                <div class="flex items-center gap-1.5 text-slate-400 hover:text-brand-500 cursor-pointer transition-colors"><i data-lucide="heart" class="w-4 h-4"></i> <span class="text-xs font-medium">248</span></div>
-                                <div class="flex items-center gap-1.5 text-slate-400 hover:text-brand-500 cursor-pointer transition-colors"><i data-lucide="message-circle" class="w-4 h-4"></i> <span class="text-xs font-medium">42</span></div>
-                                <div class="flex items-center gap-1.5 text-slate-400 hover:text-brand-500 cursor-pointer transition-colors ml-auto"><i data-lucide="share-2" class="w-4 h-4"></i></div>
+                            <div class="flex-1 bg-slate-50 rounded-md h-6 mx-4 border border-slate-100 flex items-center px-3">
+                                <i class="ph ph-lock text-xs text-slate-400 mr-2"></i>
+                                <span class="text-[10px] text-slate-400 font-mono">nexus.app/feed</span>
                             </div>
                         </div>
                         
-                        <!-- Floating Engagement Card -->
-                        <div class="absolute -right-6 -bottom-6 bg-white p-4 rounded-xl shadow-xl border border-slate-100 animate-float z-20">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-brand-600">
-                                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                        <!-- Mockup Content -->
+                        <div class="p-6 grid grid-cols-12 gap-6 bg-slate-50/50 rounded-b-xl">
+                            <!-- Sidebar -->
+                            <div class="col-span-4 hidden sm:block space-y-4">
+                                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col items-center">
+                                    <img src="https://i.pravatar.cc/150?img=68" alt="Profile" class="w-16 h-16 rounded-full border-2 border-white shadow-md mb-3">
+                                    <div class="h-3 w-24 bg-slate-200 rounded mb-2"></div>
+                                    <div class="h-2 w-16 bg-slate-100 rounded"></div>
                                 </div>
-                                <div>
-                                    <div class="text-sm font-bold text-slate-800">New Connection!</div>
-                                    <div class="text-xs text-slate-500">David wants to connect</div>
+                                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 space-y-3">
+                                    <div class="h-2 w-full bg-slate-100 rounded"></div>
+                                    <div class="h-2 w-4/5 bg-slate-100 rounded"></div>
+                                    <div class="h-2 w-full bg-slate-100 rounded"></div>
                                 </div>
                             </div>
-                            <div class="flex gap-2 mt-3">
-                                <button class="flex-1 py-1.5 bg-brand-600 text-white text-xs font-medium rounded-lg">Accept</button>
-                                <button class="flex-1 py-1.5 bg-slate-100 text-slate-600 text-xs font-medium rounded-lg">Decline</button>
+                            
+                            <!-- Main Feed -->
+                            <div class="col-span-12 sm:col-span-8 space-y-4">
+                                <!-- Create Post -->
+                                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center gap-4">
+                                    <img src="https://i.pravatar.cc/150?img=68" alt="Profile" class="w-10 h-10 rounded-full">
+                                    <div class="flex-1 h-10 bg-slate-50 rounded-lg border border-slate-100 px-3 flex items-center">
+                                        <span class="text-xs text-slate-400">Share your expertise...</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Post -->
+                                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
+                                    <div class="flex items-center gap-3 mb-4">
+                                        <img src="https://i.pravatar.cc/150?img=32" alt="User" class="w-10 h-10 rounded-full">
+                                        <div>
+                                            <div class="h-3 w-24 bg-slate-200 rounded mb-1"></div>
+                                            <div class="h-2 w-16 bg-slate-100 rounded"></div>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2 mb-4">
+                                        <div class="h-2 w-full bg-slate-100 rounded"></div>
+                                        <div class="h-2 w-full bg-slate-100 rounded"></div>
+                                        <div class="h-2 w-3/4 bg-slate-100 rounded"></div>
+                                    </div>
+                                    <div class="h-32 w-full bg-brand-50 rounded-lg border border-brand-100 flex items-center justify-center">
+                                        <i class="ph ph-chart-line-up text-4xl text-brand-300"></i>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Floating notification widget -->
+                    <div class="absolute -right-6 top-1/4 bg-white p-4 rounded-xl shadow-xl border border-slate-100 flex items-center gap-4 animate-float" style="animation-delay: 1s;">
+                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                            <i class="ph ph-check-circle text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-slate-800">Connection Accepted</p>
+                            <p class="text-xs text-slate-500">Sarah Jenkins</p>
                         </div>
                     </div>
                 </div>
@@ -210,17 +247,16 @@
         </div>
     </section>
 
-    <!-- Logo Cloud / Social Proof -->
-    <section class="py-10 border-y border-slate-200 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="text-sm font-medium text-slate-400 uppercase tracking-wider mb-6">Trusted by communities at</p>
-            <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-                <!-- Abstract SVGs representing companies/orgs -->
-                <div class="flex items-center gap-2 font-bold text-xl"><i data-lucide="hexagon" class="w-6 h-6"></i> Polygon</div>
-                <div class="flex items-center gap-2 font-bold text-xl"><i data-lucide="triangle" class="w-6 h-6"></i> Delta Groups</div>
-                <div class="flex items-center gap-2 font-bold text-xl"><i data-lucide="circle" class="w-6 h-6"></i> Sphere</div>
-                <div class="flex items-center gap-2 font-bold text-xl"><i data-lucide="box" class="w-6 h-6"></i> Block Co.</div>
-                <div class="flex items-center gap-2 font-bold text-xl hidden sm:flex"><i data-lucide="cloud" class="w-6 h-6"></i> Nimbus</div>
+    <!-- Trusted By Section -->
+    <section class="border-y border-slate-200 bg-white py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm font-semibold text-slate-500 uppercase tracking-wider mb-6">Trusted by innovative teams worldwide</p>
+            <div class="flex flex-wrap justify-center gap-10 md:gap-20 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+                <!-- Logos using Phosphor icons for placeholder -->
+                <div class="flex items-center gap-2 text-2xl font-bold text-slate-800"><i class="ph-fill ph-stripe-logo text-3xl"></i> Veloce</div>
+                <div class="flex items-center gap-2 text-2xl font-bold text-slate-800"><i class="ph-fill ph-figma-logo text-3xl"></i> DesignCorp</div>
+                <div class="flex items-center gap-2 text-2xl font-bold text-slate-800"><i class="ph-fill ph-github-logo text-3xl"></i> DevStudio</div>
+                <div class="flex items-center gap-2 text-2xl font-bold text-slate-800"><i class="ph-fill ph-slack-logo text-3xl"></i> Streamline</div>
             </div>
         </div>
     </section>
@@ -230,173 +266,200 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto mb-16">
                 <h2 class="text-brand-600 font-semibold tracking-wide uppercase text-sm mb-3">Why choose Nexus</h2>
-                <h3 class="text-3xl md:text-4xl font-bold text-slate-900 mb-6">Social media, redesigned for humans.</h3>
-                <p class="text-lg text-slate-600">We stripped away the algorithms, the ads, and the noise. What's left is a pure platform for you to share, discover, and connect.</p>
+                <h3 class="text-3xl md:text-4xl font-bold text-slate-900 mb-6">Built for meaningful professional growth</h3>
+                <p class="text-lg text-slate-600">We stripped away the noise, ads, and irrelevant content. What's left is a pure networking experience focused on your career progression.</p>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-8">
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- Feature 1 -->
-                <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                    <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center mb-6">
-                        <i data-lucide="users" class="w-6 h-6"></i>
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 hover:shadow-lg transition-shadow duration-300">
+                    <div class="w-14 h-14 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600 mb-6">
+                        <i class="ph ph-users-three text-3xl"></i>
                     </div>
-                    <h4 class="text-xl font-bold text-slate-900 mb-3">Chronological Feed</h4>
-                    <p class="text-slate-600 leading-relaxed">Never miss an update from your friends. You control what you see, in the exact order it was posted. No hidden agendas.</p>
+                    <h4 class="text-xl font-bold text-slate-900 mb-3">Curated Communities</h4>
+                    <p class="text-slate-600 leading-relaxed">Join specialized micro-communities based on your exact industry niche. Quality discussions over viral metrics.</p>
                 </div>
 
                 <!-- Feature 2 -->
-                <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                    <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-6">
-                        <i data-lucide="shield-check" class="w-6 h-6"></i>
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 hover:shadow-lg transition-shadow duration-300">
+                    <div class="w-14 h-14 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 mb-6">
+                        <i class="ph ph-shield-check text-3xl"></i>
                     </div>
-                    <h4 class="text-xl font-bold text-slate-900 mb-3">Absolute Privacy</h4>
-                    <p class="text-slate-600 leading-relaxed">Your data is your property. We use end-to-end encryption for direct messages and never sell your information to third parties.</p>
+                    <h4 class="text-xl font-bold text-slate-900 mb-3">Verified Profiles</h4>
+                    <p class="text-slate-600 leading-relaxed">Say goodbye to bots and fake profiles. Our strict verification ensures you are talking to real professionals.</p>
                 </div>
 
                 <!-- Feature 3 -->
-                <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                    <div class="w-12 h-12 rounded-xl bg-pink-50 text-pink-600 flex items-center justify-center mb-6">
-                        <i data-lucide="layout-grid" class="w-6 h-6"></i>
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 hover:shadow-lg transition-shadow duration-300">
+                    <div class="w-14 h-14 rounded-xl bg-green-50 flex items-center justify-center text-green-600 mb-6">
+                        <i class="ph ph-briefcase text-3xl"></i>
                     </div>
-                    <h4 class="text-xl font-bold text-slate-900 mb-3">Niche Communities</h4>
-                    <p class="text-slate-600 leading-relaxed">Join hyper-focused groups based on your real interests. Connect with people who share your passions, not just your zip code.</p>
+                    <h4 class="text-xl font-bold text-slate-900 mb-3">Direct Opportunities</h4>
+                    <p class="text-slate-600 leading-relaxed">Discover exclusive job postings and freelance gigs shared directly by hiring managers within your network.</p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 hover:shadow-lg transition-shadow duration-300">
+                    <div class="w-14 h-14 rounded-xl bg-rose-50 flex items-center justify-center text-rose-600 mb-6">
+                        <i class="ph ph-chart-polar text-3xl"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-slate-900 mb-3">Career Analytics</h4>
+                    <p class="text-slate-600 leading-relaxed">Track your profile views, network growth, and engagement metrics with beautiful, intuitive dashboards.</p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 hover:shadow-lg transition-shadow duration-300">
+                    <div class="w-14 h-14 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 mb-6">
+                        <i class="ph ph-chats-circle text-3xl"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-slate-900 mb-3">Smart Messaging</h4>
+                    <p class="text-slate-600 leading-relaxed">Reach out effectively with AI-assisted icebreakers and organized inboxes that prioritize important connections.</p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 hover:shadow-lg transition-shadow duration-300">
+                    <div class="w-14 h-14 rounded-xl bg-teal-50 flex items-center justify-center text-teal-600 mb-6">
+                        <i class="ph ph-calendar-plus text-3xl"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-slate-900 mb-3">Virtual Events</h4>
+                    <p class="text-slate-600 leading-relaxed">Host or attend built-in webinars and virtual networking rooms without needing third-party software.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Visual Showcase / App Highlight -->
+    <!-- How it works (Split Section) -->
     <section class="py-24 bg-white overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid lg:grid-cols-2 gap-16 items-center">
-                
-                <!-- Left: Interactive/Visual Elements -->
-                <div class="relative order-2 lg:order-1">
-                    <div class="absolute inset-0 bg-gradient-to-tr from-brand-100 to-indigo-50 rounded-3xl transform -rotate-3 scale-105 -z-10"></div>
-                    <div class="bg-white rounded-3xl p-8 shadow-xl border border-slate-100">
-                        <div class="space-y-6">
-                            <!-- Group chat mockup -->
-                            <div class="bg-slate-50 rounded-2xl p-4">
-                                <h5 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                    <i data-lucide="hash" class="w-4 h-4 text-slate-400"></i> photography-lovers
-                                </h5>
-                                <div class="space-y-4">
-                                    <div class="flex gap-3">
-                                        <div class="w-8 h-8 rounded-full bg-blue-100 shrink-0 mt-1"></div>
-                                        <div>
-                                            <div class="flex items-baseline gap-2"><span class="text-sm font-semibold">Alex</span> <span class="text-xs text-slate-400">10:42 AM</span></div>
-                                            <div class="text-sm text-slate-600 bg-white p-3 rounded-2xl rounded-tl-none border border-slate-100 mt-1 shadow-sm">Does anyone have tips for golden hour portraits?</div>
-                                        </div>
-                                    </div>
-                                    <div class="flex gap-3 flex-row-reverse">
-                                        <div class="w-8 h-8 rounded-full bg-brand-500 shrink-0 mt-1 flex items-center justify-center text-white"><i data-lucide="user" class="w-4 h-4"></i></div>
-                                        <div class="text-right">
-                                            <div class="flex items-baseline gap-2 justify-end"><span class="text-xs text-slate-400">10:45 AM</span> <span class="text-sm font-semibold">You</span></div>
-                                            <div class="text-sm text-white bg-brand-500 p-3 rounded-2xl rounded-tr-none mt-1 shadow-sm text-left">Lower your ISO and underexpose slightly to keep the sky colors rich! 📸</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mt-4 flex items-center gap-2 bg-white rounded-full p-2 border border-slate-200">
-                                    <i data-lucide="plus-circle" class="w-5 h-5 text-slate-400 ml-2"></i>
-                                    <div class="h-4 w-32 bg-slate-100 rounded"></div>
-                                    <div class="w-6 h-6 rounded-full bg-brand-500 ml-auto flex items-center justify-center"><i data-lucide="arrow-up" class="w-3 h-3 text-white"></i></div>
-                                </div>
+            <div class="lg:grid lg:grid-cols-2 lg:gap-16 items-center">
+                <!-- Image Side -->
+                <div class="mb-12 lg:mb-0 relative">
+                    <div class="absolute inset-0 bg-brand-100 rounded-3xl transform -rotate-3 scale-105"></div>
+                    <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Team collaborating" class="relative rounded-3xl shadow-xl object-cover h-[500px] w-full">
+                    
+                    <!-- Floating stat -->
+                    <div class="absolute -bottom-6 -right-6 bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+                                <i class="ph ph-trend-up text-2xl font-bold"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-500 font-medium">Average Network Growth</p>
+                                <p class="text-2xl font-bold text-slate-900">+340%</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right: Text Content -->
-                <div class="order-1 lg:order-2">
-                    <div class="w-12 h-12 rounded-xl bg-brand-100 text-brand-600 flex items-center justify-center mb-6">
-                        <i data-lucide="message-square" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-3xl md:text-4xl font-bold text-slate-900 mb-6">Conversations that actually matter.</h3>
-                    <p class="text-lg text-slate-600 mb-8 leading-relaxed">
-                        Nexus Groups are designed for deep discussions. Threads are easy to follow, moderation is community-driven, and trolls are kept at bay through our verified identity system.
-                    </p>
-                    <ul class="space-y-4">
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 bg-brand-100 rounded-full p-1 text-brand-600"><i data-lucide="check" class="w-4 h-4"></i></div>
-                            <div>
-                                <h5 class="font-semibold text-slate-900">Threaded replies</h5>
-                                <p class="text-sm text-slate-600">Keep conversations organized and easy to read.</p>
+                <!-- Text Side -->
+                <div class="lg:pl-8">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-6">Expand your influence in three simple steps.</h2>
+                    <p class="text-lg text-slate-600 mb-10">We've streamlined the networking process so you can focus on what matters: building authentic relationships that propel your career forward.</p>
+                    
+                    <div class="space-y-8">
+                        <!-- Step 1 -->
+                        <div class="flex">
+                            <div class="flex-shrink-0 mr-5">
+                                <div class="w-12 h-12 rounded-full bg-brand-600 text-white flex items-center justify-center text-xl font-bold shadow-md">1</div>
                             </div>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 bg-brand-100 rounded-full p-1 text-brand-600"><i data-lucide="check" class="w-4 h-4"></i></div>
                             <div>
-                                <h5 class="font-semibold text-slate-900">Rich media sharing</h5>
-                                <p class="text-sm text-slate-600">Share uncompressed photos and high-quality videos effortlessly.</p>
+                                <h4 class="text-xl font-bold text-slate-900 mb-2">Build your digital identity</h4>
+                                <p class="text-slate-600">Import your credentials in one click. Showcase your portfolio, projects, and achievements in a beautiful format.</p>
                             </div>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <div class="mt-1 bg-brand-100 rounded-full p-1 text-brand-600"><i data-lucide="check" class="w-4 h-4"></i></div>
+                        </div>
+                        
+                        <!-- Step 2 -->
+                        <div class="flex">
+                            <div class="flex-shrink-0 mr-5">
+                                <div class="w-12 h-12 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center text-xl font-bold">2</div>
+                            </div>
                             <div>
-                                <h5 class="font-semibold text-slate-900">Voice rooms</h5>
-                                <p class="text-sm text-slate-600">Hop into spontaneous audio chats with your community.</p>
+                                <h4 class="text-xl font-bold text-slate-900 mb-2">Discover tailored matches</h4>
+                                <p class="text-slate-600">Our algorithm suggests mentors, collaborators, and peers based on your specific goals and industry.</p>
                             </div>
-                        </li>
-                    </ul>
-                </div>
+                        </div>
 
+                        <!-- Step 3 -->
+                        <div class="flex">
+                            <div class="flex-shrink-0 mr-5">
+                                <div class="w-12 h-12 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center text-xl font-bold">3</div>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-bold text-slate-900 mb-2">Engage and grow</h4>
+                                <p class="text-slate-600">Participate in high-value discussions, share your expertise, and watch your professional network compound over time.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Testimonials -->
     <section class="py-24 bg-slate-900 text-white relative overflow-hidden">
-        <!-- Decorative bg -->
-        <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#4f46e5 2px, transparent 2px); background-size: 32px 32px;"></div>
-        
+        <!-- Abstract background -->
+        <div class="absolute inset-0 opacity-10">
+            <svg class="h-full w-full" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <pattern id="grid-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+                        <path d="M0 40L40 0H20L0 20M40 40V20L20 40" stroke="currentColor" stroke-width="1" fill="none"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid-pattern)"/>
+            </svg>
+        </div>
+
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="text-center max-w-3xl mx-auto mb-16">
-                <h3 class="text-3xl md:text-4xl font-bold mb-6">Loved by thousands of users.</h3>
-                <p class="text-lg text-slate-300">Don't just take our word for it. Here is what people are saying about the shift to a healthier network.</p>
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Don't just take our word for it</h2>
+                <p class="text-xl text-slate-400">Hear from professionals who have transformed their careers using Nexus.</p>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-6">
-                <!-- Testimonial 1 -->
-                <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700">
-                    <div class="flex text-yellow-400 mb-4">
-                        <i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Review 1 -->
+                <div class="bg-slate-800 rounded-2xl p-8 border border-slate-700 relative">
+                    <i class="ph-fill ph-quotes text-5xl text-slate-700 absolute top-6 right-6 opacity-50"></i>
+                    <div class="flex gap-1 text-amber-400 mb-6">
+                        <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
                     </div>
-                    <p class="text-slate-300 mb-6 italic">"I finally deleted my old accounts. Nexus feels like the early days of the internet—just real people sharing real things without the toxic algorithms trying to make me angry."</p>
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-indigo-500"></div>
+                    <p class="text-slate-300 mb-8 text-lg leading-relaxed">"I landed my dream role as a Senior Designer within two months of joining Nexus. The signal-to-noise ratio here is incredible compared to other platforms."</p>
+                    <div class="flex items-center gap-4">
+                        <img src="https://i.pravatar.cc/150?img=47" alt="Avatar" class="w-12 h-12 rounded-full">
                         <div>
-                            <h6 class="font-semibold text-white">Elena Rodriguez</h6>
-                            <p class="text-xs text-slate-400">Digital Artist</p>
+                            <h4 class="font-bold text-white">Elena Rodriguez</h4>
+                            <p class="text-sm text-slate-400">Senior Product Designer</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Testimonial 2 -->
-                <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700">
-                    <div class="flex text-yellow-400 mb-4">
-                        <i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                <!-- Review 2 -->
+                <div class="bg-slate-800 rounded-2xl p-8 border border-slate-700 relative">
+                    <i class="ph-fill ph-quotes text-5xl text-slate-700 absolute top-6 right-6 opacity-50"></i>
+                    <div class="flex gap-1 text-amber-400 mb-6">
+                        <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
                     </div>
-                    <p class="text-slate-300 mb-6 italic">"The chronological feed is a game-changer. I run a small local community group here, and reaching my members is so much easier when our posts aren't hidden."</p>
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500"></div>
+                    <p class="text-slate-300 mb-8 text-lg leading-relaxed">"The curated communities feature is a game-changer. I'm finally connecting with other founders who are facing the exact same scaling challenges as I am."</p>
+                    <div class="flex items-center gap-4">
+                        <img src="https://i.pravatar.cc/150?img=11" alt="Avatar" class="w-12 h-12 rounded-full">
                         <div>
-                            <h6 class="font-semibold text-white">Marcus Chen</h6>
-                            <p class="text-xs text-slate-400">Community Organizer</p>
+                            <h4 class="font-bold text-white">Marcus Chen</h4>
+                            <p class="text-sm text-slate-400">Startup Founder & CEO</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Testimonial 3 -->
-                <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700">
-                    <div class="flex text-yellow-400 mb-4">
-                        <i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                <!-- Review 3 -->
+                <div class="bg-slate-800 rounded-2xl p-8 border border-slate-700 relative">
+                    <i class="ph-fill ph-quotes text-5xl text-slate-700 absolute top-6 right-6 opacity-50"></i>
+                    <div class="flex gap-1 text-amber-400 mb-6">
+                        <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
                     </div>
-                    <p class="text-slate-300 mb-6 italic">"I love the privacy focus. Knowing my DMs are end-to-end encrypted and my data isn't being scraped for targeted ads gives me immense peace of mind."</p>
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-400 to-pink-500"></div>
+                    <p class="text-slate-300 mb-8 text-lg leading-relaxed">"I was tired of the spam messages on other networks. Nexus's smart messaging filters ensure I only see relevant outreach from real professionals."</p>
+                    <div class="flex items-center gap-4">
+                        <img src="https://i.pravatar.cc/150?img=33" alt="Avatar" class="w-12 h-12 rounded-full">
                         <div>
-                            <h6 class="font-semibold text-white">Aisha Patel</h6>
-                            <p class="text-xs text-slate-400">Software Engineer</p>
+                            <h4 class="font-bold text-white">Sarah Jenkins</h4>
+                            <p class="text-sm text-slate-400">VP of Engineering</p>
                         </div>
                     </div>
                 </div>
@@ -405,104 +468,115 @@
     </section>
 
     <!-- CTA Section -->
-    <section class="py-20 bg-white relative">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-gradient-to-br from-brand-600 to-indigo-800 rounded-3xl p-10 md:p-16 text-center text-white shadow-2xl relative overflow-hidden">
-                <!-- Decorative Circles -->
-                <div class="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-64 h-64 bg-white/10 rounded-full blur-2xl"></div>
-                <div class="absolute bottom-0 left-0 translate-y-1/4 -translate-x-1/4 w-64 h-64 bg-white/10 rounded-full blur-2xl"></div>
-                
-                <div class="relative z-10">
-                    <h2 class="text-3xl md:text-5xl font-bold mb-6">Ready to join the movement?</h2>
-                    <p class="text-lg md:text-xl text-indigo-100 mb-10 max-w-2xl mx-auto">
-                        Create your account in under 60 seconds. No credit card required, just a desire for a better social experience.
-                    </p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <button class="bg-white text-brand-700 hover:bg-slate-50 font-bold px-8 py-4 rounded-full shadow-lg transition-transform transform hover:-translate-y-1">
-                            Create Free Account
-                        </button>
-                        <button class="bg-brand-700/50 hover:bg-brand-700 border border-brand-400/50 text-white font-bold px-8 py-4 rounded-full transition-colors backdrop-blur-sm">
-                            Download the App
-                        </button>
-                    </div>
-                </div>
+    <section class="py-20 relative overflow-hidden">
+        <!-- Gradient Background -->
+        <div class="absolute inset-0 bg-gradient-to-br from-brand-600 to-blue-800"></div>
+        
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">Ready to elevate your network?</h2>
+            <p class="text-xl text-brand-100 mb-10 max-w-2xl mx-auto">Join the exclusive community of professionals building the future. Create your free profile today.</p>
+            
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#" class="bg-white text-brand-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-50 transition-colors shadow-lg">
+                    Create Free Profile
+                </a>
+                <a href="#" class="bg-brand-700/50 hover:bg-brand-700/80 border border-brand-400 text-white px-8 py-4 rounded-xl font-bold text-lg transition-colors backdrop-blur-sm">
+                    Explore Communities
+                </a>
             </div>
+            <p class="mt-6 text-sm text-brand-200">No credit card required. Setup takes less than 2 minutes.</p>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-slate-50 border-t border-slate-200 pt-16 pb-8">
+    <footer class="bg-white border-t border-slate-200 pt-16 pb-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
+                
+                <!-- Brand -->
                 <div class="col-span-2 lg:col-span-2">
                     <div class="flex items-center gap-2 mb-4">
-                        <div class="w-8 h-8 bg-gradient-to-br from-brand-500 to-indigo-600 rounded-lg flex items-center justify-center text-white">
-                            <i data-lucide="network" class="w-5 h-5"></i>
+                        <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white">
+                            <i class="ph ph-hexagon font-bold"></i>
                         </div>
                         <span class="font-bold text-xl text-slate-900">Nexus</span>
                     </div>
-                    <p class="text-slate-500 mb-6 max-w-xs text-sm leading-relaxed">
-                        Building a healthier digital world where human connection comes before algorithmic engagement.
-                    </p>
-                    <div class="flex gap-4 text-slate-400">
-                        <a href="#" class="hover:text-brand-600 transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></a>
-                        <a href="#" class="hover:text-brand-600 transition-colors"><i data-lucide="github" class="w-5 h-5"></i></a>
-                        <a href="#" class="hover:text-brand-600 transition-colors"><i data-lucide="linkedin" class="w-5 h-5"></i></a>
+                    <p class="text-slate-500 mb-6 max-w-xs">The professional social network designed for meaningful connections, career growth, and zero noise.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-slate-400 hover:text-brand-600 text-2xl transition-colors"><i class="ph-fill ph-twitter-logo"></i></a>
+                        <a href="#" class="text-slate-400 hover:text-brand-600 text-2xl transition-colors"><i class="ph-fill ph-linkedin-logo"></i></a>
+                        <a href="#" class="text-slate-400 hover:text-brand-600 text-2xl transition-colors"><i class="ph-fill ph-instagram-logo"></i></a>
                     </div>
                 </div>
-                
+
+                <!-- Links 1 -->
                 <div>
-                    <h4 class="font-bold text-slate-900 mb-4">Product</h4>
-                    <ul class="space-y-3 text-sm text-slate-500">
-                        <li><a href="#" class="hover:text-brand-600 transition-colors">Features</a></li>
-                        <li><a href="#" class="hover:text-brand-600 transition-colors">Communities</a></li>
-                        <li><a href="#" class="hover:text-brand-600 transition-colors">Safety Center</a></li>
-                        <li><a href="#" class="hover:text-brand-600 transition-colors">Pricing</a></li>
+                    <h4 class="font-bold text-slate-900 mb-4">Platform</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">Features</a></li>
+                        <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">Communities</a></li>
+                        <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">Pricing</a></li>
+                        <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">Download App</a></li>
                     </ul>
                 </div>
 
+                <!-- Links 2 -->
                 <div>
                     <h4 class="font-bold text-slate-900 mb-4">Company</h4>
-                    <ul class="space-y-3 text-sm text-slate-500">
-                        <li><a href="#" class="hover:text-brand-600 transition-colors">About Us</a></li>
-                        <li><a href="#" class="hover:text-brand-600 transition-colors">Careers</a></li>
-                        <li><a href="#" class="hover:text-brand-600 transition-colors">Blog</a></li>
-                        <li><a href="#" class="hover:text-brand-600 transition-colors">Contact</a></li>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">About Us</a></li>
+                        <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">Careers</a></li>
+                        <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">Blog</a></li>
+                        <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">Contact</a></li>
                     </ul>
                 </div>
 
+                <!-- Links 3 -->
                 <div>
                     <h4 class="font-bold text-slate-900 mb-4">Legal</h4>
-                    <ul class="space-y-3 text-sm text-slate-500">
-                        <li><a href="#" class="hover:text-brand-600 transition-colors">Privacy Policy</a></li>
-                        <li><a href="#" class="hover:text-brand-600 transition-colors">Terms of Service</a></li>
-                        <li><a href="#" class="hover:text-brand-600 transition-colors">Cookie Policy</a></li>
-                        <li><a href="#" class="hover:text-brand-600 transition-colors">Transparency Report</a></li>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">Terms of Service</a></li>
+                        <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">Cookie Policy</a></li>
+                        <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">Guidelines</a></li>
                     </ul>
                 </div>
             </div>
 
-            <div class="border-t border-slate-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-400">
-                <p>&copy; 2026 Nexus Social Inc. All rights reserved.</p>
-                <div class="flex gap-6">
-                    <a href="#" class="hover:text-slate-600 transition-colors">Status</a>
-                    <a href="#" class="hover:text-slate-600 transition-colors">Security</a>
+            <div class="border-t border-slate-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-slate-500 text-sm">© 2026 Nexus Social Inc. All rights reserved.</p>
+                <div class="flex items-center gap-2 text-sm text-slate-500">
+                    <i class="ph-fill ph-globe"></i> English (US)
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- Initialize Icons -->
+    <!-- Simple JavaScript for interactions -->
     <script>
-        lucide.createIcons();
-
-        // Simple scroll effect for navbar
-        window.addEventListener('scroll', () => {
-            const nav = document.getElementById('navbar');
-            if (window.scrollY > 10) {
-                nav.classList.add('shadow-sm');
+        // Mobile Menu Toggle
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+        
+        mobileBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            if(mobileMenu.classList.contains('hidden')) {
+                menuIcon.classList.remove('ph-x');
+                menuIcon.classList.add('ph-list');
             } else {
-                nav.classList.remove('shadow-sm');
+                menuIcon.classList.remove('ph-list');
+                menuIcon.classList.add('ph-x');
+            }
+        });
+
+        // Navbar Scroll Effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) {
+                navbar.classList.add('shadow-md');
+            } else {
+                navbar.classList.remove('shadow-md');
             }
         });
     </script>
