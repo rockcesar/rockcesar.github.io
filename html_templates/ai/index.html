@@ -48,12 +48,12 @@
 <body class="bg-slate-950 text-slate-200 antialiased overflow-x-hidden relative">
 
     <!-- Background Blobs -->
-    <div class="blob bg-blue-600/30 w-96 h-96 rounded-full top-0 left-0 -translate-x-1/2 -translate-y-1/2"></div>
-    <div class="blob bg-purple-600/20 w-[30rem] h-[30rem] rounded-full top-40 right-0 translate-x-1/4"></div>
+    <div class="blob bg-blue-600/30 w-72 h-72 sm:w-96 sm:h-96 rounded-full top-0 left-0 -translate-x-1/2 -translate-y-1/2"></div>
+    <div class="blob bg-purple-600/20 w-80 h-80 sm:w-[30rem] sm:h-[30rem] rounded-full top-40 right-0 translate-x-1/4"></div>
 
     <!-- Navigation -->
     <nav class="fixed w-full z-50 glass border-b-0 border-slate-800 transition-all duration-300" id="navbar">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
             <div class="flex justify-between items-center h-20">
                 <div class="flex items-center gap-2 cursor-pointer">
                     <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center">
@@ -87,38 +87,38 @@
         </div>
 
         <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden glass border-t border-slate-800 absolute w-full">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="#features" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800">Features</a>
-                <a href="#solutions" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800">Solutions</a>
-                <a href="#pricing" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800">Pricing</a>
-                <div class="mt-4 pt-4 border-t border-slate-800 px-3 flex flex-col gap-3">
-                    <button class="w-full text-left py-2 text-base font-medium text-slate-300 hover:text-white">Log in</button>
-                    <button class="w-full bg-white text-slate-900 px-5 py-2.5 rounded-lg font-medium hover:bg-slate-200 transition-colors">Get Started</button>
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-900/95 backdrop-blur-xl shadow-2xl border-t border-slate-800 absolute w-full left-0 top-full pb-4">
+            <div class="px-4 pt-2 pb-3 space-y-1 sm:px-6">
+                <a href="#features" class="block px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Features</a>
+                <a href="#solutions" class="block px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Solutions</a>
+                <a href="#pricing" class="block px-3 py-3 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Pricing</a>
+                <div class="mt-4 pt-4 border-t border-slate-800 flex flex-col gap-3">
+                    <button class="w-full text-center py-3 text-base font-medium text-slate-300 hover:text-white border border-slate-700 rounded-lg">Log in</button>
+                    <button class="w-full bg-white text-slate-900 px-5 py-3 rounded-lg font-medium hover:bg-slate-200 transition-colors">Get Started</button>
                 </div>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden z-10">
+    <section class="relative pt-32 pb-16 lg:pt-48 lg:pb-32 overflow-hidden z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative text-center">
             
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700/50 text-sm text-blue-400 mb-8 backdrop-blur-sm">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/50 border border-slate-700/50 text-xs sm:text-sm text-blue-400 mb-8 backdrop-blur-sm">
                 <span class="flex h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]"></span>
                 Introducing Aura V2.0 - Faster, Smarter, Unbound.
             </div>
 
-            <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight max-w-4xl mx-auto">
+            <h1 class="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight max-w-4xl mx-auto">
                 Build the future with <br class="hidden md:block" />
                 <span class="gradient-text">Generative Intelligence</span>
             </h1>
             
-            <p class="mt-4 text-xl text-slate-400 max-w-2xl mx-auto mb-10">
+            <p class="mt-4 text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-10 px-4">
                 AuraAI provides enterprise-grade infrastructure to deploy, scale, and manage state-of-the-art AI models for your specific business needs without writing complex code.
             </p>
             
-            <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4 px-4">
                 <button class="w-full sm:w-auto px-8 py-4 bg-white text-slate-900 rounded-full font-semibold text-lg hover:bg-slate-100 transition-all hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.15)]">
                     Start Building for Free
                 </button>
@@ -129,25 +129,25 @@
             </div>
 
             <!-- Hero Image/Dashboard Mockup -->
-            <div class="mt-20 relative mx-auto max-w-5xl">
+            <div class="mt-16 sm:mt-20 relative mx-auto max-w-5xl px-2 sm:px-0">
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent z-10 rounded-xl"></div>
-                <div class="rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm p-2 shadow-2xl relative">
+                <div class="rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm p-1 sm:p-2 shadow-2xl relative">
                     <div class="rounded-lg overflow-hidden bg-slate-950 border border-slate-800">
                         <div class="flex items-center px-4 py-3 border-b border-slate-800 bg-slate-900">
                             <div class="flex space-x-2">
-                                <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
-                                <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-                                <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                                <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-500/80"></div>
+                                <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-yellow-500/80"></div>
+                                <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-green-500/80"></div>
                             </div>
-                            <div class="mx-auto text-xs text-slate-500 font-mono">dashboard.aura.ai</div>
+                            <div class="mx-auto text-[10px] sm:text-xs text-slate-500 font-mono">dashboard.aura.ai</div>
                         </div>
-                        <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                             <!-- Mockup Content -->
-                            <div class="col-span-2 space-y-4">
-                                <div class="h-8 w-1/3 bg-slate-800 rounded-md animate-pulse"></div>
-                                <div class="h-32 w-full bg-slate-800/50 rounded-lg border border-slate-800 p-4">
+                            <div class="md:col-span-2 space-y-4">
+                                <div class="h-6 sm:h-8 w-1/2 md:w-1/3 bg-slate-800 rounded-md animate-pulse"></div>
+                                <div class="h-28 sm:h-32 w-full bg-slate-800/50 rounded-lg border border-slate-800 p-4">
                                     <div class="flex items-center gap-3 mb-4">
-                                        <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                                        <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0">
                                             <i data-lucide="sparkles" class="w-4 h-4 text-blue-400"></i>
                                         </div>
                                         <div class="h-4 w-24 bg-slate-700 rounded"></div>
@@ -159,12 +159,12 @@
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div class="h-24 bg-slate-800/50 rounded-lg border border-slate-800"></div>
-                                    <div class="h-24 bg-slate-800/50 rounded-lg border border-slate-800"></div>
+                                    <div class="h-20 sm:h-24 bg-slate-800/50 rounded-lg border border-slate-800"></div>
+                                    <div class="h-20 sm:h-24 bg-slate-800/50 rounded-lg border border-slate-800"></div>
                                 </div>
                             </div>
                             <div class="space-y-4">
-                                <div class="h-full w-full bg-slate-800/30 rounded-lg border border-slate-800 p-4">
+                                <div class="h-full w-full bg-slate-800/30 rounded-lg border border-slate-800 p-4 min-h-[16rem]">
                                     <div class="h-4 w-1/2 bg-slate-700 rounded mb-6"></div>
                                     <div class="space-y-4">
                                         <div class="flex items-center justify-between">
@@ -180,7 +180,7 @@
                                             <div class="h-2 w-10 bg-pink-500 rounded"></div>
                                         </div>
                                     </div>
-                                    <div class="mt-8 h-24 w-full rounded-full border-4 border-slate-800 border-t-blue-500 border-r-purple-500"></div>
+                                    <div class="mt-8 mx-auto h-20 w-20 sm:h-24 sm:w-24 rounded-full border-4 border-slate-800 border-t-blue-500 border-r-purple-500"></div>
                                 </div>
                             </div>
                         </div>
@@ -189,109 +189,109 @@
             </div>
 
             <!-- Logos -->
-            <div class="mt-20 border-t border-slate-800/50 pt-10">
-                <p class="text-sm text-slate-500 mb-6 font-medium">TRUSTED BY INNOVATIVE TEAMS WORLDWIDE</p>
-                <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+            <div class="mt-16 sm:mt-20 border-t border-slate-800/50 pt-10 px-4">
+                <p class="text-xs sm:text-sm text-slate-500 mb-6 font-medium">TRUSTED BY INNOVATIVE TEAMS WORLDWIDE</p>
+                <div class="flex flex-wrap justify-center items-center gap-6 sm:gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
                     <!-- Replace with actual SVGs in production -->
-                    <div class="text-xl font-bold font-serif">Acme Corp</div>
-                    <div class="text-xl font-bold tracking-widest">GLOBAL</div>
-                    <div class="text-xl font-bold italic">TechFlow</div>
-                    <div class="text-xl font-bold">NEXUS</div>
-                    <div class="text-xl font-bold flex items-center gap-1"><i data-lucide="triangle" class="w-5 h-5 fill-current"></i> Vertex</div>
+                    <div class="text-lg sm:text-xl font-bold font-serif">Acme Corp</div>
+                    <div class="text-lg sm:text-xl font-bold tracking-widest">GLOBAL</div>
+                    <div class="text-lg sm:text-xl font-bold italic">TechFlow</div>
+                    <div class="text-lg sm:text-xl font-bold">NEXUS</div>
+                    <div class="text-lg sm:text-xl font-bold flex items-center gap-1"><i data-lucide="triangle" class="w-4 h-4 sm:w-5 sm:h-5 fill-current"></i> Vertex</div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Features Section -->
-    <section id="features" class="py-24 relative z-10 bg-slate-900/50 border-t border-slate-800/50">
+    <section id="features" class="py-16 sm:py-24 relative z-10 bg-slate-900/50 border-t border-slate-800/50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16">
-                <h2 class="text-blue-400 font-semibold tracking-wide uppercase text-sm mb-3">Platform Capabilities</h2>
-                <h3 class="text-3xl md:text-5xl font-bold mb-6">Everything you need to build intelligent applications</h3>
-                <p class="text-lg text-slate-400">Our suite of tools handles the complexity of machine learning infrastructure so you can focus on building amazing user experiences.</p>
+            <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+                <h2 class="text-blue-400 font-semibold tracking-wide uppercase text-xs sm:text-sm mb-3">Platform Capabilities</h2>
+                <h3 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">Everything you need to build intelligent applications</h3>
+                <p class="text-base sm:text-lg text-slate-400">Our suite of tools handles the complexity of machine learning infrastructure so you can focus on building amazing user experiences.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                 <!-- Feature 1 -->
-                <div class="bg-slate-800/20 border border-slate-800 rounded-2xl p-8 hover:bg-slate-800/40 transition-colors group">
+                <div class="bg-slate-800/20 border border-slate-800 rounded-2xl p-6 sm:p-8 hover:bg-slate-800/40 transition-colors group">
                     <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <i data-lucide="cpu" class="w-6 h-6 text-blue-400"></i>
                     </div>
-                    <h4 class="text-xl font-semibold mb-3 text-white">Neural Processing API</h4>
-                    <p class="text-slate-400 leading-relaxed">Access state-of-the-art language and vision models through our ultra-low latency REST API infrastructure.</p>
+                    <h4 class="text-lg sm:text-xl font-semibold mb-3 text-white">Neural Processing API</h4>
+                    <p class="text-sm sm:text-base text-slate-400 leading-relaxed">Access state-of-the-art language and vision models through our ultra-low latency REST API infrastructure.</p>
                 </div>
 
                 <!-- Feature 2 -->
-                <div class="bg-slate-800/20 border border-slate-800 rounded-2xl p-8 hover:bg-slate-800/40 transition-colors group">
+                <div class="bg-slate-800/20 border border-slate-800 rounded-2xl p-6 sm:p-8 hover:bg-slate-800/40 transition-colors group">
                     <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <i data-lucide="database" class="w-6 h-6 text-purple-400"></i>
                     </div>
-                    <h4 class="text-xl font-semibold mb-3 text-white">Vector Search Engine</h4>
-                    <p class="text-slate-400 leading-relaxed">Embed and query millions of documents in milliseconds. Perfect for RAG applications and semantic search.</p>
+                    <h4 class="text-lg sm:text-xl font-semibold mb-3 text-white">Vector Search Engine</h4>
+                    <p class="text-sm sm:text-base text-slate-400 leading-relaxed">Embed and query millions of documents in milliseconds. Perfect for RAG applications and semantic search.</p>
                 </div>
 
                 <!-- Feature 3 -->
-                <div class="bg-slate-800/20 border border-slate-800 rounded-2xl p-8 hover:bg-slate-800/40 transition-colors group">
+                <div class="bg-slate-800/20 border border-slate-800 rounded-2xl p-6 sm:p-8 hover:bg-slate-800/40 transition-colors group">
                     <div class="w-12 h-12 rounded-xl bg-pink-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <i data-lucide="shield-check" class="w-6 h-6 text-pink-400"></i>
                     </div>
-                    <h4 class="text-xl font-semibold mb-3 text-white">Enterprise Security</h4>
-                    <p class="text-slate-400 leading-relaxed">SOC2 Type II certified. End-to-end encryption, VPC peering, and role-based access controls built-in.</p>
+                    <h4 class="text-lg sm:text-xl font-semibold mb-3 text-white">Enterprise Security</h4>
+                    <p class="text-sm sm:text-base text-slate-400 leading-relaxed">SOC2 Type II certified. End-to-end encryption, VPC peering, and role-based access controls built-in.</p>
                 </div>
 
                 <!-- Feature 4 -->
-                <div class="bg-slate-800/20 border border-slate-800 rounded-2xl p-8 hover:bg-slate-800/40 transition-colors group">
+                <div class="bg-slate-800/20 border border-slate-800 rounded-2xl p-6 sm:p-8 hover:bg-slate-800/40 transition-colors group">
                     <div class="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <i data-lucide="zap" class="w-6 h-6 text-green-400"></i>
                     </div>
-                    <h4 class="text-xl font-semibold mb-3 text-white">Auto-Scaling Infrastructure</h4>
-                    <p class="text-slate-400 leading-relaxed">Serverless deployment that scales from zero to millions of requests automatically without manual provisioning.</p>
+                    <h4 class="text-lg sm:text-xl font-semibold mb-3 text-white">Auto-Scaling Infrastructure</h4>
+                    <p class="text-sm sm:text-base text-slate-400 leading-relaxed">Serverless deployment that scales from zero to millions of requests automatically without manual provisioning.</p>
                 </div>
 
                 <!-- Feature 5 -->
-                <div class="bg-slate-800/20 border border-slate-800 rounded-2xl p-8 hover:bg-slate-800/40 transition-colors group">
+                <div class="bg-slate-800/20 border border-slate-800 rounded-2xl p-6 sm:p-8 hover:bg-slate-800/40 transition-colors group">
                     <div class="w-12 h-12 rounded-xl bg-yellow-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <i data-lucide="network" class="w-6 h-6 text-yellow-400"></i>
                     </div>
-                    <h4 class="text-xl font-semibold mb-3 text-white">Custom Fine-Tuning</h4>
-                    <p class="text-slate-400 leading-relaxed">Train models on your proprietary data securely. Improve accuracy for your specific domain and use cases.</p>
+                    <h4 class="text-lg sm:text-xl font-semibold mb-3 text-white">Custom Fine-Tuning</h4>
+                    <p class="text-sm sm:text-base text-slate-400 leading-relaxed">Train models on your proprietary data securely. Improve accuracy for your specific domain and use cases.</p>
                 </div>
 
                 <!-- Feature 6 -->
-                <div class="bg-slate-800/20 border border-slate-800 rounded-2xl p-8 hover:bg-slate-800/40 transition-colors group">
+                <div class="bg-slate-800/20 border border-slate-800 rounded-2xl p-6 sm:p-8 hover:bg-slate-800/40 transition-colors group">
                     <div class="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <i data-lucide="activity" class="w-6 h-6 text-cyan-400"></i>
                     </div>
-                    <h4 class="text-xl font-semibold mb-3 text-white">Advanced Analytics</h4>
-                    <p class="text-slate-400 leading-relaxed">Real-time observability. Monitor token usage, latency, error rates, and model performance from one dashboard.</p>
+                    <h4 class="text-lg sm:text-xl font-semibold mb-3 text-white">Advanced Analytics</h4>
+                    <p class="text-sm sm:text-base text-slate-400 leading-relaxed">Real-time observability. Monitor token usage, latency, error rates, and model performance from one dashboard.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Code Example Section -->
-    <section class="py-24 relative z-10 overflow-hidden">
-        <div class="blob bg-blue-600/20 w-96 h-96 rounded-full bottom-0 right-0 translate-x-1/3 translate-y-1/3"></div>
+    <section class="py-16 sm:py-24 relative z-10 overflow-hidden">
+        <div class="blob bg-blue-600/20 w-72 h-72 sm:w-96 sm:h-96 rounded-full bottom-0 right-0 translate-x-1/3 translate-y-1/3"></div>
         
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col lg:flex-row items-center gap-16">
+            <div class="flex flex-col lg:flex-row items-center gap-12 sm:gap-16">
                 <div class="w-full lg:w-1/2">
-                    <h2 class="text-3xl md:text-4xl font-bold mb-6">Integrate in minutes, not months</h2>
-                    <p class="text-lg text-slate-400 mb-8">Our intuitive SDKs make it incredibly simple to add advanced AI capabilities to your Node.js, Python, or Go applications. Just a few lines of code is all it takes to get started.</p>
+                    <h2 class="text-3xl sm:text-4xl font-bold mb-6">Integrate in minutes, not months</h2>
+                    <p class="text-base sm:text-lg text-slate-400 mb-8">Our intuitive SDKs make it incredibly simple to add advanced AI capabilities to your Node.js, Python, or Go applications. Just a few lines of code is all it takes to get started.</p>
                     
                     <ul class="space-y-4 mb-8">
                         <li class="flex items-start gap-3">
-                            <i data-lucide="check-circle-2" class="w-6 h-6 text-green-400 shrink-0"></i>
-                            <span class="text-slate-300">Comprehensive documentation with interactive examples</span>
+                            <i data-lucide="check-circle-2" class="w-5 h-5 sm:w-6 sm:h-6 text-green-400 shrink-0 mt-0.5"></i>
+                            <span class="text-sm sm:text-base text-slate-300">Comprehensive documentation with interactive examples</span>
                         </li>
                         <li class="flex items-start gap-3">
-                            <i data-lucide="check-circle-2" class="w-6 h-6 text-green-400 shrink-0"></i>
-                            <span class="text-slate-300">Official libraries for Python, JS/TS, Go, and Ruby</span>
+                            <i data-lucide="check-circle-2" class="w-5 h-5 sm:w-6 sm:h-6 text-green-400 shrink-0 mt-0.5"></i>
+                            <span class="text-sm sm:text-base text-slate-300">Official libraries for Python, JS/TS, Go, and Ruby</span>
                         </li>
                         <li class="flex items-start gap-3">
-                            <i data-lucide="check-circle-2" class="w-6 h-6 text-green-400 shrink-0"></i>
-                            <span class="text-slate-300">24/7 technical support for Enterprise tier</span>
+                            <i data-lucide="check-circle-2" class="w-5 h-5 sm:w-6 sm:h-6 text-green-400 shrink-0 mt-0.5"></i>
+                            <span class="text-sm sm:text-base text-slate-300">24/7 technical support for Enterprise tier</span>
                         </li>
                     </ul>
 
@@ -309,7 +309,7 @@
                             </div>
                             <button class="text-slate-500 hover:text-slate-300"><i data-lucide="copy" class="w-4 h-4"></i></button>
                         </div>
-                        <div class="p-6 overflow-x-auto text-sm font-mono text-slate-300 leading-relaxed">
+                        <div class="p-4 sm:p-6 overflow-x-auto text-xs sm:text-sm font-mono text-slate-300 leading-relaxed">
 <pre><code><span class="text-purple-400">import</span> { AuraClient } <span class="text-purple-400">from</span> <span class="text-green-400">'@aura-ai/sdk'</span>;
 
 <span class="text-slate-500">// Initialize the client</span>
@@ -334,16 +334,16 @@ console.<span class="text-blue-400">log</span>(response.choices[<span class="tex
     </section>
 
     <!-- Pricing Section -->
-    <section id="pricing" class="py-24 relative z-10 bg-slate-900/30 border-t border-slate-800/50">
+    <section id="pricing" class="py-16 sm:py-24 relative z-10 bg-slate-900/30 border-t border-slate-800/50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16">
-                <h2 class="text-3xl md:text-5xl font-bold mb-6">Simple, transparent pricing</h2>
-                <p class="text-lg text-slate-400">Start for free, scale infinitely. Only pay for the compute you actually use.</p>
+            <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">Simple, transparent pricing</h2>
+                <p class="text-base sm:text-lg text-slate-400">Start for free, scale infinitely. Only pay for the compute you actually use.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                 <!-- Hobby Tier -->
-                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 hover:border-slate-700 transition-colors">
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 hover:border-slate-700 transition-colors">
                     <h3 class="text-xl font-semibold mb-2">Developer</h3>
                     <p class="text-slate-400 text-sm mb-6">Perfect for side projects and learning.</p>
                     <div class="mb-6">
@@ -352,15 +352,15 @@ console.<span class="text-blue-400">log</span>(response.choices[<span class="tex
                     </div>
                     <button class="w-full py-3 px-4 rounded-xl border border-slate-700 hover:bg-slate-800 transition-colors font-medium mb-8">Start Free</button>
                     <ul class="space-y-4 text-sm text-slate-300">
-                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i> 10,000 requests/month</li>
-                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i> Standard models</li>
-                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i> Community support</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400 shrink-0"></i> 10,000 requests/month</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400 shrink-0"></i> Standard models</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400 shrink-0"></i> Community support</li>
                     </ul>
                 </div>
 
                 <!-- Pro Tier (Highlighted) -->
-                <div class="bg-slate-800 border-2 border-blue-500 rounded-3xl p-8 relative transform md:-translate-y-4 shadow-[0_0_30px_rgba(59,130,246,0.15)]">
-                    <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Most Popular</div>
+                <div class="bg-slate-800 border-2 border-blue-500 rounded-3xl p-6 sm:p-8 relative transform md:-translate-y-4 shadow-[0_0_30px_rgba(59,130,246,0.15)] mt-4 md:mt-0">
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide whitespace-nowrap">Most Popular</div>
                     <h3 class="text-xl font-semibold mb-2 text-white">Startup</h3>
                     <p class="text-slate-300 text-sm mb-6">For scaling applications in production.</p>
                     <div class="mb-6">
@@ -369,15 +369,15 @@ console.<span class="text-blue-400">log</span>(response.choices[<span class="tex
                     </div>
                     <button class="w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white transition-colors font-medium mb-8 shadow-lg shadow-blue-500/25">Upgrade to Startup</button>
                     <ul class="space-y-4 text-sm text-slate-200">
-                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i> 1M requests/month</li>
-                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i> Advanced logic models</li>
-                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i> Custom embeddings</li>
-                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i> Priority email support</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400 shrink-0"></i> 1M requests/month</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400 shrink-0"></i> Advanced logic models</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400 shrink-0"></i> Custom embeddings</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400 shrink-0"></i> Priority email support</li>
                     </ul>
                 </div>
 
                 <!-- Enterprise Tier -->
-                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 hover:border-slate-700 transition-colors">
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 hover:border-slate-700 transition-colors">
                     <h3 class="text-xl font-semibold mb-2">Enterprise</h3>
                     <p class="text-slate-400 text-sm mb-6">Custom limits and dedicated infrastructure.</p>
                     <div class="mb-6">
@@ -385,10 +385,10 @@ console.<span class="text-blue-400">log</span>(response.choices[<span class="tex
                     </div>
                     <button class="w-full py-3 px-4 rounded-xl border border-slate-700 hover:bg-slate-800 transition-colors font-medium mb-8">Contact Sales</button>
                     <ul class="space-y-4 text-sm text-slate-300">
-                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i> Unlimited requests</li>
-                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i> Fine-tuned custom models</li>
-                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i> VPC Deployment</li>
-                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400"></i> 24/7 dedicated support</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400 shrink-0"></i> Unlimited requests</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400 shrink-0"></i> Fine-tuned custom models</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400 shrink-0"></i> VPC Deployment</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-blue-400 shrink-0"></i> 24/7 dedicated support</li>
                     </ul>
                 </div>
             </div>
@@ -396,21 +396,21 @@ console.<span class="text-blue-400">log</span>(response.choices[<span class="tex
     </section>
 
     <!-- CTA Section -->
-    <section class="py-20 relative z-10">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-gradient-to-br from-blue-600 to-purple-700 rounded-3xl p-10 md:p-16 text-center shadow-2xl relative overflow-hidden">
+    <section class="py-16 sm:py-20 relative z-10 px-4">
+        <div class="max-w-5xl mx-auto">
+            <div class="bg-gradient-to-br from-blue-600 to-purple-700 rounded-3xl p-8 sm:p-10 md:p-16 text-center shadow-2xl relative overflow-hidden">
                 <!-- Abstract BG patterns -->
                 <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
                 <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-black opacity-10 rounded-full blur-2xl"></div>
                 
-                <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 relative z-10">Ready to build the next generation of software?</h2>
-                <p class="text-blue-100 text-lg mb-10 max-w-2xl mx-auto relative z-10">Join thousands of developers and enterprise teams already building with AuraAI.</p>
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6 relative z-10">Ready to build the next generation of software?</h2>
+                <p class="text-blue-100 text-base sm:text-lg mb-8 sm:mb-10 max-w-2xl mx-auto relative z-10">Join thousands of developers and enterprise teams already building with AuraAI.</p>
                 
                 <div class="flex flex-col sm:flex-row justify-center gap-4 relative z-10">
-                    <button class="px-8 py-4 bg-white text-blue-600 rounded-full font-bold text-lg hover:bg-blue-50 transition-colors shadow-lg">
+                    <button class="w-full sm:w-auto px-8 py-4 bg-white text-blue-600 rounded-full font-bold text-lg hover:bg-blue-50 transition-colors shadow-lg">
                         Create Free Account
                     </button>
-                    <button class="px-8 py-4 bg-blue-800/50 text-white rounded-full font-semibold text-lg hover:bg-blue-800/80 transition-colors border border-blue-400/30 backdrop-blur-sm">
+                    <button class="w-full sm:w-auto px-8 py-4 bg-blue-800/50 text-white rounded-full font-semibold text-lg hover:bg-blue-800/80 transition-colors border border-blue-400/30 backdrop-blur-sm">
                         Read the Docs
                     </button>
                 </div>
@@ -421,8 +421,8 @@ console.<span class="text-blue-400">log</span>(response.choices[<span class="tex
     <!-- Footer -->
     <footer class="bg-slate-950 border-t border-slate-800/50 pt-16 pb-8 relative z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
-                <div class="col-span-2 lg:col-span-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
+                <div class="sm:col-span-2 lg:col-span-2">
                     <div class="flex items-center gap-2 mb-6">
                         <div class="w-6 h-6 rounded bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center">
                             <i data-lucide="brain-circuit" class="w-3.5 h-3.5 text-white"></i>
@@ -473,9 +473,9 @@ console.<span class="text-blue-400">log</span>(response.choices[<span class="tex
                 </div>
             </div>
             
-            <div class="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
                 <p class="text-slate-500 text-sm">© 2026 AuraAI Technologies, Inc. All rights reserved.</p>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center justify-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-green-500"></span>
                     <span class="text-slate-400 text-sm">All systems operational</span>
                 </div>
