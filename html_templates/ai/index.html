@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth overflow-x-hidden">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -45,14 +45,14 @@
         }
     </script>
 </head>
-<body class="bg-slate-950 text-slate-200 antialiased overflow-x-hidden relative">
+<body class="bg-slate-950 text-slate-200 antialiased overflow-x-hidden relative w-full">
 
     <!-- Background Blobs -->
     <div class="blob bg-blue-600/30 w-72 h-72 sm:w-96 sm:h-96 rounded-full top-0 left-0 -translate-x-1/2 -translate-y-1/2"></div>
     <div class="blob bg-purple-600/20 w-80 h-80 sm:w-[30rem] sm:h-[30rem] rounded-full top-40 right-0 translate-x-1/4"></div>
 
     <!-- Navigation -->
-    <nav class="fixed w-full z-50 glass border-b-0 border-slate-800 transition-all duration-300" id="navbar">
+    <nav class="fixed top-0 left-0 right-0 z-50 glass border-b-0 border-slate-800 transition-all duration-300" id="navbar">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
             <div class="flex justify-between items-center h-20">
                 <div class="flex items-center gap-2 cursor-pointer">
@@ -104,17 +104,17 @@
     <section class="relative pt-32 pb-16 lg:pt-48 lg:pb-32 overflow-hidden z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative text-center">
             
-            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/50 border border-slate-700/50 text-xs sm:text-sm text-blue-400 mb-8 backdrop-blur-sm">
+            <div class="inline-flex flex-wrap justify-center items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700/50 text-xs sm:text-sm text-blue-400 mb-8 backdrop-blur-sm">
                 <span class="flex h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]"></span>
-                Introducing Aura V2.0 - Faster, Smarter, Unbound.
+                <span>Introducing Aura V2.0 - Faster, Smarter, Unbound.</span>
             </div>
 
-            <h1 class="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight max-w-4xl mx-auto">
+            <h1 class="text-3xl sm:text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight max-w-4xl mx-auto px-2">
                 Build the future with <br class="hidden md:block" />
                 <span class="gradient-text">Generative Intelligence</span>
             </h1>
             
-            <p class="mt-4 text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-10 px-4">
+            <p class="mt-4 text-base sm:text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 px-4">
                 AuraAI provides enterprise-grade infrastructure to deploy, scale, and manage state-of-the-art AI models for your specific business needs without writing complex code.
             </p>
             
