@@ -148,8 +148,8 @@
     <!-- Hero Section -->
     <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden min-h-screen flex items-center">
         <!-- Abstract glowing blobs for background depth -->
-        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-quantum-purple/20 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob"></div>
-        <div class="absolute top-1/3 right-1/4 w-96 h-96 bg-quantum-accent/20 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
+        <div class="absolute top-1/4 left-1/4 w-72 h-72 sm:w-96 sm:h-96 bg-quantum-purple/20 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob"></div>
+        <div class="absolute top-1/3 right-1/4 w-72 h-72 sm:w-96 sm:h-96 bg-quantum-accent/20 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-quantum-accent/30 bg-quantum-accent/10 text-quantum-accent text-xs sm:text-sm font-mono mb-8 backdrop-blur-md">
@@ -157,16 +157,16 @@
                 QPU V4 Access Now Available in Cloud
             </div>
             
-            <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 leading-tight">
+            <h1 class="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 leading-tight">
                 Compute the <br class="hidden sm:block" />
                 <span class="text-gradient">Impossible.</span>
             </h1>
             
-            <p class="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-gray-400 mb-10">
+            <p class="mt-4 max-w-2xl mx-auto text-base sm:text-lg md:text-xl text-gray-400 mb-10 px-4 sm:px-0">
                 Accelerate discovery in material science, cryptography, and logistics with the world's most stable fault-tolerant quantum cloud platform.
             </p>
             
-            <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4 px-4 sm:px-0">
                 <a href="#platform" class="w-full sm:w-auto px-8 py-4 rounded-full bg-white text-quantum-900 font-semibold hover:bg-gray-100 transition-colors flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)]">
                     Start Computing
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
@@ -177,31 +177,31 @@
             </div>
 
             <!-- Dashboard Preview Mockup -->
-            <div class="mt-20 relative mx-auto max-w-5xl">
-                <div class="absolute inset-0 bg-gradient-to-t from-quantum-900 via-transparent to-transparent z-10"></div>
-                <div class="glass border border-white/10 rounded-t-xl overflow-hidden shadow-2xl relative">
+            <div class="mt-16 sm:mt-20 relative mx-auto max-w-5xl px-2 sm:px-0">
+                <div class="absolute inset-0 bg-gradient-to-t from-quantum-900 via-transparent to-transparent z-10 pointer-events-none"></div>
+                <div class="glass border border-white/10 rounded-xl sm:rounded-t-xl overflow-hidden shadow-2xl relative">
                     <!-- Mac-like window controls -->
                     <div class="bg-quantum-800 border-b border-white/5 px-4 py-3 flex items-center gap-2">
                         <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
                         <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
                         <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
-                        <div class="ml-4 font-mono text-xs text-gray-500">qubitnex-console ~ /workspace</div>
+                        <div class="ml-4 font-mono text-xs text-gray-500 truncate">qubitnex-console ~ /workspace</div>
                     </div>
                     <!-- Code Editor Mockup -->
-                    <div class="p-6 text-left font-mono text-sm sm:text-base text-gray-300 overflow-x-auto leading-relaxed">
-                        <div class="flex"><span class="text-gray-600 w-8">1</span><span class="text-quantum-purple">import</span> <span class="text-white">qubitnex</span> <span class="text-quantum-purple">as</span> <span class="text-white">qx</span></div>
-                        <div class="flex"><span class="text-gray-600 w-8">2</span></div>
-                        <div class="flex"><span class="text-gray-600 w-8">3</span><span class="text-gray-500"># Initialize 1000-qubit fault-tolerant environment</span></div>
-                        <div class="flex"><span class="text-gray-600 w-8">4</span><span class="text-white">env</span> <span class="text-quantum-accent">=</span> <span class="text-white">qx.CloudProvider(</span><span class="text-green-400">'qpu-v4'</span><span class="text-white">)</span></div>
-                        <div class="flex"><span class="text-gray-600 w-8">5</span><span class="text-white">circuit</span> <span class="text-quantum-accent">=</span> <span class="text-white">qx.QuantumCircuit(</span><span class="text-orange-400">1000</span><span class="text-white">)</span></div>
-                        <div class="flex"><span class="text-gray-600 w-8">6</span></div>
-                        <div class="flex"><span class="text-gray-600 w-8">7</span><span class="text-gray-500"># Apply superposition and entanglement</span></div>
-                        <div class="flex"><span class="text-gray-600 w-8">8</span><span class="text-white">circuit.h(</span><span class="text-white">range(</span><span class="text-orange-400">1000</span><span class="text-white">))</span></div>
-                        <div class="flex"><span class="text-gray-600 w-8">9</span><span class="text-white">circuit.cx(</span><span class="text-orange-400">0</span><span class="text-white">, </span><span class="text-orange-400">1</span><span class="text-white">)</span></div>
-                        <div class="flex"><span class="text-gray-600 w-8">10</span></div>
-                        <div class="flex"><span class="text-gray-600 w-8">11</span><span class="text-gray-500"># Execute with 99.99% fidelity guarantee</span></div>
-                        <div class="flex"><span class="text-gray-600 w-8">12</span><span class="text-white">result</span> <span class="text-quantum-accent">=</span> <span class="text-white">env.execute(circuit, shots=</span><span class="text-orange-400">10000</span><span class="text-white">)</span></div>
-                        <div class="flex"><span class="text-gray-600 w-8">13</span><span class="text-quantum-purple">print</span><span class="text-white">(f</span><span class="text-green-400">"Convergence achieved: {</span><span class="text-white">result.status</span><span class="text-green-400">}"</span><span class="text-white">)</span></div>
+                    <div class="p-4 sm:p-6 text-left font-mono text-xs sm:text-sm md:text-base text-gray-300 overflow-x-auto leading-relaxed whitespace-nowrap">
+                        <div class="flex"><span class="text-gray-600 w-6 sm:w-8 shrink-0">1</span><span class="text-quantum-purple">import</span>&nbsp;<span class="text-white">qubitnex</span>&nbsp;<span class="text-quantum-purple">as</span>&nbsp;<span class="text-white">qx</span></div>
+                        <div class="flex"><span class="text-gray-600 w-6 sm:w-8 shrink-0">2</span></div>
+                        <div class="flex"><span class="text-gray-600 w-6 sm:w-8 shrink-0">3</span><span class="text-gray-500"># Initialize 1000-qubit fault-tolerant environment</span></div>
+                        <div class="flex"><span class="text-gray-600 w-6 sm:w-8 shrink-0">4</span><span class="text-white">env</span>&nbsp;<span class="text-quantum-accent">=</span>&nbsp;<span class="text-white">qx.CloudProvider(</span><span class="text-green-400">'qpu-v4'</span><span class="text-white">)</span></div>
+                        <div class="flex"><span class="text-gray-600 w-6 sm:w-8 shrink-0">5</span><span class="text-white">circuit</span>&nbsp;<span class="text-quantum-accent">=</span>&nbsp;<span class="text-white">qx.QuantumCircuit(</span><span class="text-orange-400">1000</span><span class="text-white">)</span></div>
+                        <div class="flex"><span class="text-gray-600 w-6 sm:w-8 shrink-0">6</span></div>
+                        <div class="flex"><span class="text-gray-600 w-6 sm:w-8 shrink-0">7</span><span class="text-gray-500"># Apply superposition and entanglement</span></div>
+                        <div class="flex"><span class="text-gray-600 w-6 sm:w-8 shrink-0">8</span><span class="text-white">circuit.h(</span><span class="text-white">range(</span><span class="text-orange-400">1000</span><span class="text-white">))</span></div>
+                        <div class="flex"><span class="text-gray-600 w-6 sm:w-8 shrink-0">9</span><span class="text-white">circuit.cx(</span><span class="text-orange-400">0</span><span class="text-white">,&nbsp;</span><span class="text-orange-400">1</span><span class="text-white">)</span></div>
+                        <div class="flex"><span class="text-gray-600 w-6 sm:w-8 shrink-0">10</span></div>
+                        <div class="flex"><span class="text-gray-600 w-6 sm:w-8 shrink-0">11</span><span class="text-gray-500"># Execute with 99.99% fidelity guarantee</span></div>
+                        <div class="flex"><span class="text-gray-600 w-6 sm:w-8 shrink-0">12</span><span class="text-white">result</span>&nbsp;<span class="text-quantum-accent">=</span>&nbsp;<span class="text-white">env.execute(circuit,&nbsp;shots=</span><span class="text-orange-400">10000</span><span class="text-white">)</span></div>
+                        <div class="flex"><span class="text-gray-600 w-6 sm:w-8 shrink-0">13</span><span class="text-quantum-purple">print</span><span class="text-white">(f</span><span class="text-green-400">"Convergence achieved: {</span><span class="text-white">result.status</span><span class="text-green-400">}"</span><span class="text-white">)</span></div>
                     </div>
                 </div>
             </div>
@@ -211,106 +211,106 @@
     <!-- Stats Section -->
     <section class="py-12 border-y border-white/5 bg-quantum-800/50 backdrop-blur-md relative z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
                 <div>
-                    <div class="text-3xl md:text-5xl font-bold text-white mb-2 font-mono">1,121</div>
-                    <div class="text-sm text-gray-400 uppercase tracking-wider">Logical Qubits</div>
+                    <div class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-2 font-mono">1,121</div>
+                    <div class="text-xs sm:text-sm text-gray-400 uppercase tracking-wider">Logical Qubits</div>
                 </div>
                 <div>
-                    <div class="text-3xl md:text-5xl font-bold text-white mb-2 font-mono">99.9%</div>
-                    <div class="text-sm text-gray-400 uppercase tracking-wider">Gate Fidelity</div>
+                    <div class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-2 font-mono">99.9%</div>
+                    <div class="text-xs sm:text-sm text-gray-400 uppercase tracking-wider">Gate Fidelity</div>
                 </div>
                 <div>
-                    <div class="text-3xl md:text-5xl font-bold text-white mb-2 font-mono"><span class="text-quantum-accent">~</span>0ms</div>
-                    <div class="text-sm text-gray-400 uppercase tracking-wider">Hybrid Latency</div>
+                    <div class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-2 font-mono"><span class="text-quantum-accent">~</span>0ms</div>
+                    <div class="text-xs sm:text-sm text-gray-400 uppercase tracking-wider">Hybrid Latency</div>
                 </div>
                 <div>
-                    <div class="text-3xl md:text-5xl font-bold text-white mb-2 font-mono">24/7</div>
-                    <div class="text-sm text-gray-400 uppercase tracking-wider">Cloud Availability</div>
+                    <div class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-2 font-mono">24/7</div>
+                    <div class="text-xs sm:text-sm text-gray-400 uppercase tracking-wider">Cloud Availability</div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Features / Platform -->
-    <section id="platform" class="py-24 relative z-10">
+    <section id="platform" class="py-16 sm:py-24 relative z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16">
-                <h2 class="text-sm font-semibold text-quantum-accent tracking-wide uppercase mb-3">The Platform</h2>
-                <h3 class="text-3xl md:text-5xl font-bold mb-6">Quantum advantage, <br />ready for production.</h3>
-                <p class="text-gray-400 text-lg">We abstract away the cryogenic complexity so you can focus on writing algorithms that solve tomorrow's problems today.</p>
+            <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+                <h2 class="text-xs sm:text-sm font-semibold text-quantum-accent tracking-wide uppercase mb-3">The Platform</h2>
+                <h3 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6">Quantum advantage, <br class="hidden sm:block" />ready for production.</h3>
+                <p class="text-gray-400 text-base sm:text-lg">We abstract away the cryogenic complexity so you can focus on writing algorithms that solve tomorrow's problems today.</p>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
                 <!-- Feature 1 -->
-                <div class="glass-card rounded-2xl p-8">
-                    <div class="w-14 h-14 rounded-xl bg-quantum-accent/10 flex items-center justify-center mb-6">
-                        <svg class="w-7 h-7 text-quantum-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="glass-card rounded-2xl p-6 sm:p-8">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-quantum-accent/10 flex items-center justify-center mb-5 sm:mb-6">
+                        <svg class="w-6 h-6 sm:w-7 sm:h-7 text-quantum-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
                         </svg>
                     </div>
-                    <h4 class="text-xl font-bold text-white mb-3">Auto-Error Correction</h4>
-                    <p class="text-gray-400 leading-relaxed">Our proprietary topological surface codes automatically detect and correct decoherence errors in real-time, ensuring reliable execution.</p>
+                    <h4 class="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3">Auto-Error Correction</h4>
+                    <p class="text-gray-400 text-sm sm:text-base leading-relaxed">Our proprietary topological surface codes automatically detect and correct decoherence errors in real-time, ensuring reliable execution.</p>
                 </div>
 
                 <!-- Feature 2 -->
-                <div class="glass-card rounded-2xl p-8">
-                    <div class="w-14 h-14 rounded-xl bg-quantum-purple/10 flex items-center justify-center mb-6">
-                        <svg class="w-7 h-7 text-quantum-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="glass-card rounded-2xl p-6 sm:p-8">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-quantum-purple/10 flex items-center justify-center mb-5 sm:mb-6">
+                        <svg class="w-6 h-6 sm:w-7 sm:h-7 text-quantum-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
                         </svg>
                     </div>
-                    <h4 class="text-xl font-bold text-white mb-3">Seamless Cloud API</h4>
-                    <p class="text-gray-400 leading-relaxed">Integrate quantum processing into your classical pipelines via REST APIs or our native Python SDKs. Hybrid computing made trivial.</p>
+                    <h4 class="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3">Seamless Cloud API</h4>
+                    <p class="text-gray-400 text-sm sm:text-base leading-relaxed">Integrate quantum processing into your classical pipelines via REST APIs or our native Python SDKs. Hybrid computing made trivial.</p>
                 </div>
 
                 <!-- Feature 3 -->
-                <div class="glass-card rounded-2xl p-8">
-                    <div class="w-14 h-14 rounded-xl bg-blue-500/10 flex items-center justify-center mb-6">
-                        <svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="glass-card rounded-2xl p-6 sm:p-8">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-blue-500/10 flex items-center justify-center mb-5 sm:mb-6">
+                        <svg class="w-6 h-6 sm:w-7 sm:h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                         </svg>
                     </div>
-                    <h4 class="text-xl font-bold text-white mb-3">Hyper-Scalable Architecture</h4>
-                    <p class="text-gray-400 leading-relaxed">Modular QPU architecture allows dynamically allocating resources. Scale from 10-qubit tests to 1000+ qubit enterprise workloads instantly.</p>
+                    <h4 class="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3">Hyper-Scalable Architecture</h4>
+                    <p class="text-gray-400 text-sm sm:text-base leading-relaxed">Modular QPU architecture allows dynamically allocating resources. Scale from 10-qubit tests to 1000+ qubit enterprise workloads instantly.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Industry Solutions -->
-    <section id="solutions" class="py-24 relative z-10 bg-gradient-to-b from-transparent to-quantum-800/30 border-t border-white/5">
+    <section id="solutions" class="py-16 sm:py-24 relative z-10 bg-gradient-to-b from-transparent to-quantum-800/30 border-t border-white/5">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-12 sm:mb-16 gap-6">
                 <div class="max-w-2xl">
-                    <h2 class="text-3xl md:text-5xl font-bold mb-4">Transforming Industries</h2>
-                    <p class="text-gray-400 text-lg">Classical supercomputers have limits. Quantum computing shatters them. See where QubitNex is driving immediate ROI.</p>
+                    <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">Transforming Industries</h2>
+                    <p class="text-gray-400 text-base sm:text-lg">Classical supercomputers have limits. Quantum computing shatters them. See where QubitNex is driving immediate ROI.</p>
                 </div>
-                <a href="#" class="text-quantum-accent hover:text-white flex items-center gap-2 transition-colors pb-1 border-b border-quantum-accent/30 hover:border-white">
+                <a href="#" class="text-quantum-accent hover:text-white flex items-center gap-2 transition-colors pb-1 border-b border-quantum-accent/30 hover:border-white text-sm sm:text-base">
                     View all case studies
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                 </a>
             </div>
 
-            <div class="grid md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Industry Card 1 -->
-                <div class="group relative rounded-2xl overflow-hidden cursor-pointer">
+                <div class="group relative rounded-2xl overflow-hidden cursor-pointer h-72 sm:h-80">
                     <div class="absolute inset-0 bg-gradient-to-t from-quantum-900 via-quantum-900/80 to-transparent z-10"></div>
-                    <img src="https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Chemistry Research" class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-700" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjMUMyODMzIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIi8+PC9zdmc+'">
-                    <div class="absolute bottom-0 left-0 right-0 p-8 z-20">
-                        <h4 class="text-2xl font-bold text-white mb-2">Molecular Simulation</h4>
-                        <p class="text-gray-300 text-sm mb-4 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">Discover new pharmaceuticals and advanced materials by simulating molecular interactions at the sub-atomic level natively.</p>
+                    <img src="https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Chemistry Research" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjMUMyODMzIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIi8+PC9zdmc+'">
+                    <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-20">
+                        <h4 class="text-xl sm:text-2xl font-bold text-white mb-2">Molecular Simulation</h4>
+                        <p class="text-gray-300 text-xs sm:text-sm mb-4 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transform translate-y-0 lg:translate-y-4 lg:group-hover:translate-y-0 transition-all duration-300">Discover new pharmaceuticals and advanced materials by simulating molecular interactions at the sub-atomic level natively.</p>
                         <span class="inline-block px-3 py-1 bg-white/10 rounded-full text-xs border border-white/20 backdrop-blur-md">Pharmaceuticals</span>
                     </div>
                 </div>
 
                 <!-- Industry Card 2 -->
-                <div class="group relative rounded-2xl overflow-hidden cursor-pointer">
+                <div class="group relative rounded-2xl overflow-hidden cursor-pointer h-72 sm:h-80">
                     <div class="absolute inset-0 bg-gradient-to-t from-quantum-900 via-quantum-900/80 to-transparent z-10"></div>
-                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Data visualization" class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-700" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjMUMyODMzIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIi8+PC9zdmc+'">
-                    <div class="absolute bottom-0 left-0 right-0 p-8 z-20">
-                        <h4 class="text-2xl font-bold text-white mb-2">Portfolio Optimization</h4>
-                        <p class="text-gray-300 text-sm mb-4 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">Run complex Monte Carlo simulations and risk assessments in seconds, exploring billions of variables simultaneously.</p>
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Data visualization" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjMUMyODMzIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIi8+PC9zdmc+'">
+                    <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-20">
+                        <h4 class="text-xl sm:text-2xl font-bold text-white mb-2">Portfolio Optimization</h4>
+                        <p class="text-gray-300 text-xs sm:text-sm mb-4 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transform translate-y-0 lg:translate-y-4 lg:group-hover:translate-y-0 transition-all duration-300">Run complex Monte Carlo simulations and risk assessments in seconds, exploring billions of variables simultaneously.</p>
                         <span class="inline-block px-3 py-1 bg-white/10 rounded-full text-xs border border-white/20 backdrop-blur-md">Finance</span>
                     </div>
                 </div>
@@ -319,32 +319,32 @@
     </section>
 
     <!-- Trusted By -->
-    <section class="py-16 border-t border-white/5 relative z-10">
+    <section class="py-12 sm:py-16 border-t border-white/5 relative z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="text-sm font-medium text-gray-500 uppercase tracking-widest mb-8">Trusted by visionary enterprise teams</p>
-            <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+            <p class="text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-widest mb-6 sm:mb-8">Trusted by visionary enterprise teams</p>
+            <div class="flex flex-wrap justify-center items-center gap-6 sm:gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
                 <!-- Placeholder Logos using Text/SVG -->
-                <div class="text-2xl font-bold font-mono tracking-tighter">AEROSPACE<span class="text-quantum-accent">.</span>X</div>
-                <div class="flex items-center gap-2"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 22h20L12 2zm0 3.5l7 14.5H5l7-14.5z"/></svg><span class="text-xl font-bold">FinGlobal</span></div>
-                <div class="text-2xl font-serif italic font-bold">NexaPharma</div>
-                <div class="text-xl font-bold tracking-widest border border-current px-2 py-1">LOGISTIQ</div>
-                <div class="text-xl font-bold flex items-center gap-1"><span class="w-4 h-4 rounded-full bg-current"></span> DOT.AI</div>
+                <div class="text-lg sm:text-2xl font-bold font-mono tracking-tighter">AEROSPACE<span class="text-quantum-accent">.</span>X</div>
+                <div class="flex items-center gap-1 sm:gap-2"><svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 22h20L12 2zm0 3.5l7 14.5H5l7-14.5z"/></svg><span class="text-lg sm:text-xl font-bold">FinGlobal</span></div>
+                <div class="text-xl sm:text-2xl font-serif italic font-bold">NexaPharma</div>
+                <div class="text-lg sm:text-xl font-bold tracking-widest border border-current px-2 py-1">LOGISTIQ</div>
+                <div class="text-lg sm:text-xl font-bold flex items-center gap-1"><span class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-current"></span> DOT.AI</div>
             </div>
         </div>
     </section>
 
     <!-- CTA Section -->
-    <section id="contact" class="py-24 relative z-10">
+    <section id="contact" class="py-16 sm:py-24 relative z-10">
         <div class="absolute inset-0 bg-gradient-to-b from-transparent to-quantum-accent/10 opacity-50"></div>
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
-            <div class="glass border border-quantum-accent/20 rounded-3xl p-8 md:p-16 text-center shadow-[0_0_50px_rgba(0,240,255,0.1)]">
-                <h2 class="text-3xl md:text-5xl font-bold mb-6 text-white">Ready for the Quantum Leap?</h2>
-                <p class="text-gray-400 text-lg mb-10 max-w-2xl mx-auto">Get early access to QPU V4 and start migrating your most intensive classical workloads to our fault-tolerant platform.</p>
+            <div class="glass border border-quantum-accent/20 rounded-2xl sm:rounded-3xl p-6 sm:p-12 md:p-16 text-center shadow-[0_0_50px_rgba(0,240,255,0.1)]">
+                <h2 class="text-2xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 text-white">Ready for the Quantum Leap?</h2>
+                <p class="text-gray-400 text-sm sm:text-lg mb-8 sm:mb-10 max-w-2xl mx-auto">Get early access to QPU V4 and start migrating your most intensive classical workloads to our fault-tolerant platform.</p>
                 
-                <form class="max-w-md mx-auto" onsubmit="event.preventDefault(); alert('Demo request received! We will contact you shortly.');">
-                    <div class="flex flex-col gap-4">
-                        <input type="email" placeholder="Enter your work email" required class="w-full bg-quantum-900/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-quantum-accent focus:ring-1 focus:ring-quantum-accent transition-all">
-                        <button type="submit" class="w-full bg-gradient-to-r from-quantum-accent to-quantum-purple text-white font-bold rounded-lg px-4 py-3 hover:opacity-90 transition-opacity shadow-lg shadow-quantum-accent/25">
+                <form class="max-w-md mx-auto w-full" onsubmit="event.preventDefault(); alert('Demo request received! We will contact you shortly.');">
+                    <div class="flex flex-col gap-3 sm:gap-4">
+                        <input type="email" placeholder="Enter your work email" required class="w-full bg-quantum-900/50 border border-white/10 rounded-lg px-4 py-3 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:border-quantum-accent focus:ring-1 focus:ring-quantum-accent transition-all">
+                        <button type="submit" class="w-full bg-gradient-to-r from-quantum-accent to-quantum-purple text-white font-bold rounded-lg px-4 py-3 text-sm sm:text-base hover:opacity-90 transition-opacity shadow-lg shadow-quantum-accent/25">
                             Request Demo Access
                         </button>
                     </div>
@@ -355,17 +355,17 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-quantum-900 border-t border-white/5 pt-16 pb-8 relative z-10">
+    <footer class="bg-quantum-900 border-t border-white/5 pt-12 sm:pt-16 pb-8 relative z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
-                <div class="col-span-2 md:col-span-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 mb-12">
+                <div class="col-span-1 sm:col-span-2 lg:col-span-2">
                     <div class="flex items-center gap-2 mb-4">
                         <svg class="w-6 h-6 text-quantum-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
                         </svg>
                         <span class="font-bold text-xl text-white">Qubit<span class="text-quantum-accent">Nex</span></span>
                     </div>
-                    <p class="text-gray-400 text-sm max-w-xs mb-6">Building the infrastructure for the next century of computing. Fault-tolerant, scalable, and accessible.</p>
+                    <p class="text-gray-400 text-sm max-w-sm mb-6">Building the infrastructure for the next century of computing. Fault-tolerant, scalable, and accessible.</p>
                     <div class="flex space-x-4">
                         <a href="#" class="text-gray-500 hover:text-white transition-colors">
                             <span class="sr-only">Twitter</span>
@@ -378,7 +378,7 @@
                     </div>
                 </div>
                 <div>
-                    <h3 class="text-white font-semibold mb-4">Platform</h3>
+                    <h3 class="text-white font-semibold mb-4 text-sm sm:text-base">Platform</h3>
                     <ul class="space-y-2 text-sm text-gray-400">
                         <li><a href="#" class="hover:text-quantum-accent transition-colors">Hardware (QPU)</a></li>
                         <li><a href="#" class="hover:text-quantum-accent transition-colors">Cloud Access</a></li>
@@ -387,7 +387,7 @@
                     </ul>
                 </div>
                 <div>
-                    <h3 class="text-white font-semibold mb-4">Resources</h3>
+                    <h3 class="text-white font-semibold mb-4 text-sm sm:text-base">Resources</h3>
                     <ul class="space-y-2 text-sm text-gray-400">
                         <li><a href="#" class="hover:text-quantum-accent transition-colors">Documentation</a></li>
                         <li><a href="#" class="hover:text-quantum-accent transition-colors">SDKs (Python/C++)</a></li>
@@ -396,7 +396,7 @@
                     </ul>
                 </div>
                 <div>
-                    <h3 class="text-white font-semibold mb-4">Company</h3>
+                    <h3 class="text-white font-semibold mb-4 text-sm sm:text-base">Company</h3>
                     <ul class="space-y-2 text-sm text-gray-400">
                         <li><a href="#" class="hover:text-quantum-accent transition-colors">About Us</a></li>
                         <li><a href="#" class="hover:text-quantum-accent transition-colors">Careers <span class="text-xs bg-quantum-purple/20 text-quantum-purple px-1.5 py-0.5 rounded ml-1">Hiring</span></a></li>
@@ -405,9 +405,9 @@
                     </ul>
                 </div>
             </div>
-            <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-gray-500 text-sm">© 2026 QubitNex Inc. All rights reserved.</p>
-                <div class="flex space-x-6 text-sm text-gray-500">
+            <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+                <p class="text-gray-500 text-xs sm:text-sm">© 2026 QubitNex Inc. All rights reserved.</p>
+                <div class="flex space-x-4 sm:space-x-6 text-xs sm:text-sm text-gray-500">
                     <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
                     <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
                 </div>
@@ -476,7 +476,7 @@
             }
         }
 
-        // Create particles
+        // Create particles based on screen width
         const particleCount = Math.min(window.innerWidth / 15, 100);
         for (let i = 0; i < particleCount; i++) {
             particles.push(new Particle());
@@ -488,6 +488,19 @@
             mouse.x = e.x;
             mouse.y = e.y;
         });
+        
+        // Touch interaction for mobile
+        window.addEventListener('touchmove', (e) => {
+            if(e.touches.length > 0) {
+                mouse.x = e.touches[0].clientX;
+                mouse.y = e.touches[0].clientY;
+            }
+        });
+        window.addEventListener('touchend', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
         window.addEventListener('mouseout', () => {
             mouse.x = null;
             mouse.y = null;
