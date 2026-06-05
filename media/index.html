@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aura Media Player Pro</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <style>
+        /* Custom Scrollbar for Playlist */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+
+        /* Custom Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            margin-top: -4px;
+            box-shadow: 0 0 4px rgba(0,0,0,0.5);
+            transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.3); }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: var(--track-color, #4b5563);
+            border-radius: 2px;
+        }
+
+        /* Pulsing animation for audio playback */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.85); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.6); }
+            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(99, 102, 241, 0); }
+            100% { transform: scale(0.85); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+        .playing-audio .audio-ring {
+            animation: pulse-ring 2s infinite cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .hidden-force { display: none !important; }
+        
+        /* Smooth transitions for view switching */
+        .view-transition { transition: opacity 0.3s ease, transform 0.3s ease; }
+    </style>
+</head>
+<body class="bg-gray-950 text-white h-[100dvh] w-full flex flex-col font-sans overflow-hidden select-none">
+
+    <!-- Top Navigation Bar -->
+    <header class="h-14 sm:h-16 bg-gray-900 border-b border-gray-800 flex items-center justify-between px-3 sm:px-6 shrink-0 z-20 shadow-md">
+        <!-- Logo -->
+        <div class="flex items-center gap-2 text-indigo-500 w-auto sm:w-1/4 shrink-0">
+            <i class="ph-fill ph-play-circle text-2xl sm:text-3xl"></i>
+            <h1 class="text-lg sm:text-xl font-bold tracking-wide text-white hidden sm:block">Aura Pro</h1>
+        </div>
+        
+        <!-- View Switcher Menu -->
+        <div class="flex-1 flex justify-center shrink-0 mx-2">
+            <div class="flex bg-gray-950 p-1 rounded-full border border-gray-800 shadow-inner">
+                <button id="tab-audio" class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-1 sm:py-1.5 rounded-full bg-indigo-600 text-white text-xs sm:text-sm font-medium transition-all shadow-md">
+                    <i class="ph-fill ph-music-notes text-base sm:text-lg"></i>
+                    <span class="hidden sm:inline">Music</span>
+                </button>
+                <button id="tab-video" class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-1 sm:py-1.5 rounded-full text-gray-400 hover:text-gray-200 text-xs sm:text-sm font-medium transition-all">
+                    <i class="ph-fill ph-film-strip text-base sm:text-lg"></i>
+                    <span class="hidden sm:inline">Video</span>
+                </button>
+                <button id="tab-credits" class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-1 sm:py-1.5 rounded-full text-gray-400 hover:text-gray-200 text-xs sm:text-sm font-medium transition-all bg-transparent">
+                    <i class="ph-fill ph-info text-base sm:text-lg"></i>
+                    <span class="hidden sm:inline">Credits</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Upload Action -->
+        <div class="w-auto sm:w-1/4 flex justify-end shrink-0">
+            <input type="file" id="file-input" multiple accept="audio/*,video/*" class="hidden">
+            <button id="upload-btn" class="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white px-3 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-colors">
+                <i class="ph ph-plus text-base sm:text-lg"></i>
+                <span class="hidden md:inline">Add Media</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative min-h-0">
+        
+        <!-- Main Visual Display (Left/Top) -->
+        <section id="main-visual-area" class="h-[35vh] md:h-auto md:flex-1 bg-black relative overflow-hidden flex items-center justify-center shrink-0 z-10 transition-all duration-300">
+            
+            <!-- Global Media Player Element -->
+            <video id="media-player" class="absolute inset-0 w-full h-full object-contain z-10 hidden-force" playsinline></video>
+            
+            <!-- Audio Complete View -->
+            <div id="view-audio" class="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-gray-800 to-gray-950 z-20 view-transition p-4 overflow-hidden">
+                <div class="audio-ring shrink-0 flex items-center justify-center aspect-square rounded-full bg-gradient-to-tr from-indigo-900 to-purple-900 p-6 md:p-10 mb-3 md:mb-6 shadow-2xl transition-all duration-300 border border-indigo-500/30">
+                    <i class="ph-fill ph-music-notes text-5xl md:text-7xl text-indigo-300 drop-shadow-lg leading-none m-0"></i>
+                </div>
+                <h2 id="audio-title" class="text-xl md:text-3xl font-bold text-white text-center px-4 w-full truncate tracking-tight shrink-0">Music Mode</h2>
+                <p id="audio-subtitle" class="text-sm md:text-base text-indigo-300 mt-1 md:mt-2 font-medium tracking-wide text-center w-full truncate shrink-0">Select a track to play</p>
+            </div>
+
+            <!-- Video Complete View (Empty State / Placeholder) -->
+            <div id="view-video-empty" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-950 z-20 hidden-force view-transition p-4">
+                <div class="p-6 md:p-8 mb-3 md:mb-4 rounded-3xl bg-gray-900/50 border border-gray-800">
+                    <i class="ph-fill ph-film-slate text-5xl md:text-7xl text-gray-600"></i>
+                </div>
+                <h2 class="text-xl md:text-2xl font-semibold text-gray-300 text-center px-4">Video Mode</h2>
+                <p class="text-sm md:text-base text-gray-500 mt-2 text-center">Select a video from your playlist</p>
+            </div>
+            
+            <!-- Credits Complete View -->
+            <div id="view-credits" class="absolute inset-0 bg-gray-950 z-30 hidden-force view-transition overflow-y-auto">
+                <div class="min-h-full flex flex-col p-4 sm:p-6">
+                    <div class="max-w-2xl w-full mx-auto bg-gray-900 border border-gray-800 rounded-2xl p-6 sm:p-8 shadow-2xl mt-auto mb-auto shrink-0">
+                        <h2 class="text-2xl sm:text-3xl font-bold text-white mb-6 text-center">Credits</h2>
+                        
+                        <div class="space-y-4 text-gray-300 text-sm sm:text-base">
+                            <div class="flex flex-col sm:flex-row sm:items-center border-b border-gray-800 pb-4">
+                                <span class="text-gray-500 w-32 font-medium mb-1 sm:mb-0">License:</span>
+                                <span class="font-semibold text-white">AGPLv3</span>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center border-b border-gray-800 pb-4">
+                                <span class="text-gray-500 w-32 font-medium mb-1 sm:mb-0">Developer:</span>
+                                <span class="font-semibold text-indigo-400">Lcdo. César Cordero Rodríguez, Gemini AI.</span>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center border-b border-gray-800 pb-4">
+                                <span class="text-gray-500 w-32 font-medium mb-1 sm:mb-0">Maintainer:</span>
+                                <span class="font-semibold text-indigo-400">Lcdo. César Cordero Rodríguez, Gemini AI.</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 sm:mt-8 bg-indigo-900/20 border border-indigo-500/30 rounded-xl p-4 sm:p-6 text-center">
+                            <p class="text-base sm:text-lg text-indigo-100 font-medium mb-4 sm:mb-6">I did this software with an AI. Do you want a Software for you?</p>
+                            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+                                <a href="https://t.me/rockcesar" target="_blank" class="w-full sm:w-auto flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-full transition-colors font-medium text-sm sm:text-base shadow-lg">
+                                    <i class="ph-fill ph-telegram-logo text-xl"></i> Contact me
+                                </a>
+                                <a href="https://rockcesar.github.io" target="_blank" class="w-full sm:w-auto flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-white border border-gray-700 px-5 py-2.5 rounded-full transition-colors font-medium text-sm sm:text-base shadow-lg">
+                                    <i class="ph-fill ph-user-circle text-xl"></i> My profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </section>
+
+        <!-- Playlist Area (Right/Bottom) -->
+        <aside id="playlist-aside" class="flex-1 md:w-80 lg:w-96 bg-gray-900 border-t md:border-t-0 md:border-l border-gray-800 flex flex-col shrink-0 min-h-0 z-30 shadow-2xl">
+            <div class="p-3 sm:p-4 border-b border-gray-800 flex items-center justify-between bg-gray-900/95 backdrop-blur shrink-0">
+                <h3 id="playlist-header-title" class="text-base sm:text-lg font-semibold flex items-center gap-2 text-gray-100">
+                    <i class="ph-fill ph-playlist"></i> Music Playlist
+                </h3>
+                <div class="flex items-center gap-2">
+                    <button id="btn-clear-playlist" class="text-gray-400 hover:text-red-400 transition-colors p-1.5 rounded-full hover:bg-gray-800 hidden-force" title="Clear Playlist">
+                        <i class="ph-bold ph-trash text-sm sm:text-base"></i>
+                    </button>
+                    <span id="playlist-count" class="text-[10px] sm:text-xs font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-2 sm:px-2.5 py-1 rounded-full">0 files</span>
+                </div>
+            </div>
+            
+            <div id="playlist" class="flex-1 overflow-y-auto p-2 space-y-1 relative min-h-0">
+                <!-- Empty State -->
+                <div id="empty-state" class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 pointer-events-none p-6 text-center">
+                    <i class="ph-fill ph-folder-open text-3xl sm:text-4xl mb-3 opacity-40"></i>
+                    <p id="empty-state-text" class="text-xs sm:text-sm text-gray-400">No music uploaded.</p>
+                    <button class="mt-4 px-4 py-1.5 rounded-full border border-gray-600 text-xs pointer-events-auto hover:bg-gray-800 hover:text-white transition-colors" onclick="document.getElementById('file-input').click()">
+                        Upload Files
+                    </button>
+                </div>
+                <!-- Playlist Items Injected Here -->
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- Bottom Universal Player Controls -->
+    <footer class="h-auto sm:h-24 bg-gray-900 border-t border-gray-800 flex flex-col sm:flex-row items-center px-2 sm:px-6 shrink-0 z-40 py-2 sm:py-0 relative">
+        
+        <!-- Mobile Progress Bar -->
+        <div class="w-full flex items-center gap-2 sm:hidden px-2 mb-2">
+            <span id="time-current-mobile" class="text-[10px] text-gray-400 font-mono w-8 text-right">0:00</span>
+            <input type="range" id="progress-bar-mobile" value="0" min="0" max="100" class="flex-1 h-1">
+            <span id="time-total-mobile" class="text-[10px] text-gray-400 font-mono w-8">0:00</span>
+        </div>
+
+        <!-- Track Info -->
+        <div class="w-full sm:w-1/3 flex items-center gap-3 mb-2 sm:mb-0 justify-center sm:justify-start px-2 sm:px-0">
+            <div id="bottom-thumbnail" class="w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 rounded-lg flex items-center justify-center shrink-0 overflow-hidden relative shadow-md border border-gray-700">
+                <i id="mini-icon" class="ph-fill ph-speaker-hifi text-xl sm:text-2xl text-gray-500"></i>
+                <video id="mini-video-preview" class="w-full h-full object-cover hidden-force" muted playsinline></video>
+            </div>
+            <div class="flex flex-col overflow-hidden text-left w-full sm:w-auto flex-1 sm:flex-none">
+                <span id="current-title" class="text-xs sm:text-sm font-bold truncate w-full text-white">No active media</span>
+                <span id="current-type" class="text-[10px] sm:text-xs text-gray-400 truncate w-full font-medium">Ready to play</span>
+            </div>
+        </div>
+
+        <!-- Main Controls -->
+        <div class="w-full sm:w-1/3 flex flex-col items-center justify-center gap-2 pb-1 sm:pb-0">
+            <div class="flex items-center gap-4 sm:gap-6">
+                <button id="btn-shuffle" class="text-gray-400 hover:text-white transition-colors" title="Shuffle">
+                    <i class="ph-bold ph-shuffle text-base sm:text-xl"></i>
+                </button>
+                <button id="btn-prev" class="text-gray-300 hover:text-white transition-colors" title="Previous">
+                    <i class="ph-fill ph-skip-back text-xl sm:text-3xl"></i>
+                </button>
+                <button id="btn-play" class="w-10 h-10 sm:w-14 sm:h-14 bg-white text-black rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg hover:shadow-white/20" title="Play/Pause">
+                    <i id="icon-play" class="ph-fill ph-play text-xl sm:text-3xl"></i>
+                </button>
+                <button id="btn-next" class="text-gray-300 hover:text-white transition-colors" title="Next">
+                    <i class="ph-fill ph-skip-forward text-xl sm:text-3xl"></i>
+                </button>
+                <button id="btn-repeat" class="text-gray-400 hover:text-white transition-colors" title="Repeat">
+                    <i class="ph-bold ph-repeat text-base sm:text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Desktop Progress Bar -->
+            <div class="hidden sm:flex w-full max-w-md items-center gap-3 mt-1">
+                <span id="time-current" class="text-xs text-gray-400 font-mono w-10 text-right">0:00</span>
+                <input type="range" id="progress-bar" value="0" min="0" max="100" class="flex-1 group-hover:bg-indigo-500">
+                <span id="time-total" class="text-xs text-gray-400 font-mono w-10">0:00</span>
+            </div>
+        </div>
+
+        <!-- Volume & Actions -->
+        <div class="hidden sm:flex w-1/3 items-center justify-end gap-3 pr-2">
+            <button id="btn-mute" class="text-gray-400 hover:text-white transition-colors">
+                <i id="icon-volume" class="ph-fill ph-speaker-high text-xl"></i>
+            </button>
+            <input type="range" id="volume-bar" value="100" min="0" max="100" class="w-24">
+            <div class="h-6 w-px bg-gray-700 mx-2"></div>
+            <button id="btn-fullscreen" class="text-gray-500 transition-colors pointer-events-none" title="Fullscreen Video">
+                <i class="ph-bold ph-corners-out text-xl"></i>
+            </button>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Application State ---
+            const state = {
+                currentTab: 'audio', // 'audio' or 'video'
+                playlists: {
+                    audio: [],
+                    video: []
+                },
+                currentTrack: null, // Object: { id, name, type, url, file }
+                currentIndex: {
+                    audio: -1,
+                    video: -1
+                },
+                isPlaying: false,
+                isShuffle: false,
+                repeatMode: 0 // 0: none, 1: all, 2: one
+            };
+
+            // --- DOM Elements ---
+            // Main Player
+            const player = document.getElementById('media-player');
+            
+            // File Management
+            const fileInput = document.getElementById('file-input');
+            const uploadBtn = document.getElementById('upload-btn');
+            const btnClearPlaylist = document.getElementById('btn-clear-playlist');
+            
+            // Tabs
+            const tabAudio = document.getElementById('tab-audio');
+            const tabVideo = document.getElementById('tab-video');
+            const tabCredits = document.getElementById('tab-credits');
+            
+            // Visual Views
+            const mainVisualArea = document.getElementById('main-visual-area');
+            const viewAudio = document.getElementById('view-audio');
+            const viewVideoEmpty = document.getElementById('view-video-empty');
+            const viewCredits = document.getElementById('view-credits');
+            const audioTitle = document.getElementById('audio-title');
+            const audioSubtitle = document.getElementById('audio-subtitle');
+            
+            // Playlist Area
+            const playlistAside = document.getElementById('playlist-aside');
+            const playlistContainer = document.getElementById('playlist');
+            const emptyState = document.getElementById('empty-state');
+            const emptyStateText = document.getElementById('empty-state-text');
+            const playlistCount = document.getElementById('playlist-count');
+            const playlistHeaderTitle = document.getElementById('playlist-header-title');
+            
+            // Bottom Controls
+            const btnPlay = document.getElementById('btn-play');
+            const iconPlay = document.getElementById('icon-play');
+            const btnPrev = document.getElementById('btn-prev');
+            const btnNext = document.getElementById('btn-next');
+            const btnShuffle = document.getElementById('btn-shuffle');
+            const btnRepeat = document.getElementById('btn-repeat');
+            const btnMute = document.getElementById('btn-mute');
+            const iconVolume = document.getElementById('icon-volume');
+            const btnFullscreen = document.getElementById('btn-fullscreen');
+            
+            // Progress & Meta
+            const currentTitle = document.getElementById('current-title');
+            const currentType = document.getElementById('current-type');
+            const miniIcon = document.getElementById('mini-icon');
+            const miniVideoPreview = document.getElementById('mini-video-preview');
+            const bottomThumbnail = document.getElementById('bottom-thumbnail');
+            
+            const progressBar = document.getElementById('progress-bar');
+            const progressBarMobile = document.getElementById('progress-bar-mobile');
+            const volumeBar = document.getElementById('volume-bar');
+            const timeCurrent = document.getElementById('time-current');
+            const timeTotal = document.getElementById('time-total');
+            const timeCurrentMobile = document.getElementById('time-current-mobile');
+            const timeTotalMobile = document.getElementById('time-total-mobile');
+
+            // --- Initialization ---
+            player.volume = 1;
+            updateRangeBackground(volumeBar);
+            updateMainVisuals();
+
+            // --- Event Listeners ---
+
+            // Upload Logic
+            uploadBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
+                if (files.length === 0) return;
+                
+                let addedAudio = 0, addedVideo = 0;
+
+                files.forEach(file => {
+                    const isVideo = file.type.startsWith('video/');
+                    const type = isVideo ? 'video' : 'audio';
+                    
+                    state.playlists[type].push({
+                        id: Math.random().toString(36).substr(2, 9),
+                        name: file.name.replace(/\.[^/.]+$/, ""),
+                        type: type,
+                        mimeType: file.type,
+                        url: URL.createObjectURL(file),
+                        file: file
+                    });
+                    
+                    if(isVideo) addedVideo++; else addedAudio++;
+                });
+
+                // Auto switch tab if we uploaded files for the non-active tab and none for active
+                if (state.currentTab === 'audio' && addedAudio === 0 && addedVideo > 0) {
+                    switchTab('video');
+                } else if (state.currentTab === 'video' && addedVideo === 0 && addedAudio > 0) {
+                    switchTab('audio');
+                } else {
+                    renderPlaylist(); // Render active tab's list
+                }
+                
+                updatePlaylistCountUI();
+                fileInput.value = ''; // Reset
+            });
+
+            // Clear Playlist Logic
+            btnClearPlaylist.addEventListener('click', () => {
+                const type = state.currentTab;
+                if (state.playlists[type].length === 0) return;
+
+                // Revoke URLs to free memory
+                state.playlists[type].forEach(track => URL.revokeObjectURL(track.url));
+
+                // Clear the array
+                state.playlists[type] = [];
+
+                // If the current track is from this playlist, stop playback completely
+                if (state.currentTrack && state.currentTrack.type === type) {
+                    player.pause();
+                    player.src = '';
+                    state.currentTrack = null;
+                    state.currentIndex[type] = -1;
+                    
+                    // Reset bottom UI
+                    currentTitle.textContent = 'No active media';
+                    currentType.textContent = 'Ready to play';
+                    miniIcon.classList.remove('hidden-force');
+                    miniIcon.className = 'ph-fill ph-speaker-hifi text-xl sm:text-2xl text-gray-500';
+                    miniVideoPreview.classList.add('hidden-force');
+                    timeCurrent.textContent = '0:00';
+                    timeTotal.textContent = '0:00';
+                    progressBar.value = 0;
+                    updateRangeBackground(progressBar);
+                    btnFullscreen.classList.add('pointer-events-none', 'text-gray-500');
+                } else {
+                    // Just reset the index for the cleared tab
+                    state.currentIndex[type] = -1;
+                }
+
+                updatePlaylistCountUI();
+                renderPlaylist();
+                updateMainVisuals();
+            });
+
+            // Tab Switching Logic
+            tabAudio.addEventListener('click', () => switchTab('audio'));
+            tabVideo.addEventListener('click', () => switchTab('video'));
+            tabCredits.addEventListener('click', () => switchTab('credits'));
+
+            // Playback Controls
+            btnPlay.addEventListener('click', togglePlay);
+            btnNext.addEventListener('click', playNext);
+            btnPrev.addEventListener('click', playPrev);
+            
+            btnShuffle.addEventListener('click', () => {
+                state.isShuffle = !state.isShuffle;
+                btnShuffle.classList.toggle('text-indigo-400', state.isShuffle);
+                btnShuffle.classList.toggle('text-gray-400', !state.isShuffle);
+            });
+
+            btnRepeat.addEventListener('click', () => {
+                state.repeatMode = (state.repeatMode + 1) % 3;
+                const icon = btnRepeat.querySelector('i');
+                
+                if (state.repeatMode === 0) {
+                    btnRepeat.className = 'text-gray-400 hover:text-white transition-colors';
+                    icon.className = 'ph-bold ph-repeat text-base sm:text-xl';
+                } else if (state.repeatMode === 1) {
+                    btnRepeat.className = 'text-indigo-400 transition-colors';
+                    icon.className = 'ph-bold ph-repeat text-base sm:text-xl';
+                } else {
+                    btnRepeat.className = 'text-indigo-400 transition-colors';
+                    icon.className = 'ph-bold ph-repeat-once text-base sm:text-xl';
+                }
+            });
+
+            // Volume Controls
+            btnMute.addEventListener('click', () => {
+                player.muted = !player.muted;
+                volumeBar.value = player.muted ? 0 : (player.volume * 100 || 50);
+                if(!player.muted && player.volume === 0) player.volume = 0.5;
+                updateVolumeIcon();
+                updateRangeBackground(volumeBar);
+            });
+            
+            volumeBar.addEventListener('input', (e) => {
+                player.volume = e.target.value / 100;
+                player.muted = false;
+                updateVolumeIcon();
+                updateRangeBackground(volumeBar);
+            });
+
+            // Progress Controls
+            [progressBar, progressBarMobile].forEach(bar => {
+                bar.addEventListener('input', (e) => {
+                    if(!player.duration) return;
+                    player.currentTime = (e.target.value / 100) * player.duration;
+                    updateRangeBackground(bar);
+                });
+            });
+
+            // Player Events
+            player.addEventListener('timeupdate', () => {
+                if (!player.duration) return;
+                const percentage = (player.currentTime / player.duration) * 100;
+                progressBar.value = percentage;
+                progressBarMobile.value = percentage;
+                updateRangeBackground(progressBar);
+                updateRangeBackground(progressBarMobile);
+                
+                const currTimeStr = formatTime(player.currentTime);
+                timeCurrent.textContent = currTimeStr;
+                timeCurrentMobile.textContent = currTimeStr;
+            });
+
+            player.addEventListener('loadedmetadata', () => {
+                const totalTimeStr = formatTime(player.duration);
+                timeTotal.textContent = totalTimeStr;
+                timeTotalMobile.textContent = totalTimeStr;
+            });
+
+            player.addEventListener('ended', handleTrackEnded);
+            
+            player.addEventListener('play', () => {
+                state.isPlaying = true;
+                iconPlay.className = 'ph-fill ph-pause text-xl sm:text-3xl';
+                updateMainVisuals();
+                renderPlaylist(); 
+            });
+            
+            player.addEventListener('pause', () => {
+                state.isPlaying = false;
+                iconPlay.className = 'ph-fill ph-play text-xl sm:text-3xl';
+                updateMainVisuals();
+                renderPlaylist();
+            });
+
+            btnFullscreen.addEventListener('click', () => {
+                if (state.currentTrack && state.currentTrack.type === 'video') {
+                    if (player.requestFullscreen) player.requestFullscreen();
+                    else if (player.webkitRequestFullscreen) player.webkitRequestFullscreen();
+                }
+            });
+
+            // --- Core Functions ---
+
+            function switchTab(tab) {
+                state.currentTab = tab;
+                
+                // Update Header Tab UI
+                const activeClasses = ['bg-indigo-600', 'text-white', 'shadow-md'];
+                const inactiveClasses = ['text-gray-400', 'hover:text-gray-200', 'bg-transparent'];
+                
+                [tabAudio, tabVideo, tabCredits].forEach(t => {
+                    t.classList.remove(...activeClasses);
+                    t.classList.add(...inactiveClasses);
+                });
+                
+                if (tab === 'audio') {
+                    tabAudio.classList.remove(...inactiveClasses);
+                    tabAudio.classList.add(...activeClasses);
+                    playlistAside.classList.remove('hidden-force');
+                    mainVisualArea.classList.remove('flex-1');
+                    mainVisualArea.classList.add('h-[35vh]');
+                    
+                    playlistHeaderTitle.innerHTML = '<i class="ph-fill ph-playlist"></i> Music Playlist';
+                    emptyStateText.textContent = 'No music uploaded.';
+                } else if (tab === 'video') {
+                    tabVideo.classList.remove(...inactiveClasses);
+                    tabVideo.classList.add(...activeClasses);
+                    playlistAside.classList.remove('hidden-force');
+                    mainVisualArea.classList.remove('flex-1');
+                    mainVisualArea.classList.add('h-[35vh]');
+                    
+                    playlistHeaderTitle.innerHTML = '<i class="ph-fill ph-film-strip"></i> Video Playlist';
+                    emptyStateText.textContent = 'No videos uploaded.';
+                } else if (tab === 'credits') {
+                    tabCredits.classList.remove(...inactiveClasses);
+                    tabCredits.classList.add(...activeClasses);
+                    playlistAside.classList.add('hidden-force');
+                    mainVisualArea.classList.remove('h-[35vh]');
+                    mainVisualArea.classList.add('flex-1');
+                }
+                
+                if (tab !== 'credits') {
+                    updatePlaylistCountUI();
+                    renderPlaylist();
+                }
+                updateMainVisuals();
+            }
+
+            function updatePlaylistCountUI() {
+                if (state.currentTab === 'credits') return;
+                const count = state.playlists[state.currentTab].length;
+                playlistCount.textContent = `${count} file${count !== 1 ? 's' : ''}`;
+                
+                // Toggle clear playlist button visibility
+                if (count > 0) {
+                    btnClearPlaylist.classList.remove('hidden-force');
+                } else {
+                    btnClearPlaylist.classList.add('hidden-force');
+                }
+            }
+
+            function renderPlaylist() {
+                if (state.currentTab === 'credits') return;
+                const list = state.playlists[state.currentTab];
+                
+                if (list.length === 0) {
+                    emptyState.classList.remove('hidden-force');
+                    // Remove all children except empty state
+                    Array.from(playlistContainer.children).forEach(child => {
+                        if(child.id !== 'empty-state') child.remove();
+                    });
+                    return;
+                }
+                
+                emptyState.classList.add('hidden-force');
+                
+                Array.from(playlistContainer.children).forEach(child => {
+                    if(child.id !== 'empty-state') child.remove();
+                });
+
+                list.forEach((track, index) => {
+                    const isActive = state.currentTrack && state.currentTrack.id === track.id;
+                    const item = document.createElement('div');
+                    
+                    // Dynamic styling for active item
+                    let containerClasses = isActive 
+                        ? 'bg-indigo-600/20 border-indigo-500/40' 
+                        : 'hover:bg-gray-800 border-transparent';
+                    
+                    const iconClass = track.type === 'video' ? 'ph-film-strip' : 'ph-music-notes-simple';
+                    const activeIconClass = state.isPlaying && isActive ? 'ph-waveform' : 'ph-play-circle'; 
+                    
+                    item.className = `group flex items-center justify-between p-2 rounded-xl cursor-pointer transition-all duration-200 border ${containerClasses}`;
+                    
+                    item.innerHTML = `
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <div class="w-10 h-10 shrink-0 rounded-lg bg-gray-950 border border-gray-800 flex items-center justify-center text-gray-400 group-hover:bg-indigo-500 group-hover:text-white transition-all relative overflow-hidden shadow-inner">
+                                ${track.type === 'video' ? `<div class="absolute inset-0 bg-[url('${track.url}')] bg-cover opacity-30"></div>` : ''}
+                                <i class="ph-fill ${isActive ? activeIconClass : iconClass} text-lg relative z-10 ${isActive ? 'text-indigo-400' : ''}"></i>
+                            </div>
+                            <div class="flex flex-col overflow-hidden">
+                                <span class="text-xs sm:text-sm font-semibold truncate ${isActive ? 'text-indigo-400' : 'text-gray-200 group-hover:text-white'} transition-colors">${track.name}</span>
+                                <span class="text-[10px] sm:text-xs text-gray-500 mt-0.5">${track.type === 'video' ? 'Video File' : 'Audio File'}</span>
+                            </div>
+                        </div>
+                        <button class="remove-btn text-gray-600 hover:text-red-400 p-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity rounded-full hover:bg-gray-800" title="Remove">
+                            <i class="ph-bold ph-trash"></i>
+                        </button>
+                    `;
+                    
+                    item.addEventListener('click', (e) => {
+                        if (e.target.closest('.remove-btn')) return;
+                        if (isActive) {
+                            togglePlay();
+                        } else {
+                            loadTrack(state.currentTab, index);
+                            playMedia();
+                        }
+                    });
+                    
+                    item.querySelector('.remove-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        removeTrack(state.currentTab, index);
+                    });
+                    
+                    playlistContainer.appendChild(item);
+                });
+                
+                // Scroll active item into view
+                if (state.currentTrack && state.currentTrack.type === state.currentTab) {
+                    const activeIndex = state.currentIndex[state.currentTab];
+                    if (activeIndex >= 0 && playlistContainer.children[activeIndex + 1]) {
+                        setTimeout(() => {
+                           playlistContainer.children[activeIndex + 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        }, 50);
+                    }
+                }
+            }
+
+            function loadTrack(type, index) {
+                const list = state.playlists[type];
+                if (index < 0 || index >= list.length) return;
+                
+                state.currentTrack = list[index];
+                state.currentIndex[type] = index;
+                
+                player.src = state.currentTrack.url;
+                player.load();
+                
+                updateBottomPlayerUI();
+                updateMainVisuals();
+                renderPlaylist();
+                
+                // Reset progress
+                progressBar.value = 0;
+                progressBarMobile.value = 0;
+                updateRangeBackground(progressBar);
+                updateRangeBackground(progressBarMobile);
+            }
+
+            function updateBottomPlayerUI() {
+                if (!state.currentTrack) return;
+                
+                currentTitle.textContent = state.currentTrack.name;
+                currentType.textContent = state.currentTrack.type === 'video' ? 'Video playback' : 'Audio playback';
+                
+                if (state.currentTrack.type === 'video') {
+                    miniIcon.classList.add('hidden-force');
+                    miniVideoPreview.classList.remove('hidden-force');
+                    miniVideoPreview.src = state.currentTrack.url;
+                    
+                    btnFullscreen.classList.remove('text-gray-500', 'pointer-events-none');
+                    btnFullscreen.classList.add('text-gray-300', 'hover:text-white');
+                    bottomThumbnail.classList.add('border-indigo-500/50');
+                } else {
+                    miniIcon.classList.remove('hidden-force');
+                    miniVideoPreview.classList.add('hidden-force');
+                    miniIcon.className = 'ph-fill ph-music-notes text-xl sm:text-2xl text-indigo-400';
+                    
+                    btnFullscreen.classList.add('text-gray-500', 'pointer-events-none');
+                    btnFullscreen.classList.remove('text-gray-300', 'hover:text-white');
+                    bottomThumbnail.classList.remove('border-indigo-500/50');
+                }
+            }
+
+            function updateMainVisuals() {
+                // Hide all views first
+                viewAudio.classList.add('hidden-force');
+                viewVideoEmpty.classList.add('hidden-force');
+                viewCredits.classList.add('hidden-force');
+                
+                // If we are in the CREDITS tab
+                if (state.currentTab === 'credits') {
+                    viewCredits.classList.remove('hidden-force');
+                    viewAudio.classList.remove('playing-audio');
+                    
+                    // Let background video continue playing, but ensure it's positioned behind the credits
+                    if (state.currentTrack && state.currentTrack.type === 'video') {
+                        player.classList.remove('hidden-force');
+                    } else {
+                        player.classList.add('hidden-force');
+                    }
+                } 
+                // If we are in the AUDIO tab
+                else if (state.currentTab === 'audio') {
+                    viewAudio.classList.remove('hidden-force');
+                    player.classList.add('hidden-force'); // Hide video element globally
+                    
+                    // Logic for Audio View content based on playback
+                    if (state.currentTrack && state.currentTrack.type === 'audio') {
+                        audioTitle.textContent = state.currentTrack.name;
+                        audioSubtitle.textContent = state.isPlaying ? 'Now Playing' : 'Paused';
+                        if(state.isPlaying) {
+                            viewAudio.classList.add('playing-audio');
+                        } else {
+                            viewAudio.classList.remove('playing-audio');
+                        }
+                    } else if (state.currentTrack && state.currentTrack.type === 'video') {
+                        viewAudio.classList.remove('playing-audio');
+                        audioTitle.textContent = "Music Mode";
+                        audioSubtitle.textContent = `Playing video: ${state.currentTrack.name}`;
+                    } else {
+                        viewAudio.classList.remove('playing-audio');
+                        audioTitle.textContent = "Music Mode";
+                        audioSubtitle.textContent = "Select a track to play";
+                    }
+                } 
+                // If we are in the VIDEO tab
+                else if (state.currentTab === 'video') {
+                    viewAudio.classList.remove('playing-audio');
+                    
+                    if (state.currentTrack && state.currentTrack.type === 'video') {
+                        player.classList.remove('hidden-force');
+                    } else {
+                        player.classList.add('hidden-force');
+                        viewVideoEmpty.classList.remove('hidden-force');
+                        
+                        const msg = (state.currentTrack && state.currentTrack.type === 'audio') 
+                                    ? `Playing audio: ${state.currentTrack.name}` 
+                                    : "Select a video from your playlist";
+                        viewVideoEmpty.querySelector('p').textContent = msg;
+                    }
+                }
+            }
+
+            function playMedia() {
+                const playPromise = player.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        if (error.name === 'AbortError') {
+                            console.log('Playback interrupted expectedly.');
+                        } else {
+                            console.error('Playback error:', error);
+                        }
+                    });
+                }
+            }
+
+            function togglePlay() {
+                if (!state.currentTrack) {
+                    if (state.playlists[state.currentTab].length > 0) {
+                        loadTrack(state.currentTab, 0);
+                        playMedia();
+                    }
+                    return;
+                }
+                if (player.paused) playMedia();
+                else player.pause();
+            }
+
+            function playNext() {
+                if (!state.currentTrack) return;
+                
+                const type = state.currentTrack.type;
+                const list = state.playlists[type];
+                if (list.length === 0) return;
+                
+                let nextIndex;
+                if (state.isShuffle) {
+                    nextIndex = Math.floor(Math.random() * list.length);
+                    if (nextIndex === state.currentIndex[type] && list.length > 1) {
+                        nextIndex = (nextIndex + 1) % list.length;
+                    }
+                } else {
+                    nextIndex = (state.currentIndex[type] + 1) % list.length;
+                }
+                
+                loadTrack(type, nextIndex);
+                playMedia();
+            }
+
+            function playPrev() {
+                if (!state.currentTrack) return;
+                
+                const type = state.currentTrack.type;
+                const list = state.playlists[type];
+                if (list.length === 0) return;
+                
+                if (player.currentTime > 3) {
+                    player.currentTime = 0;
+                    return;
+                }
+                
+                let prevIndex;
+                if (state.isShuffle) {
+                    prevIndex = Math.floor(Math.random() * list.length);
+                } else {
+                    prevIndex = state.currentIndex[type] - 1;
+                    if (prevIndex < 0) prevIndex = list.length - 1;
+                }
+                
+                loadTrack(type, prevIndex);
+                playMedia();
+            }
+
+            function handleTrackEnded() {
+                if (state.repeatMode === 2) { // Repeat One
+                    player.currentTime = 0;
+                    playMedia();
+                } else if (state.repeatMode === 1) { // Repeat All
+                    playNext();
+                } else { // None
+                    const type = state.currentTrack.type;
+                    const list = state.playlists[type];
+                    if (state.currentIndex[type] === list.length - 1 && !state.isShuffle) {
+                        player.pause();
+                        player.currentTime = 0;
+                    } else {
+                        playNext();
+                    }
+                }
+            }
+
+            function removeTrack(type, index) {
+                const list = state.playlists[type];
+                URL.revokeObjectURL(list[index].url);
+                list.splice(index, 1);
+                
+                if (state.currentTrack && state.currentTrack.type === type) {
+                    if (state.currentIndex[type] === index) {
+                        player.pause();
+                        player.src = '';
+                        state.currentTrack = null;
+                        state.currentIndex[type] = -1;
+                        
+                        currentTitle.textContent = 'No active media';
+                        currentType.textContent = 'Ready to play';
+                        miniIcon.classList.remove('hidden-force');
+                        miniIcon.className = 'ph-fill ph-speaker-hifi text-xl sm:text-2xl text-gray-500';
+                        miniVideoPreview.classList.add('hidden-force');
+                        timeCurrent.textContent = '0:00';
+                        timeTotal.textContent = '0:00';
+                        progressBar.value = 0;
+                        updateRangeBackground(progressBar);
+                        btnFullscreen.classList.add('pointer-events-none', 'text-gray-500');
+                    } else if (state.currentIndex[type] > index) {
+                        state.currentIndex[type]--; 
+                    }
+                }
+                
+                updatePlaylistCountUI();
+                if (state.currentTab === type) renderPlaylist();
+                updateMainVisuals();
+            }
+
+            function updateVolumeIcon() {
+                if (player.muted || player.volume === 0) iconVolume.className = 'ph-fill ph-speaker-x text-xl';
+                else if (player.volume < 0.5) iconVolume.className = 'ph-fill ph-speaker-low text-xl';
+                else iconVolume.className = 'ph-fill ph-speaker-high text-xl';
+            }
+
+            function formatTime(seconds) {
+                if (isNaN(seconds)) return "0:00";
+                const m = Math.floor(seconds / 60);
+                const s = Math.floor(seconds % 60);
+                return `${m}:${s.toString().padStart(2, '0')}`;
+            }
+
+            function updateRangeBackground(slider) {
+                const percentage = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+                slider.style.setProperty('--track-color', `linear-gradient(to right, #6366f1 0%, #6366f1 ${percentage}%, #4b5563 ${percentage}%, #4b5563 100%)`);
+            }
+        });
+    </script>
+</body>
+</html>
