@@ -240,7 +240,39 @@
       </div>
 
       <!-- Sidebar Footer: External Network Gateways & Raw Wire Toggle -->
-      <div class="p-2.5 border-t border-obsidian-600 bg-obsidian-900/80 space-y-1.5">
+      <div class="p-2.5 border-t border-obsidian-600 bg-obsidian-900/90 space-y-2">
+        <!-- Developer Attribution Card -->
+        <div class="p-2.5 rounded-xl bg-gradient-to-br from-obsidian-800 via-obsidian-900 to-purple-950/30 border border-purple-500/30 space-y-2">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <div class="text-[10px] font-mono uppercase tracking-wider text-purple-400 font-semibold flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span>Lead Architect &amp; Dev</span>
+              </div>
+              <div class="text-xs font-bold text-white leading-snug mt-0.5">
+                César <span class="text-cyan-400 font-mono text-[11px]">(OpenSource Expert)</span> Cordero Rodríguez
+              </div>
+            </div>
+            <button onclick="app.openDeveloperModal()" title="View Developer Profile & LatinChain" class="px-1.5 py-0.5 rounded bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 text-[10px] font-mono shrink-0 transition">
+              Info
+            </button>
+          </div>
+          <div class="grid grid-cols-2 gap-1.5 pt-0.5 font-mono text-[10px]">
+            <a href="https://latinchain.pinet.com" target="_blank" rel="noopener noreferrer" class="py-1 px-2 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border border-purple-500/30 flex items-center justify-center gap-1 font-semibold transition truncate">
+              <span>π LatinChain</span>
+              <span>↗</span>
+            </a>
+            <a href="https://rockcesar.github.io#contact" target="_blank" rel="noopener noreferrer" class="py-1 px-2 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 flex items-center justify-center gap-1 font-semibold transition truncate">
+              <span>💼 Contracts</span>
+              <span>↗</span>
+            </a>
+          </div>
+          <a href="https://github.com/rockcesar/rockcesar.github.io/tree/main/chatirc" target="_blank" rel="noopener noreferrer" class="w-full py-1 px-2 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 flex items-center justify-center gap-1.5 font-mono text-[10px] font-semibold transition truncate">
+            <span>🔓 Code (AGPLv3)</span>
+            <span>↗</span>
+          </a>
+        </div>
+
         <div class="flex items-center gap-1.5">
           <button onclick="app.toggleRawWirePanel()" class="flex-1 py-1.5 px-2 rounded-lg bg-obsidian-800 hover:bg-obsidian-700 border border-obsidian-600 text-[11px] font-mono text-slate-300 flex items-center justify-center gap-1.5 transition">
             <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -280,6 +312,12 @@
 
         <!-- Right Header Controls -->
         <div class="flex items-center gap-1.5 shrink-0">
+          <!-- Developer Modal Button -->
+          <button onclick="app.openDeveloperModal()" title="About the Developer: César (OpenSource Expert) Cordero Rodríguez" class="px-2 py-1.5 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 text-xs font-mono text-purple-300 border border-purple-500/30 flex items-center gap-1 transition">
+            <span class="text-amber-400">⚡</span>
+            <span class="hidden sm:inline">Dev</span>
+          </button>
+
           <!-- Request IRCv3 Chat History button -->
           <button onclick="app.fetchChannelHistory()" title="Fetch IRCv3 CHATHISTORY from server" class="hidden sm:flex items-center gap-1 px-2 py-1.5 rounded-lg bg-obsidian-700 hover:bg-obsidian-600 text-xs font-mono text-slate-200 border border-obsidian-600 transition">
             <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -427,6 +465,17 @@
         <button onclick="app.sendNamesRefresh()" class="w-full py-1.5 rounded-lg bg-obsidian-700 hover:bg-obsidian-600 text-slate-200 border border-obsidian-500 transition text-center">
           Refresh /NAMES
         </button>
+        <div class="pt-2 border-t border-obsidian-700/80 space-y-1">
+          <div class="text-[10px] uppercase tracking-wider text-slate-400">Developer</div>
+          <div class="text-slate-200 font-sans font-semibold text-xs">César (OpenSource Expert) Cordero Rodríguez</div>
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-1 pt-0.5 text-[11px]">
+            <a href="https://latinchain.pinet.com" target="_blank" rel="noopener noreferrer" class="text-purple-400 hover:text-purple-300 underline">LatinChain ↗</a>
+            <span class="text-slate-600">•</span>
+            <a href="https://rockcesar.github.io#contact" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:text-cyan-300 underline">Contracts ↗</a>
+            <span class="text-slate-600">•</span>
+            <a href="https://github.com/rockcesar/rockcesar.github.io/tree/main/chatirc" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:text-emerald-300 underline">Code (AGPLv3) ↗</a>
+          </div>
+        </div>
       </div>
     </aside>
 
@@ -583,6 +632,90 @@
     </div>
   </div>
 
+  <!-- MODAL 5: ABOUT THE DEVELOPER & LATINCHAIN -->
+  <div id="developerModal" class="fixed inset-0 bg-black/75 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-obsidian-800 border border-purple-500/40 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl">
+      <div class="px-5 py-4 bg-gradient-to-r from-obsidian-900 via-purple-950/40 to-obsidian-900 border-b border-obsidian-600 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-amber-400 font-mono font-bold text-sm">
+            π
+          </div>
+          <div>
+            <h3 class="font-bold text-sm sm:text-base text-white">About the Developer</h3>
+            <p class="text-[11px] font-mono text-purple-300">OpenSource, Pi Network &amp; Blockchain Architecture</p>
+          </div>
+        </div>
+        <button onclick="app.closeDeveloperModal()" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+
+      <div class="p-5 space-y-4 text-xs sm:text-sm text-slate-200">
+        <!-- Developer Identity Banner -->
+        <div class="p-4 rounded-xl bg-obsidian-900 border border-obsidian-600 space-y-1.5">
+          <div class="text-[10px] font-mono uppercase tracking-wider text-cyan-400">Name</div>
+          <div class="text-base sm:text-lg font-bold text-white">
+            César <span class="text-amber-400 font-mono text-sm">(OpenSource Expert)</span> Cordero Rodríguez
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed pt-1">
+            Blockchain &amp; Decentralized Web3 Architect specializing in Open Source technologies, Pi Network ecosystem dApps, and real-time cryptographic communication protocols.
+          </p>
+        </div>
+
+        <!-- Links Grid -->
+        <div class="space-y-2.5 font-mono">
+          <!-- LatinChain -->
+          <a href="https://latinchain.pinet.com" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-3.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 transition group">
+            <div class="min-w-0 pr-3">
+              <div class="text-xs text-purple-300 font-bold flex items-center gap-1.5">
+                <span>π LatinChain</span>
+                <span class="text-[10px] px-1.5 py-0.2 rounded bg-purple-500/20 text-amber-300 border border-purple-500/30">PiNet Ecosystem</span>
+              </div>
+              <div class="text-xs text-slate-300 truncate mt-0.5">https://latinchain.pinet.com</div>
+            </div>
+            <span class="px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-200 group-hover:bg-purple-500 group-hover:text-obsidian-950 font-bold text-xs transition shrink-0">
+              Visit ↗
+            </span>
+          </a>
+
+          <!-- For Contracts -->
+          <a href="https://rockcesar.github.io#contact" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-3.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 transition group">
+            <div class="min-w-0 pr-3">
+              <div class="text-xs text-cyan-300 font-bold flex items-center gap-1.5">
+                <span>💼 For Contracts &amp; Consulting</span>
+              </div>
+              <div class="text-xs text-slate-300 truncate mt-0.5">https://rockcesar.github.io#contact</div>
+            </div>
+            <span class="px-2.5 py-1 rounded-lg bg-cyan-500/20 text-cyan-200 group-hover:bg-cyan-400 group-hover:text-obsidian-950 font-bold text-xs transition shrink-0">
+              Contact ↗
+            </span>
+          </a>
+
+          <!-- Code (AGPLv3) -->
+          <a href="https://github.com/rockcesar/rockcesar.github.io/tree/main/chatirc" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-3.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 transition group">
+            <div class="min-w-0 pr-3">
+              <div class="text-xs text-emerald-300 font-bold flex items-center gap-1.5">
+                <span>🔓 Code (AGPLv3)</span>
+                <span class="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-200 border border-emerald-500/30">Open Source</span>
+              </div>
+              <div class="text-xs text-slate-300 truncate mt-0.5">https://github.com/rockcesar/rockcesar.github.io/tree/main/chatirc</div>
+            </div>
+            <span class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-200 group-hover:bg-emerald-400 group-hover:text-obsidian-950 font-bold text-xs transition shrink-0">
+              GitHub ↗
+            </span>
+          </a>
+        </div>
+      </div>
+
+      <div class="px-5 py-3.5 bg-obsidian-900 border-t border-obsidian-600 flex items-center justify-between gap-2">
+        <button onclick="app.shareDeveloperInfoToChannel()" class="px-3.5 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-300 font-mono text-xs font-semibold transition">
+          📢 Share in IRC Channel
+        </button>
+        <button onclick="app.closeDeveloperModal()" class="px-4 py-2 rounded-xl bg-obsidian-700 hover:bg-obsidian-600 text-xs font-mono text-slate-200">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toastContainer" class="fixed top-10 right-4 z-50 space-y-2 pointer-events-none"></div>
 
@@ -655,6 +788,7 @@
       { cmd: '/list', syntax: '/list', desc: 'List all active public channels on the IRC server' },
       { cmd: '/history', syntax: '/history [count]', desc: 'Fetch IRCv3 CHATHISTORY from the server' },
       { cmd: '/ticker', syntax: '/ticker <PI|BTC|ETH|SOL|XMR>', desc: 'Broadcast live Pi Network or Crypto price to channel' },
+      { cmd: '/dev', syntax: '/dev', desc: 'View Developer info (César Cordero Rodríguez & LatinChain)' },
       { cmd: '/ping', syntax: '/ping', desc: 'Measure live round-trip latency to the IRC server' },
       { cmd: '/raw', syntax: '/raw <IRC COMMAND>', desc: 'Send a raw RFC 1459 command directly over WSS' },
       { cmd: '/clear', syntax: '/clear', desc: 'Clear messages in the active buffer view' },
@@ -1783,6 +1917,12 @@
             break;
           }
 
+          case 'dev':
+          case 'author': {
+            this.openDeveloperModal();
+            break;
+          }
+
           case 'ping': {
             this.sendRawPing();
             this.showToast('Sent PING frame to IRC server', 'cyan');
@@ -2205,6 +2345,28 @@
       }
       closeGatewayModal() {
         document.getElementById('gatewayModal').classList.add('hidden');
+      }
+      openDeveloperModal() {
+        document.getElementById('developerModal').classList.remove('hidden');
+      }
+      closeDeveloperModal() {
+        document.getElementById('developerModal').classList.add('hidden');
+      }
+      shareDeveloperInfoToChannel() {
+        const target = this.state.activeBuffer;
+        const msg = '⚡ Developer: César (OpenSource Expert) Cordero Rodríguez | LatinChain: https://latinchain.pinet.com | For contracts: https://rockcesar.github.io#contact | Code (AGPLv3): https://github.com/rockcesar/rockcesar.github.io/tree/main/chatirc';
+        if (this.state.connected && target !== '*status') {
+          if (this.sendRaw(`PRIVMSG ${target} :${msg}`)) {
+            if (!this.state.enabledCaps.has('echo-message')) {
+              this.addChatMessage(target, this.state.nick, msg);
+            }
+          }
+          this.closeDeveloperModal();
+          this.showToast(`Broadcasted Developer & LatinChain info to ${target}`, 'emerald');
+        } else {
+          this.addSystemMessage(target, msg);
+          this.closeDeveloperModal();
+        }
       }
 
       handleServerPresetChange(val) {
