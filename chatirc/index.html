@@ -795,15 +795,32 @@
       { cmd: '/help', syntax: '/help', desc: 'Display IRC commands and protocol tips' }
     ];
 
+    const STORAGE_KEYS = {
+      NICK: 'nexus_irc_nick',
+      USERNAME: 'nexus_irc_username'
+    };
+
     class IRCClientApp {
       constructor() {
-        // Generate a unique Pioneer/Crypto-themed nickname so real public servers don't collide
+        // Load last chosen nickname/username from LocalStorage, or generate a default Pioneer nickname
         const randSuffix = Math.floor(100 + Math.random() * 899);
+        let savedNick = null;
+        let savedUsername = null;
+        try {
+          savedNick = localStorage.getItem(STORAGE_KEYS.NICK);
+          savedUsername = localStorage.getItem(STORAGE_KEYS.USERNAME);
+        } catch (e) {}
+
+        const initialNick = (savedNick && savedNick.trim()) ? savedNick.trim() : `Pioneer_${randSuffix}`;
+        const initialUsername = (savedUsername && savedUsername.trim()) ? savedUsername.trim() : 'pinode';
+
         this.state = {
           serverUrl: 'wss://testnet.ergo.chat/webirc',
           subprotocolMode: 'ircv3', // 'ircv3' or 'plain'
-          nick: `Pioneer_${randSuffix}`,
-          username: 'pinode',
+          nick: initialNick,
+          pendingNick: null,
+          previousNicks: new Set(),
+          username: initialUsername,
           realname: 'NEXUS//IRC Pi Network & Crypto WebSocket Client',
           autoChannels: ['#pi-network', '#pi-node', '#bitcoin', '#ethereum', '#monero', '#defi', '#blockchain', '#crypto-trading'],
           connected: false,
@@ -840,6 +857,13 @@
 
         this.initBuffers();
         this.bindScrollListener();
+
+        // Cleanly quit IRC session on page unload/refresh so old nickname doesn't linger as a ghost
+        window.addEventListener('beforeunload', () => {
+          if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+            try { this.ws.send('QUIT :Client reload'); } catch (e) {}
+          }
+        });
       }
 
       initBuffers() {
@@ -873,8 +897,9 @@
       }
 
       init() {
-        // Populate modal defaults
+        // Populate modal & header defaults from state (loaded from LocalStorage)
         document.getElementById('inputNickname').value = this.state.nick;
+        document.getElementById('inputUsername').value = this.state.username;
         document.getElementById('sidebarNickDisplay').textContent = `nick: ${this.state.nick}`;
         document.getElementById('composerNickBadge').textContent = this.state.nick;
 
@@ -891,10 +916,22 @@
 
       connect() {
         if (this.ws) {
-          try { this.ws.close(); } catch (e) {}
+          try {
+            if (this.ws.readyState === WebSocket.OPEN) {
+              this.ws.send('QUIT :Reconnecting');
+            }
+            this.ws.close();
+          } catch (e) {}
           this.ws = null;
         }
         clearInterval(this.pingInterval);
+
+        // Reset channel peer lists before establishing a new connection so old nicknames don't persist
+        Object.values(this.state.buffers).forEach(buf => {
+          if (buf.users) buf.users.clear();
+          if (buf.type === 'channel') buf.joined = false;
+        });
+        this.renderUserList();
 
         this.state.connecting = true;
         this.state.connected = false;
@@ -929,6 +966,7 @@
           this.addSystemMessage('*status', `WebSocket connected (subprotocol: ${protoUsed}). Starting IRCv3 capability negotiation...`);
 
           // Send IRCv3 CAP LS 302 + NICK + USER registration sequence
+          this.state.pendingNick = this.state.nick;
           this.sendRaw('CAP LS 302');
           this.sendRaw(`NICK ${this.state.nick}`);
           this.sendRaw(`USER ${this.state.username} 0 * :${this.state.realname}`);
@@ -1160,9 +1198,16 @@
             break;
           }
 
-          case '433': { // ERR_NICKNAMEINUSE
-            const altNick = `${this.state.nick}_${Math.floor(10 + Math.random() * 89)}`;
-            this.addSystemMessage('*status', `Nickname ${this.state.nick} is in use; switching to ${altNick}...`);
+          case '433': { // ERR_NICKNAMEINUSE (:server 433 <current_nick|*> <attempted_nick> :Nickname is already in use)
+            const attemptedNick = (params[1] && !params[1].includes(' ')) ? params[1] : (this.state.pendingNick || this.state.nick);
+            this.removeNickFromAllPeerLists(attemptedNick);
+            const baseNick = attemptedNick.replace(/_\d+$/, '');
+            const altNick = `${baseNick}_${Math.floor(10 + Math.random() * 89)}`;
+            this.state.pendingNick = altNick;
+            this.addSystemMessage('*status', `Nickname ${attemptedNick} is in use; switching to ${altNick}...`);
+            if (this.state.activeBuffer !== '*status') {
+              this.addSystemMessage(this.state.activeBuffer, `Nickname ${attemptedNick} is in use; switching to ${altNick}...`);
+            }
             this.updateOwnNickname(altNick);
             this.sendRaw(`NICK ${altNick}`);
             break;
@@ -1176,13 +1221,17 @@
 
             if (isSelf) {
               buf.joined = true;
+              buf.users.clear();
+              buf.users.set(this.state.nick.toLowerCase(), { nick: this.state.nick, prefix: '' });
               this.addSystemMessage(chanName, `You joined ${chanName} over live WSS (${this.state.serverUrl})`, msgTime);
               // If server supports IRCv3 chathistory, request recent messages automatically
               if (this.state.enabledCaps.has('chathistory')) {
                 this.sendRaw(`CHATHISTORY LATEST ${chanName} * 35`);
               }
             } else {
-              buf.users.set(nick.toLowerCase(), { nick, prefix: '' });
+              if (!this.state.previousNicks.has(nick.toLowerCase())) {
+                buf.users.set(nick.toLowerCase(), { nick, prefix: '' });
+              }
               this.addEventMessage(chanName, 'join', `${nick} (${userHost || 'peer'}) joined ${chanName}`, msgTime);
             }
             this.renderAllBufferLists();
@@ -1226,18 +1275,27 @@
           case 'NICK': {
             const newNick = params[0];
             if (!newNick) break;
-            if (nick.toLowerCase() === this.state.nick.toLowerCase()) {
-              this.updateOwnNickname(newNick);
-            }
+            const oldNickLower = nick.toLowerCase();
+            const isSelf =
+              oldNickLower === this.state.nick.toLowerCase() ||
+              (this.state.pendingNick && oldNickLower === this.state.pendingNick.toLowerCase()) ||
+              this.state.previousNicks.has(oldNickLower);
+
             Object.values(this.state.buffers).forEach(buf => {
-              if (buf.users && buf.users.has(nick.toLowerCase())) {
-                const existing = buf.users.get(nick.toLowerCase());
-                buf.users.delete(nick.toLowerCase());
+              if (buf.users && buf.users.has(oldNickLower)) {
+                const existing = buf.users.get(oldNickLower);
+                buf.users.delete(oldNickLower);
                 buf.users.set(newNick.toLowerCase(), { nick: newNick, prefix: existing.prefix });
                 this.addEventMessage(buf.name, 'nick', `${nick} is now known as ${newNick}`, msgTime);
               }
             });
-            this.renderUserList();
+
+            if (isSelf) {
+              this.removeNickFromAllPeerLists(nick);
+              this.updateOwnNickname(newNick);
+            } else {
+              this.renderUserList();
+            }
             break;
           }
 
@@ -1271,7 +1329,13 @@
                   cleanNick = token.slice(1);
                 }
                 if (cleanNick) {
-                  buf.users.set(cleanNick.toLowerCase(), { nick: cleanNick, prefix });
+                  const lower = cleanNick.toLowerCase();
+                  // Skip any retired/previous nicknames of this user so they don't appear in the peer list
+                  if (lower !== this.state.nick.toLowerCase() && this.state.previousNicks.has(lower)) {
+                    buf.users.delete(lower);
+                    return;
+                  }
+                  buf.users.set(lower, { nick: cleanNick, prefix });
                 }
               });
             }
@@ -1846,7 +1910,17 @@
               this.showToast('Usage: /nick <new_nickname>', 'amber');
               return;
             }
-            this.sendRaw(`NICK ${newNick}`);
+            const oldNick = this.state.nick;
+            this.state.pendingNick = newNick;
+            this.updateOwnNickname(newNick);
+            if (this.state.connected) {
+              this.sendRaw(`NICK ${newNick}`);
+            } else {
+              this.showToast(`Nickname saved as ${newNick}`, 'emerald');
+            }
+            if (oldNick && oldNick.toLowerCase() !== newNick.toLowerCase()) {
+              this.removeNickFromAllPeerLists(oldNick);
+            }
             break;
           }
 
@@ -2250,11 +2324,59 @@
         panel.classList.toggle('hidden');
       }
 
+      removeNickFromAllPeerLists(oldNick, replacementNick = null) {
+        if (!oldNick) return;
+        const oldKey = oldNick.toLowerCase();
+        if (!replacementNick || oldKey !== replacementNick.toLowerCase()) {
+          this.state.previousNicks.add(oldKey);
+        }
+        Object.values(this.state.buffers).forEach(buf => {
+          if (!buf.users) return;
+          if (buf.users.has(oldKey)) {
+            const existing = buf.users.get(oldKey);
+            buf.users.delete(oldKey);
+            if (replacementNick && buf.joined) {
+              buf.users.set(replacementNick.toLowerCase(), {
+                nick: replacementNick,
+                prefix: existing ? existing.prefix : ''
+              });
+            }
+          }
+        });
+      }
+
       updateOwnNickname(newNick) {
+        const prevNick = this.state.nick;
+        if (prevNick && prevNick.toLowerCase() !== newNick.toLowerCase()) {
+          this.removeNickFromAllPeerLists(prevNick, newNick);
+        }
+        if (this.state.pendingNick && this.state.pendingNick.toLowerCase() !== newNick.toLowerCase()) {
+          this.removeNickFromAllPeerLists(this.state.pendingNick, newNick);
+        }
+        this.state.previousNicks.delete(newNick.toLowerCase());
+
+        // Ensure any remaining entries matching previousNicks are purged from all channel peer lists
+        Object.values(this.state.buffers).forEach(buf => {
+          if (!buf.users) return;
+          this.state.previousNicks.forEach(oldLower => {
+            if (oldLower !== newNick.toLowerCase()) {
+              buf.users.delete(oldLower);
+            }
+          });
+          if (buf.joined && buf.type === 'channel' && !buf.users.has(newNick.toLowerCase())) {
+            buf.users.set(newNick.toLowerCase(), { nick: newNick, prefix: '' });
+          }
+        });
+
         this.state.nick = newNick;
+        this.state.pendingNick = null;
+        try {
+          localStorage.setItem(STORAGE_KEYS.NICK, newNick);
+        } catch (e) {}
         document.getElementById('sidebarNickDisplay').textContent = `nick: ${newNick}`;
         document.getElementById('composerNickBadge').textContent = newNick;
         document.getElementById('inputNickname').value = newNick;
+        this.renderUserList();
       }
 
       updateConnectionStatusUI(label, color) {
@@ -2386,11 +2508,19 @@
           .map(s => s.trim())
           .filter(Boolean);
 
+        const oldNick = this.state.nick;
         this.state.serverUrl = url;
         this.state.subprotocolMode = proto;
         this.state.usedFallbackSubprotocol = false;
+        this.state.pendingNick = nick;
         this.updateOwnNickname(nick);
+        if (oldNick && oldNick.toLowerCase() !== nick.toLowerCase()) {
+          this.removeNickFromAllPeerLists(oldNick, nick);
+        }
         this.state.username = user;
+        try {
+          localStorage.setItem(STORAGE_KEYS.USERNAME, user);
+        } catch (e) {}
         this.state.autoChannels = autoChans;
 
         this.closeConnectModal();
