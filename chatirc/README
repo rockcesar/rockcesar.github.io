@@ -1,5 +1,8 @@
 Go to LatinChain IRC:
 https://latinchain.pinet.com/chatirc/
 
-Source code:
+Source code.
+JavaScript:
 https://github.com/pi-apps/LatinChain/tree/main/website_pinetwork_games_odoo/static/src/js/chatirc
+XML/HTML:
+https://github.com/pi-apps/LatinChain/blob/main/website_pinetwork_games_odoo/views/website_pinetwork_templates_chatirc.xml
