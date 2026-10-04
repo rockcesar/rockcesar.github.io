@@ -727,14 +727,20 @@
      */
     const CRYPTO_CHANNEL_DIRECTORY = [
       {
+        name: '#latinchain',
+        category: 'LatinChain Platform',
+        badgeColor: 'text-purple-300 border-purple-500/40 bg-purple-500/15',
+        defaultTopic: 'LatinChain Platform & ecosystem dApps.'
+      },
+      {
         name: '#pi-network',
-        category: 'Pi Open Mainnet',
+        category: 'Not Pi Core Team related',
         badgeColor: 'text-purple-300 border-purple-500/40 bg-purple-500/15',
         defaultTopic: 'Pi Network Open Mainnet, Pioneers hub, Stellar Consensus Protocol (SCP), Pi Wallet & ecosystem dApps.'
       },
       {
         name: '#pi-node',
-        category: 'Pi Nodes & SCP',
+        category: 'Not Pi Core Team related',
         badgeColor: 'text-amber-300 border-amber-500/30 bg-purple-500/10',
         defaultTopic: 'Pi Node operators, Docker consensus containers, port-forwarding 31400-31409, SuperNodes & Horizon API.'
       },
@@ -775,7 +781,7 @@
         defaultTopic: 'Real-time spot/derivatives orderflow, Pi/Crypto market liquidity, on-chain whale tracking & macro.'
       }
     ];
-
+    
     const SLASH_COMMANDS = [
       { cmd: '/join', syntax: '/join #channel', desc: 'Join a real IRC channel on the server' },
       { cmd: '/part', syntax: '/part [#channel] [reason]', desc: 'Leave the current or specified IRC channel' },
@@ -794,12 +800,12 @@
       { cmd: '/clear', syntax: '/clear', desc: 'Clear messages in the active buffer view' },
       { cmd: '/help', syntax: '/help', desc: 'Display IRC commands and protocol tips' }
     ];
-
+    
     const STORAGE_KEYS = {
       NICK: 'nexus_irc_nick',
       USERNAME: 'nexus_irc_username'
     };
-
+    
     class IRCClientApp {
       constructor() {
         // Load last chosen nickname/username from LocalStorage, or generate a default Pioneer nickname
@@ -810,10 +816,10 @@
           savedNick = localStorage.getItem(STORAGE_KEYS.NICK);
           savedUsername = localStorage.getItem(STORAGE_KEYS.USERNAME);
         } catch (e) {}
-
+    
         const initialNick = (savedNick && savedNick.trim()) ? savedNick.trim() : `Pioneer_${randSuffix}`;
         const initialUsername = (savedUsername && savedUsername.trim()) ? savedUsername.trim() : 'pinode';
-
+    
         this.state = {
           serverUrl: 'wss://testnet.ergo.chat/webirc',
           subprotocolMode: 'ircv3', // 'ircv3' or 'plain'
@@ -822,11 +828,11 @@
           previousNicks: new Set(),
           username: initialUsername,
           realname: 'NEXUS//IRC Pi Network & Crypto WebSocket Client',
-          autoChannels: ['#pi-network', '#pi-node', '#bitcoin', '#ethereum', '#monero', '#defi', '#blockchain', '#crypto-trading'],
+          autoChannels: ['#latinchain', '#pi-network', '#pi-node', '#bitcoin', '#ethereum', '#monero', '#defi', '#blockchain', '#crypto-trading'],
           connected: false,
           connecting: false,
           registered: false,
-          activeBuffer: '#pi-network',
+          activeBuffer: '#latinchain',
           buffers: {},
           serverChannelsList: [],
           enabledCaps: new Set(),
@@ -836,15 +842,15 @@
           cmdHistoryIndex: -1,
           usedFallbackSubprotocol: false
         };
-
+    
         this.ws = null;
         this.pingInterval = null;
-
+    
         // Optional 2nd Real WebSocket Peer Connection (for live multi-client round-trip verification)
         this.peerWs = null;
         this.peerNick = `PiOracle_${Math.floor(10 + Math.random() * 89)}`;
         this.peerConnected = false;
-
+    
         // Live Crypto & Pi Network Prices state
         this.tickers = {
           PI: { price: null, change24h: null },
@@ -854,10 +860,10 @@
           XMR: { price: null, change24h: null }
         };
         this.krakenWs = null;
-
+    
         this.initBuffers();
         this.bindScrollListener();
-
+    
         // Cleanly quit IRC session on page unload/refresh so old nickname doesn't linger as a ghost
         window.addEventListener('beforeunload', () => {
           if (this.ws && this.ws.readyState === WebSocket.OPEN) {
@@ -865,7 +871,7 @@
           }
         });
       }
-
+    
       initBuffers() {
         // Create *server console buffer
         this.ensureBuffer('*status', 'server', 'IRC Network Console — Raw RFC 1459 & IRCv3 negotiation logs');
@@ -874,7 +880,7 @@
           this.ensureBuffer(ch.name, 'channel', ch.defaultTopic, ch.category);
         });
       }
-
+    
       ensureBuffer(name, type = 'channel', defaultTopic = '', category = '') {
         const key = name.toLowerCase();
         if (!this.state.buffers[key]) {
@@ -895,25 +901,25 @@
         }
         return this.state.buffers[key];
       }
-
+    
       init() {
         // Populate modal & header defaults from state (loaded from LocalStorage)
         document.getElementById('inputNickname').value = this.state.nick;
         document.getElementById('inputUsername').value = this.state.username;
         document.getElementById('sidebarNickDisplay').textContent = `nick: ${this.state.nick}`;
         document.getElementById('composerNickBadge').textContent = this.state.nick;
-
+    
         this.renderCryptoDirectory();
         this.renderAllBufferLists();
-        this.switchBuffer('#pi-network');
-
+        this.switchBuffer('#latinchain');
+    
         // Start real WebSocket connection to IRC server
         this.connect();
-
+    
         // Start real Crypto & Pi Network Market Ticker Stream
         this.initCryptoMarketStream();
       }
-
+    
       connect() {
         if (this.ws) {
           try {
@@ -925,26 +931,26 @@
           this.ws = null;
         }
         clearInterval(this.pingInterval);
-
+    
         // Reset channel peer lists before establishing a new connection so old nicknames don't persist
         Object.values(this.state.buffers).forEach(buf => {
           if (buf.users) buf.users.clear();
           if (buf.type === 'channel') buf.joined = false;
         });
         this.renderUserList();
-
+    
         this.state.connecting = true;
         this.state.connected = false;
         this.state.registered = false;
         this.state.enabledCaps.clear();
         this.updateConnectionStatusUI('CONNECTING...', 'amber');
-
+    
         const url = this.state.serverUrl.trim();
         const useIrcv3Proto = this.state.subprotocolMode === 'ircv3' && !this.state.usedFallbackSubprotocol;
-
+    
         this.addSystemMessage('*status', `Opening real TLS WebSocket connection to ${url} ...`);
         this.addSystemMessage(this.state.activeBuffer, `Connecting to ${url} as ${this.state.nick}...`);
-
+    
         try {
           if (useIrcv3Proto) {
             this.ws = new WebSocket(url, ['text.ircv3.net', 'binary.ircv3.net']);
@@ -955,22 +961,22 @@
           this.handleConnectionError(`Failed to initialize WebSocket: ${err.message}`);
           return;
         }
-
+    
         this.ws.addEventListener('open', () => {
           this.state.connecting = false;
           this.state.connected = true;
           this.state.usedFallbackSubprotocol = false;
           this.updateConnectionStatusUI('HANDSHAKE', 'cyan');
-
+    
           const protoUsed = this.ws.protocol || 'raw-irc';
           this.addSystemMessage('*status', `WebSocket connected (subprotocol: ${protoUsed}). Starting IRCv3 capability negotiation...`);
-
+    
           // Send IRCv3 CAP LS 302 + NICK + USER registration sequence
           this.state.pendingNick = this.state.nick;
           this.sendRaw('CAP LS 302');
           this.sendRaw(`NICK ${this.state.nick}`);
           this.sendRaw(`USER ${this.state.username} 0 * :${this.state.realname}`);
-
+    
           // Start periodic latency PING
           this.pingInterval = setInterval(() => {
             if (this.state.connected && this.state.registered) {
@@ -978,7 +984,7 @@
             }
           }, 35000);
         });
-
+    
         this.ws.addEventListener('message', async (event) => {
           let rawText = '';
           if (typeof event.data === 'string') {
@@ -988,7 +994,7 @@
           } else if (event.data instanceof ArrayBuffer) {
             rawText = new TextDecoder('utf-8').decode(event.data);
           }
-
+    
           const lines = rawText.split(/\r?\n/);
           for (const line of lines) {
             if (line.trim().length > 0) {
@@ -997,7 +1003,7 @@
             }
           }
         });
-
+    
         this.ws.addEventListener('error', () => {
           // If IRCv3 subprotocol was rejected by a legacy server, automatically retry with plain WebSocket
           if (this.state.subprotocolMode === 'ircv3' && !this.state.usedFallbackSubprotocol && !this.state.connected) {
@@ -1006,7 +1012,7 @@
             setTimeout(() => this.connect(), 300);
           }
         });
-
+    
         this.ws.addEventListener('close', (ev) => {
           clearInterval(this.pingInterval);
           const wasConnected = this.state.connected;
@@ -1014,7 +1020,7 @@
           this.state.connected = false;
           this.state.registered = false;
           this.updateConnectionStatusUI('DISCONNECTED', 'red');
-
+    
           if (wasConnected) {
             this.addSystemMessage(this.state.activeBuffer, `Disconnected from IRC server (code ${ev.code}). Click "Connect WSS" to reconnect.`);
           } else if (!this.state.usedFallbackSubprotocol) {
@@ -1022,7 +1028,7 @@
           }
         });
       }
-
+    
       sendRaw(commandLine) {
         if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
           this.showToast('WebSocket is not connected. Click Connect WSS.', 'amber');
@@ -1033,12 +1039,12 @@
         this.logRawFrame('>>', cleanLine);
         return true;
       }
-
+    
       sendRawPing() {
         this.state.lastPingSentAt = performance.now();
         this.sendRaw(`PING :nexus-${Date.now()}`);
       }
-
+    
       /**
        * Full RFC 1459 + IRCv3 @message-tags parser
        * Format: [@tags] [:prefix] COMMAND [params...] [:trailing]
@@ -1046,7 +1052,7 @@
       parseAndHandleIrcLine(rawLine) {
         let line = rawLine.trim();
         const tags = {};
-
+    
         // 1. Parse optional IRCv3 @tags
         if (line.startsWith('@')) {
           const spaceIdx = line.indexOf(' ');
@@ -1063,7 +1069,7 @@
             });
           }
         }
-
+    
         // 2. Parse optional :prefix
         let prefix = '';
         let nick = '';
@@ -1082,13 +1088,13 @@
             }
           }
         }
-
+    
         // 3. Parse command and parameters
         const params = [];
         let trailing = '';
         const trailIdx = line.indexOf(' :');
         let mainPart = line;
-
+    
         if (trailIdx !== -1) {
           mainPart = line.slice(0, trailIdx);
           trailing = line.slice(trailIdx + 2);
@@ -1096,30 +1102,30 @@
           mainPart = '';
           trailing = line.slice(1);
         }
-
+    
         const parts = mainPart.split(/\s+/).filter(Boolean);
         const command = (parts.shift() || '').toUpperCase();
         params.push(...parts);
         if (trailIdx !== -1 || (line.startsWith(':') && !command)) {
           params.push(trailing);
         }
-
+    
         // Timestamp from IRCv3 server-time tag or current clock
         const msgTime = tags.time ? new Date(tags.time) : new Date();
-
+    
         this.dispatchIrcCommand({ rawLine, tags, prefix, nick, userHost, command, params, msgTime });
       }
-
+    
       dispatchIrcCommand(pkt) {
         const { command, params, nick, userHost, tags, msgTime } = pkt;
-
+    
         switch (command) {
           case 'PING': {
             const token = params[0] || 'keepalive';
             this.sendRaw(`PONG :${token}`);
             break;
           }
-
+    
           case 'PONG': {
             if (this.state.lastPingSentAt > 0) {
               const rtt = Math.round(performance.now() - this.state.lastPingSentAt);
@@ -1129,7 +1135,7 @@
             }
             break;
           }
-
+    
           case 'CAP': {
             // Format: :server CAP <nick|*> <LS|ACK|NAK> :caps...
             const subcmd = (params[1] || '').toUpperCase();
@@ -1158,7 +1164,7 @@
             }
             break;
           }
-
+    
           case '001': { // RPL_WELCOME
             this.state.registered = true;
             if (params[0]) {
@@ -1167,19 +1173,19 @@
             this.updateConnectionStatusUI('WSS:// LIVE', 'emerald');
             this.addSystemMessage('*status', params[params.length - 1] || 'Welcome to IRC!');
             this.showToast(`Connected to IRC as ${this.state.nick}`, 'emerald');
-
+    
             // Automatically join configured Crypto & Blockchain channels
             this.state.autoChannels.forEach((ch, idx) => {
               setTimeout(() => {
                 this.sendRaw(`JOIN ${ch}`);
               }, idx * 180);
             });
-
+    
             // Measure initial ping
             setTimeout(() => this.sendRawPing(), 800);
             break;
           }
-
+    
           case '002':
           case '003':
           case '004':
@@ -1197,7 +1203,7 @@
             this.addSystemMessage('*status', text, msgTime);
             break;
           }
-
+    
           case '433': { // ERR_NICKNAMEINUSE (:server 433 <current_nick|*> <attempted_nick> :Nickname is already in use)
             const attemptedNick = (params[1] && !params[1].includes(' ')) ? params[1] : (this.state.pendingNick || this.state.nick);
             this.removeNickFromAllPeerLists(attemptedNick);
@@ -1212,13 +1218,13 @@
             this.sendRaw(`NICK ${altNick}`);
             break;
           }
-
+    
           case 'JOIN': {
             const chanName = params[0];
             if (!chanName) break;
             const buf = this.ensureBuffer(chanName, 'channel');
             const isSelf = nick.toLowerCase() === this.state.nick.toLowerCase();
-
+    
             if (isSelf) {
               buf.joined = true;
               buf.users.clear();
@@ -1240,7 +1246,7 @@
             }
             break;
           }
-
+    
           case 'PART': {
             const chanName = params[0];
             const reason = params[1] || '';
@@ -1259,7 +1265,7 @@
             }
             break;
           }
-
+    
           case 'QUIT': {
             const reason = params[0] || 'Client Quit';
             Object.values(this.state.buffers).forEach(buf => {
@@ -1271,7 +1277,7 @@
             this.renderUserList();
             break;
           }
-
+    
           case 'NICK': {
             const newNick = params[0];
             if (!newNick) break;
@@ -1280,7 +1286,7 @@
               oldNickLower === this.state.nick.toLowerCase() ||
               (this.state.pendingNick && oldNickLower === this.state.pendingNick.toLowerCase()) ||
               this.state.previousNicks.has(oldNickLower);
-
+    
             Object.values(this.state.buffers).forEach(buf => {
               if (buf.users && buf.users.has(oldNickLower)) {
                 const existing = buf.users.get(oldNickLower);
@@ -1289,7 +1295,7 @@
                 this.addEventMessage(buf.name, 'nick', `${nick} is now known as ${newNick}`, msgTime);
               }
             });
-
+    
             if (isSelf) {
               this.removeNickFromAllPeerLists(nick);
               this.updateOwnNickname(newNick);
@@ -1298,7 +1304,7 @@
             }
             break;
           }
-
+    
           case 'TOPIC':
           case '332': { // RPL_TOPIC
             const chanName = command === '332' ? params[1] : params[0];
@@ -1313,7 +1319,7 @@
             }
             break;
           }
-
+    
           case '353': { // RPL_NAMREPLY (:server 353 nick = #channel :@op +voice user1 user2)
             const chanName = params[2];
             const namesStr = params[params.length - 1] || '';
@@ -1341,7 +1347,7 @@
             }
             break;
           }
-
+    
           case '366': { // RPL_ENDOFNAMES
             const chanName = params[1];
             if (chanName && this.state.activeBuffer.toLowerCase() === chanName.toLowerCase()) {
@@ -1349,7 +1355,7 @@
             }
             break;
           }
-
+    
           case 'PRIVMSG':
           case 'NOTICE': {
             const target = params[0] || '*status';
@@ -1358,7 +1364,7 @@
             const bufferTarget = isChannel
               ? target
               : (nick.toLowerCase() === this.state.nick.toLowerCase() ? target : (nick || '*status'));
-
+    
             // Check for CTCP (\x01...\x01)
             if (text.startsWith('\x01') && text.endsWith('\x01')) {
               const ctcpContent = text.slice(1, -1);
@@ -1374,12 +1380,12 @@
               }
               break;
             }
-
+    
             // Avoid duplicate echo if echo-message is enabled and we already rendered locally
             if (tags.msgid && this.hasMsgId(bufferTarget, tags.msgid)) {
               break;
             }
-
+    
             this.addChatMessage(bufferTarget, nick || 'Server', text, {
               isNotice: command === 'NOTICE',
               msgTime,
@@ -1387,12 +1393,12 @@
             });
             break;
           }
-
+    
           case '321': { // RPL_LISTSTART
             this.state.serverChannelsList = [];
             break;
           }
-
+    
           case '322': { // RPL_LIST (:server 322 nick #channel count :topic)
             const chName = params[1];
             const userCount = parseInt(params[2] || '0', 10);
@@ -1402,12 +1408,12 @@
             }
             break;
           }
-
+    
           case '323': { // RPL_LISTEND
             this.renderServerChannelList();
             break;
           }
-
+    
           case '311': // RPL_WHOISUSER
           case '312': // RPL_WHOISSERVER
           case '317': // RPL_WHOISIDLE
@@ -1417,7 +1423,7 @@
             this.addSystemMessage(this.state.activeBuffer, `[WHOIS] ${info}`, msgTime);
             break;
           }
-
+    
           default: {
             // Error numerics (4xx / 5xx)
             if (/^[45]\d\d$/.test(command)) {
@@ -1428,13 +1434,13 @@
           }
         }
       }
-
+    
       hasMsgId(bufferName, msgid) {
         const buf = this.state.buffers[bufferName.toLowerCase()];
         if (!buf) return false;
         return buf.messages.some(m => m.msgid && m.msgid === msgid);
       }
-
+    
       nickColorClass(nick) {
         const palette = [
           'text-amber-400',
@@ -1454,14 +1460,14 @@
         }
         return palette[Math.abs(hash) % palette.length];
       }
-
+    
       addChatMessage(bufferName, senderNick, text, opts = {}) {
         const isQuery = !bufferName.startsWith('#') && !bufferName.startsWith('&') && bufferName !== '*status';
         const buf = this.ensureBuffer(bufferName, isQuery ? 'query' : (bufferName === '*status' ? 'server' : 'channel'));
-
+    
         const isSelf = senderNick.toLowerCase() === this.state.nick.toLowerCase();
         const isMention = !isSelf && text.toLowerCase().includes(this.state.nick.toLowerCase());
-
+    
         const msgObj = {
           id: `${Date.now()}-${Math.random()}`,
           msgid: opts.msgid || null,
@@ -1472,10 +1478,10 @@
           isSelf,
           isMention
         };
-
+    
         buf.messages.push(msgObj);
         if (buf.messages.length > 300) buf.messages.shift();
-
+    
         if (this.state.activeBuffer.toLowerCase() !== buf.key) {
           buf.unread++;
           if (isMention) buf.hasMention = true;
@@ -1484,7 +1490,7 @@
           this.appendMessageElement(msgObj);
         }
       }
-
+    
       addSystemMessage(bufferName, text, time = new Date()) {
         const buf = this.ensureBuffer(bufferName);
         const msgObj = {
@@ -1499,7 +1505,7 @@
           this.appendMessageElement(msgObj);
         }
       }
-
+    
       addEventMessage(bufferName, subtype, text, time = new Date()) {
         const buf = this.ensureBuffer(bufferName);
         const msgObj = {
@@ -1515,12 +1521,12 @@
           this.appendMessageElement(msgObj);
         }
       }
-
+    
       formatTimestamp(dateObj) {
         const d = dateObj instanceof Date && !isNaN(dateObj) ? dateObj : new Date();
         return d.toTimeString().slice(0, 8);
       }
-
+    
       escapeHtml(str) {
         return String(str)
           .replace(/&/g, '&amp;')
@@ -1528,39 +1534,39 @@
           .replace(/>/g, '&gt;')
           .replace(/"/g, '&quot;');
       }
-
+    
       formatMessageHtml(rawText) {
         let safe = this.escapeHtml(rawText);
-
+    
         // Linkify URLs
         safe = safe.replace(
           /(https?:\/\/[^\s<]+)/g,
           '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-cyan-400 underline hover:text-cyan-300 break-all">$1</a>'
         );
-
+    
         // Make #channel references clickable to join/switch
         safe = safe.replace(
           /(^|\s)(#[a-zA-Z0-9_-]{2,32})/g,
           '$1<button type="button" onclick="app.joinOrSwitchChannel(\'$2\')" class="text-amber-400 hover:underline font-semibold">$2</button>'
         );
-
+    
         // Highlight $PI, $BTC, $ETH, $SOL, $XMR cashtags
         safe = safe.replace(
           /(\$(?:PI|BTC|ETH|SOL|XMR|USDT|USDC|DEF|ZEC|ADA|DOT))\b/gi,
           '<span class="px-1 py-0.2 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 font-semibold">$1</span>'
         );
-
+    
         return safe;
       }
-
+    
       appendMessageElement(msg) {
         const container = document.getElementById('messageScrollContainer');
         if (!container) return;
-
+    
         const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 120;
         const row = document.createElement('div');
         const timeStr = this.formatTimestamp(msg.time);
-
+    
         if (msg.type === 'system') {
           row.className = 'py-1 px-2 rounded bg-obsidian-800/60 border-l-2 border-cyan-500/70 text-xs text-slate-300 flex items-start gap-2';
           row.innerHTML = `
@@ -1596,7 +1602,7 @@
             <div class="text-slate-100 break-words flex-1 min-w-0">${this.formatMessageHtml(msg.text)}</div>
           `;
         }
-
+    
         container.appendChild(row);
         if (isNearBottom) {
           this.scrollToBottom();
@@ -1604,33 +1610,33 @@
           document.getElementById('scrollToBottomBtn').classList.remove('hidden');
         }
       }
-
+    
       switchBuffer(bufferName) {
         const buf = this.ensureBuffer(bufferName);
         this.state.activeBuffer = buf.name;
         buf.unread = 0;
         buf.hasMention = false;
-
+    
         this.updateActiveHeaderUI();
         this.renderAllBufferLists();
         this.renderUserList();
-
+    
         // Render all messages in buffer
         const container = document.getElementById('messageScrollContainer');
         container.innerHTML = '';
         buf.messages.forEach(m => this.appendMessageElement(m));
         this.scrollToBottom(true);
-
+    
         // Close mobile drawers after selecting a channel
         this.closeDrawers();
       }
-
+    
       updateActiveHeaderUI() {
         const buf = this.ensureBuffer(this.state.activeBuffer);
         document.getElementById('activeBufferTitle').textContent = buf.name;
         document.getElementById('activeBufferTopic').textContent = buf.topic || 'No channel topic set. Use /topic <text> to set one.';
         document.getElementById('rightDrawerChannelLabel').textContent = buf.name;
-
+    
         const catPill = document.getElementById('activeCategoryPill');
         if (buf.category) {
           catPill.textContent = buf.category;
@@ -1638,24 +1644,24 @@
         } else {
           catPill.classList.add('hidden');
         }
-
+    
         const input = document.getElementById('ircMessageInput');
         if (input) {
           input.placeholder = `Message ${buf.name} or type /help, /join, /whois, /ticker BTC...`;
         }
       }
-
+    
       renderAllBufferLists() {
         const serverContainer = document.getElementById('serverBufferList');
         const channelContainer = document.getElementById('channelBufferList');
         const queryContainer = document.getElementById('queryBufferList');
-
+    
         serverContainer.innerHTML = '';
         channelContainer.innerHTML = '';
         queryContainer.innerHTML = '';
-
+    
         let totalUnread = 0;
-
+    
         Object.values(this.state.buffers).forEach(buf => {
           totalUnread += buf.unread;
           const isActive = this.state.activeBuffer.toLowerCase() === buf.key;
@@ -1666,19 +1672,19 @@
               : 'text-slate-300 hover:bg-obsidian-700/70'
           }`;
           btn.onclick = () => this.switchBuffer(buf.name);
-
+    
           const statusDot = buf.type === 'channel'
             ? `<span class="w-1.5 h-1.5 rounded-full ${buf.joined ? 'bg-emerald-400' : 'bg-slate-600'}"></span>`
             : `<span class="text-amber-400">⚡</span>`;
-
+    
           const unreadBadge = buf.unread > 0
             ? `<span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold ${buf.hasMention ? 'bg-amber-500 text-obsidian-950' : 'bg-cyan-500/20 text-cyan-300'}">${buf.unread}</span>`
             : '';
-
+    
           const closeBtn = buf.type !== 'server'
             ? `<button type="button" onclick="event.stopPropagation(); app.partAndCloseBuffer('${buf.name}')" title="Part/Close ${buf.name}" class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-400 px-1">×</button>`
             : '';
-
+    
           btn.innerHTML = `
             <div class="flex items-center gap-2 truncate">
               ${statusDot}
@@ -1689,23 +1695,23 @@
               ${closeBtn}
             </div>
           `;
-
+    
           if (buf.type === 'server') serverContainer.appendChild(btn);
           else if (buf.type === 'channel') channelContainer.appendChild(btn);
           else queryContainer.appendChild(btn);
         });
-
+    
         const mobileDot = document.getElementById('mobileUnreadDot');
         if (mobileDot) {
           mobileDot.classList.toggle('hidden', totalUnread === 0);
         }
       }
-
+    
       renderCryptoDirectory() {
         const container = document.getElementById('cryptoDirectoryList');
         if (!container) return;
         container.innerHTML = '';
-
+    
         CRYPTO_CHANNEL_DIRECTORY.forEach(item => {
           const card = document.createElement('button');
           card.type = 'button';
@@ -1721,33 +1727,33 @@
           container.appendChild(card);
         });
       }
-
+    
       renderUserList() {
         const container = document.getElementById('channelUserListContainer');
         const countBadge = document.getElementById('headerUserCount');
         if (!container) return;
-
+    
         const buf = this.ensureBuffer(this.state.activeBuffer);
         const filterVal = (document.getElementById('userFilterInput')?.value || '').toLowerCase();
-
+    
         const allUsers = Array.from(buf.users.values());
         if (countBadge) countBadge.textContent = String(allUsers.length);
-
+    
         const filtered = allUsers.filter(u => u.nick.toLowerCase().includes(filterVal));
-
+    
         const ops = filtered.filter(u => ['~', '&', '@', '%'].includes(u.prefix)).sort((a, b) => a.nick.localeCompare(b.nick));
         const voiced = filtered.filter(u => u.prefix === '+').sort((a, b) => a.nick.localeCompare(b.nick));
         const regular = filtered.filter(u => !u.prefix).sort((a, b) => a.nick.localeCompare(b.nick));
-
+    
         container.innerHTML = '';
-
+    
         const renderSection = (title, list, badgeClass) => {
           if (list.length === 0) return;
           const sec = document.createElement('div');
           sec.innerHTML = `<div class="px-2 py-1 text-[10px] uppercase tracking-wider text-slate-400 font-semibold">${title} (${list.length})</div>`;
           const ul = document.createElement('div');
           ul.className = 'space-y-0.5';
-
+    
           list.forEach(u => {
             const item = document.createElement('div');
             item.className = 'px-2 py-1.5 rounded-lg hover:bg-obsidian-700/80 flex items-center justify-between group cursor-pointer transition';
@@ -1765,11 +1771,11 @@
           sec.appendChild(ul);
           container.appendChild(sec);
         };
-
+    
         renderSection('Operators', ops, 'text-amber-400');
         renderSection('Voiced', voiced, 'text-cyan-400');
         renderSection('Peers', regular, 'text-slate-400');
-
+    
         if (allUsers.length === 0) {
           container.innerHTML = `
             <div class="p-4 text-center text-slate-500 text-xs">
@@ -1778,23 +1784,23 @@
           `;
         }
       }
-
+    
       handleComposerInput(val) {
         const popover = document.getElementById('slashAutocomplete');
         const listEl = document.getElementById('slashAutocompleteList');
-
+    
         if (!val.startsWith('/') || val.includes(' ')) {
           popover.classList.add('hidden');
           return;
         }
-
+    
         const q = val.toLowerCase();
         const matches = SLASH_COMMANDS.filter(c => c.cmd.startsWith(q));
         if (matches.length === 0) {
           popover.classList.add('hidden');
           return;
         }
-
+    
         listEl.innerHTML = '';
         matches.forEach(m => {
           const row = document.createElement('button');
@@ -1814,7 +1820,7 @@
         });
         popover.classList.remove('hidden');
       }
-
+    
       handleComposerKeydown(ev) {
         const input = ev.target;
         if (ev.key === 'Tab') {
@@ -1844,30 +1850,30 @@
           }
         }
       }
-
+    
       handleComposerSubmit(ev) {
         ev.preventDefault();
         const input = document.getElementById('ircMessageInput');
         const text = input.value.trim();
         if (!text) return;
-
+    
         this.state.cmdHistory.push(text);
         this.state.cmdHistoryIndex = -1;
         input.value = '';
         document.getElementById('slashAutocomplete').classList.add('hidden');
-
+    
         if (text.startsWith('/')) {
           this.executeSlashCommand(text);
           return;
         }
-
+    
         const target = this.state.activeBuffer;
         if (target === '*status') {
           // Allow typing raw IRC commands in *status console
           this.sendRaw(text);
           return;
         }
-
+    
         if (this.sendRaw(`PRIVMSG ${target} :${text}`)) {
           // Render message immediately if server does not echo-message back
           if (!this.state.enabledCaps.has('echo-message')) {
@@ -1875,12 +1881,12 @@
           }
         }
       }
-
+    
       executeSlashCommand(rawInput) {
         const parts = rawInput.slice(1).split(/\s+/);
         const cmd = (parts.shift() || '').toLowerCase();
         const rest = parts.join(' ');
-
+    
         switch (cmd) {
           case 'join':
           case 'j': {
@@ -1893,7 +1899,7 @@
             this.joinOrSwitchChannel(ch);
             break;
           }
-
+    
           case 'part':
           case 'leave': {
             const ch = (parts[0] && parts[0].startsWith('#')) ? parts.shift() : this.state.activeBuffer;
@@ -1903,7 +1909,7 @@
             }
             break;
           }
-
+    
           case 'nick': {
             const newNick = parts[0];
             if (!newNick) {
@@ -1923,7 +1929,7 @@
             }
             break;
           }
-
+    
           case 'msg':
           case 'query': {
             const target = parts.shift();
@@ -1941,7 +1947,7 @@
             }
             break;
           }
-
+    
           case 'me': {
             if (!rest) return;
             const target = this.state.activeBuffer;
@@ -1952,13 +1958,13 @@
             }
             break;
           }
-
+    
           case 'whois': {
             const targetNick = parts[0] || this.state.nick;
             this.sendWhois(targetNick);
             break;
           }
-
+    
           case 'topic': {
             const ch = this.state.activeBuffer;
             if (!rest) {
@@ -1968,54 +1974,54 @@
             }
             break;
           }
-
+    
           case 'names': {
             const ch = parts[0] || this.state.activeBuffer;
             this.sendRaw(`NAMES ${ch}`);
             break;
           }
-
+    
           case 'list': {
             this.requestServerList();
             break;
           }
-
+    
           case 'history': {
             this.fetchChannelHistory(parseInt(parts[0] || '40', 10));
             break;
           }
-
+    
           case 'ticker': {
             const sym = (parts[0] || 'PI').toUpperCase();
             this.shareTickerToChannel(sym);
             break;
           }
-
+    
           case 'dev':
           case 'author': {
             this.openDeveloperModal();
             break;
           }
-
+    
           case 'ping': {
             this.sendRawPing();
             this.showToast('Sent PING frame to IRC server', 'cyan');
             break;
           }
-
+    
           case 'raw':
           case 'quote': {
             if (rest) this.sendRaw(rest);
             break;
           }
-
+    
           case 'clear': {
             const buf = this.ensureBuffer(this.state.activeBuffer);
             buf.messages = [];
             document.getElementById('messageScrollContainer').innerHTML = '';
             break;
           }
-
+    
           case 'help':
           default: {
             const helpLines = SLASH_COMMANDS.map(c => `${c.syntax} — ${c.desc}`).join(' | ');
@@ -2024,7 +2030,7 @@
           }
         }
       }
-
+    
       /**
        * Spawns a REAL 2nd independent WebSocket connection to the exact same remote IRC server
        * so the user can immediately verify live server round-trip routing in any channel!
@@ -2032,7 +2038,7 @@
       toggleLivePeerBot() {
         const led = document.getElementById('peerBotLed');
         const label = document.getElementById('peerBotLabel');
-
+    
         if (this.peerWs && this.peerConnected) {
           try { this.peerWs.send('QUIT :Peer verifier closing'); this.peerWs.close(); } catch (e) {}
           this.peerWs = null;
@@ -2042,12 +2048,12 @@
           this.showToast('Closed 2nd live WebSocket peer session', 'amber');
           return;
         }
-
+    
         const url = this.state.serverUrl.trim();
         this.showToast(`Connecting 2nd live WebSocket peer (${this.peerNick}) to ${url}...`, 'cyan');
         led.className = 'w-2 h-2 rounded-full bg-amber-400 led-pulse';
         label.textContent = `Connecting ${this.peerNick}...`;
-
+    
         try {
           this.peerWs = this.state.subprotocolMode === 'ircv3'
             ? new WebSocket(url, ['text.ircv3.net', 'binary.ircv3.net'])
@@ -2056,13 +2062,13 @@
           this.showToast('Could not spawn 2nd WebSocket peer', 'red');
           return;
         }
-
+    
         this.peerWs.addEventListener('open', () => {
           this.peerConnected = true;
           this.peerWs.send(`NICK ${this.peerNick}`);
           this.peerWs.send(`USER peerbot 0 * :NEXUS Live WSS Verification Peer`);
         });
-
+    
         this.peerWs.addEventListener('message', async (ev) => {
           const data = typeof ev.data === 'string' ? ev.data : await ev.data.text();
           const lines = data.split(/\r?\n/);
@@ -2073,7 +2079,7 @@
             } else if (line.includes(' 001 ')) {
               led.className = 'w-2 h-2 rounded-full bg-emerald-400 led-pulse';
               label.textContent = `Peer Online: ${this.peerNick}`;
-              const targetChan = this.state.activeBuffer.startsWith('#') ? this.state.activeBuffer : '#pi-network';
+              const targetChan = this.state.activeBuffer.startsWith('#') ? this.state.activeBuffer : '#latinchain';
               this.peerWs.send(`JOIN ${targetChan}`);
               setTimeout(() => {
                 const piPrice = this.tickers.PI.price ? `$${this.tickers.PI.price}` : 'live';
@@ -2102,14 +2108,14 @@
             }
           }
         });
-
+    
         this.peerWs.addEventListener('close', () => {
           this.peerConnected = false;
           led.className = 'w-2 h-2 rounded-full bg-slate-500';
           label.textContent = 'Spawn 2nd Live WSS Peer';
         });
       }
-
+    
       /**
        * Connects to CoinGecko REST + Kraken public WebSocket v2 (`wss://ws.kraken.com/v2`)
        * to display real-time PI (Pi Network), BTC, ETH, SOL, and XMR prices in the top bar.
@@ -2127,11 +2133,11 @@
             })
             .catch(() => {});
         };
-
+    
         // Initial REST fetch and periodic refresh for Pi Network & Crypto spot prices
         fetchSpotPrices();
         setInterval(fetchSpotPrices, 45000);
-
+    
         // Live WebSocket stream from Kraken Public WS
         try {
           this.krakenWs = new WebSocket('wss://ws.kraken.com/v2');
@@ -2159,18 +2165,18 @@
           });
         } catch (e) {}
       }
-
+    
       updateTickerUI(sym, price, changePct) {
         const numPrice = Number(price);
         if (isNaN(numPrice)) return;
         const formattedPrice = numPrice >= 100
           ? numPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
           : (numPrice < 1 ? numPrice.toFixed(4) : numPrice.toFixed(2));
-
+    
         this.tickers[sym].price = formattedPrice;
         const priceEl = document.getElementById(`price-${sym}`);
         if (priceEl) priceEl.textContent = `$${formattedPrice}`;
-
+    
         if (changePct !== undefined && changePct !== null) {
           const numChg = Number(changePct);
           this.tickers[sym].change24h = numChg.toFixed(2);
@@ -2182,13 +2188,13 @@
           }
         }
       }
-
+    
       shareTickerToChannel(sym) {
         const t = this.tickers[sym];
         const priceStr = t && t.price ? `$${t.price} (${t.change24h >= 0 ? '+' : ''}${t.change24h || '0.00'}%)` : 'fetching...';
         const target = this.state.activeBuffer;
         const payload = `📊 [$${sym}/USD Live Spot] ${priceStr} — via NEXUS//IRC`;
-
+    
         if (this.state.connected && target !== '*status') {
           if (this.sendRaw(`PRIVMSG ${target} :${payload}`)) {
             if (!this.state.enabledCaps.has('echo-message')) {
@@ -2201,7 +2207,7 @@
           input.focus();
         }
       }
-
+    
       joinOrSwitchChannel(chanName) {
         const clean = chanName.startsWith('#') ? chanName : `#${chanName}`;
         const buf = this.ensureBuffer(clean, 'channel');
@@ -2210,7 +2216,7 @@
         }
         this.switchBuffer(clean);
       }
-
+    
       partAndCloseBuffer(bufferName) {
         const buf = this.state.buffers[bufferName.toLowerCase()];
         if (!buf || buf.type === 'server') return;
@@ -2225,24 +2231,24 @@
           this.renderAllBufferLists();
         }
       }
-
+    
       openPrivateQuery(targetNick) {
         if (!targetNick || targetNick.toLowerCase() === this.state.nick.toLowerCase()) return;
         this.ensureBuffer(targetNick, 'query', `Direct PRIVMSG session with ${targetNick}`);
         this.switchBuffer(targetNick);
       }
-
+    
       sendWhois(targetNick) {
         this.sendRaw(`WHOIS ${targetNick}`);
         this.showToast(`Requested WHOIS for ${targetNick}`, 'cyan');
       }
-
+    
       sendNamesRefresh() {
         if (this.state.activeBuffer.startsWith('#')) {
           this.sendRaw(`NAMES ${this.state.activeBuffer}`);
         }
       }
-
+    
       fetchChannelHistory(count = 40) {
         if (!this.state.activeBuffer.startsWith('#')) return;
         if (this.state.enabledCaps.has('chathistory')) {
@@ -2252,7 +2258,7 @@
           this.showToast('Connected server does not advertise IRCv3 chathistory capability', 'amber');
         }
       }
-
+    
       requestServerList() {
         document.getElementById('listModal').classList.remove('hidden');
         if (this.state.connected) {
@@ -2261,23 +2267,23 @@
           this.renderServerChannelList();
         }
       }
-
+    
       renderServerChannelList() {
         const tbody = document.getElementById('serverListTableBody');
         if (!tbody) return;
         const q = (document.getElementById('listSearchInput')?.value || '').toLowerCase();
-
+    
         const combined = [...this.state.serverChannelsList];
         CRYPTO_CHANNEL_DIRECTORY.forEach(c => {
           if (!combined.some(x => x.name.toLowerCase() === c.name.toLowerCase())) {
             combined.push({ name: c.name, count: 1, topic: c.defaultTopic });
           }
         });
-
+    
         const filtered = combined
           .filter(item => item.name.toLowerCase().includes(q) || (item.topic || '').toLowerCase().includes(q))
           .sort((a, b) => b.count - a.count);
-
+    
         tbody.innerHTML = '';
         filtered.forEach(item => {
           const row = document.createElement('div');
@@ -2297,7 +2303,7 @@
           tbody.appendChild(row);
         });
       }
-
+    
       logRawFrame(direction, line) {
         const container = document.getElementById('rawWireLogContainer');
         if (!container) return;
@@ -2313,17 +2319,17 @@
         if (container.children.length > 250) container.removeChild(container.firstChild);
         container.scrollTop = container.scrollHeight;
       }
-
+    
       clearRawWire() {
         const container = document.getElementById('rawWireLogContainer');
         if (container) container.innerHTML = '';
       }
-
+    
       toggleRawWirePanel() {
         const panel = document.getElementById('rawWirePanel');
         panel.classList.toggle('hidden');
       }
-
+    
       removeNickFromAllPeerLists(oldNick, replacementNick = null) {
         if (!oldNick) return;
         const oldKey = oldNick.toLowerCase();
@@ -2344,7 +2350,7 @@
           }
         });
       }
-
+    
       updateOwnNickname(newNick) {
         const prevNick = this.state.nick;
         if (prevNick && prevNick.toLowerCase() !== newNick.toLowerCase()) {
@@ -2354,7 +2360,7 @@
           this.removeNickFromAllPeerLists(this.state.pendingNick, newNick);
         }
         this.state.previousNicks.delete(newNick.toLowerCase());
-
+    
         // Ensure any remaining entries matching previousNicks are purged from all channel peer lists
         Object.values(this.state.buffers).forEach(buf => {
           if (!buf.users) return;
@@ -2367,7 +2373,7 @@
             buf.users.set(newNick.toLowerCase(), { nick: newNick, prefix: '' });
           }
         });
-
+    
         this.state.nick = newNick;
         this.state.pendingNick = null;
         try {
@@ -2378,17 +2384,17 @@
         document.getElementById('inputNickname').value = newNick;
         this.renderUserList();
       }
-
+    
       updateConnectionStatusUI(label, color) {
         const topState = document.getElementById('topConnState');
         const topLed = document.getElementById('topLed');
         const topServer = document.getElementById('topServerBadge');
         const btnText = document.getElementById('btnConnectText');
         const btnToggle = document.getElementById('btnConnectToggle');
-
+    
         if (topState) topState.textContent = label;
         if (topServer) topServer.textContent = this.state.serverUrl;
-
+    
         const colorMap = {
           emerald: 'bg-emerald-400 led-pulse',
           amber: 'bg-amber-400 led-pulse',
@@ -2396,7 +2402,7 @@
           red: 'bg-rose-500'
         };
         if (topLed) topLed.className = `w-2 h-2 rounded-full ${colorMap[color] || colorMap.amber}`;
-
+    
         if (this.state.connected || this.state.connecting) {
           btnText.textContent = 'Disconnect';
           btnToggle.className = 'flex-1 py-1.5 px-2.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 bg-rose-600/80 hover:bg-rose-500 text-white shadow transition';
@@ -2405,7 +2411,7 @@
           btnToggle.className = 'flex-1 py-1.5 px-2.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white shadow transition';
         }
       }
-
+    
       toggleConnection() {
         if (this.state.connected || this.state.connecting) {
           if (this.ws) {
@@ -2415,13 +2421,13 @@
           this.connect();
         }
       }
-
+    
       handleConnectionError(msg) {
         this.updateConnectionStatusUI('ERROR', 'red');
         this.addSystemMessage('*status', msg);
         this.showToast(msg, 'red');
       }
-
+    
       toggleLeftDrawer() {
         const left = document.getElementById('leftDrawer');
         const right = document.getElementById('rightDrawer');
@@ -2430,7 +2436,7 @@
         left.classList.toggle('-translate-x-full');
         backdrop.classList.toggle('hidden', left.classList.contains('-translate-x-full'));
       }
-
+    
       toggleRightDrawer() {
         const left = document.getElementById('leftDrawer');
         const right = document.getElementById('rightDrawer');
@@ -2439,13 +2445,13 @@
         right.classList.toggle('translate-x-full');
         backdrop.classList.toggle('hidden', right.classList.contains('translate-x-full'));
       }
-
+    
       closeDrawers() {
         document.getElementById('leftDrawer').classList.add('-translate-x-full');
         document.getElementById('rightDrawer').classList.add('translate-x-full');
         document.getElementById('mobileBackdrop').classList.add('hidden');
       }
-
+    
       openConnectModal() {
         document.getElementById('connectModal').classList.remove('hidden');
       }
@@ -2490,14 +2496,14 @@
           this.closeDeveloperModal();
         }
       }
-
+    
       handleServerPresetChange(val) {
         if (val === 'custom') return;
         const [url, proto] = val.split('|');
         document.getElementById('inputServerUrl').value = url;
         document.getElementById('inputSubprotocol').value = proto || 'ircv3';
       }
-
+    
       saveAndReconnect() {
         const url = document.getElementById('inputServerUrl').value.trim();
         const proto = document.getElementById('inputSubprotocol').value;
@@ -2507,7 +2513,7 @@
           .split(',')
           .map(s => s.trim())
           .filter(Boolean);
-
+    
         const oldNick = this.state.nick;
         this.state.serverUrl = url;
         this.state.subprotocolMode = proto;
@@ -2522,11 +2528,11 @@
           localStorage.setItem(STORAGE_KEYS.USERNAME, user);
         } catch (e) {}
         this.state.autoChannels = autoChans;
-
+    
         this.closeConnectModal();
         this.connect();
       }
-
+    
       handleJoinSubmit(ev) {
         ev.preventDefault();
         const val = document.getElementById('joinTargetInput').value.trim();
@@ -2539,26 +2545,26 @@
           this.openPrivateQuery(val);
         }
       }
-
+    
       insertCommandPrefix(prefix) {
         const input = document.getElementById('ircMessageInput');
         input.value = prefix;
         input.focus();
         this.handleComposerInput(prefix);
       }
-
+    
       insertNickMention(nick) {
         const input = document.getElementById('ircMessageInput');
         const cur = input.value;
         input.value = cur ? `${cur} ${nick}: ` : `${nick}: `;
         input.focus();
       }
-
+    
       showTopicInspect() {
         const buf = this.ensureBuffer(this.state.activeBuffer);
         this.showToast(`${buf.name} Topic: ${buf.topic || 'None'}`, 'cyan');
       }
-
+    
       bindScrollListener() {
         const container = document.getElementById('messageScrollContainer');
         const btn = document.getElementById('scrollToBottomBtn');
@@ -2567,7 +2573,7 @@
           btn.classList.toggle('hidden', isNearBottom);
         });
       }
-
+    
       scrollToBottom(force = false) {
         const container = document.getElementById('messageScrollContainer');
         if (container) {
@@ -2577,7 +2583,7 @@
           document.getElementById('scrollToBottomBtn').classList.add('hidden');
         }
       }
-
+    
       showToast(message, tone = 'cyan') {
         const container = document.getElementById('toastContainer');
         const toast = document.createElement('div');
@@ -2596,7 +2602,7 @@
         }, 3200);
       }
     }
-
+    
     // Boot application on window load
     let app;
     window.addEventListener('DOMContentLoaded', () => {
