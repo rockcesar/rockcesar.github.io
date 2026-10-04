@@ -1,0 +1,2821 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>NexusIRC — Cliente WebIRC Real (RFC 1459 / IRCv3)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            irc: {
+              bg: '#0b0f17',
+              panel: '#111827',
+              card: '#1e293b',
+              border: '#1f2937',
+              accent: '#10b981',
+              accentHover: '#059669',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Use dynamic viewport height for mobile keyboards */
+    html, body {
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Custom subtle scrollbars */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.25);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.45);
+    }
+
+    /* Safe area padding for mobile notched devices */
+    .pb-safe {
+      padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+    }
+    .pt-safe {
+      padding-top: max(0.5rem, env(safe-area-inset-top));
+    }
+
+    /* mIRC Standard 16 Color Palette classes */
+    .mirc-fg-0 { color: #ffffff; }
+    .mirc-fg-1 { color: #000000; }
+    .mirc-fg-2 { color: #00007f; }
+    .mirc-fg-3 { color: #009300; }
+    .mirc-fg-4 { color: #ff0000; }
+    .mirc-fg-5 { color: #7f0000; }
+    .mirc-fg-6 { color: #9c009c; }
+    .mirc-fg-7 { color: #fc7f00; }
+    .mirc-fg-8 { color: #ffff00; }
+    .mirc-fg-9 { color: #00fc00; }
+    .mirc-fg-10 { color: #009393; }
+    .mirc-fg-11 { color: #00ffff; }
+    .mirc-fg-12 { color: #0000fc; }
+    .mirc-fg-13 { color: #ff00ff; }
+    .mirc-fg-14 { color: #7f7f7f; }
+    .mirc-fg-15 { color: #d2d2d2; }
+
+    @keyframes pulseSubtle {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.45; }
+    }
+    .animate-pulse-subtle {
+      animation: pulseSubtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-emerald-500/30 selection:text-emerald-200 flex flex-col h-[100dvh] w-full overflow-hidden">
+
+  <!-- Mobile Backdrop for Drawers -->
+  <div id="mobileBackdrop" onclick="closeAllDrawers()" class="fixed inset-0 bg-black/65 backdrop-blur-xs z-30 hidden lg:hidden transition-opacity"></div>
+
+  <!-- TOP NAVIGATION BAR (Mobile-First) -->
+  <header class="h-14 shrink-0 bg-slate-900/95 border-b border-slate-800/90 px-3 flex items-center justify-between gap-2 z-20 select-none">
+    <!-- Left: Hamburger (Mobile) + Brand & Active Buffer -->
+    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+      <button onclick="toggleLeftDrawer()" aria-label="Abrir lista de canales" class="lg:hidden relative w-10 h-10 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 active:scale-95 flex items-center justify-center text-slate-200 transition">
+        <i class="fa-solid fa-bars text-base"></i>
+        <span id="mobileUnreadDot" class="hidden absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-slate-900"></span>
+      </button>
+
+      <!-- Active Buffer Icon & Name -->
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-2">
+          <span id="headerBufferIcon" class="text-emerald-400 font-mono font-bold text-base shrink-0">⚡</span>
+          <h1 id="headerBufferTitle" class="font-semibold text-sm sm:text-base text-slate-100 truncate">Servidor (Estado)</h1>
+          <span id="headerChannelModes" class="hidden text-[11px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700/70 shrink-0"></span>
+        </div>
+        <p id="headerBufferTopic" onclick="openTopicModal()" class="text-xs text-slate-400 truncate cursor-pointer hover:text-slate-300 transition">
+          Sin conexión activa — Pulsa Conectar para iniciar sesión IRC real
+        </p>
+      </div>
+    </div>
+
+    <!-- Right: Connection Pill, Channel Explorer, Raw Protocol Monitor, User List Toggle -->
+    <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+      <!-- Live Connection Status Badge -->
+      <button onclick="openConnectModal()" id="connStatusBtn" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-slate-800/90 hover:bg-slate-700/80 border border-slate-700/80 transition cursor-pointer">
+        <span id="connStatusDot" class="w-2 h-2 rounded-full bg-rose-500"></span>
+        <span id="connStatusText" class="hidden sm:inline text-slate-300">Desconectado</span>
+        <span id="connPingBadge" class="hidden font-mono text-[11px] text-emerald-400 pl-1 border-l border-slate-700">--ms</span>
+      </button>
+
+      <!-- Server /LIST Channel Explorer Button -->
+      <button onclick="openChannelListModal()" title="Explorar canales públicos (/LIST)" class="w-9 h-9 sm:w-auto sm:px-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 active:scale-95 flex items-center justify-center gap-1.5 text-slate-300 hover:text-white border border-slate-700/60 transition text-xs">
+        <i class="fa-solid fa-compass text-emerald-400"></i>
+        <span class="hidden md:inline">Canales</span>
+      </button>
+
+      <!-- Raw IRC Wire Traffic Toggle -->
+      <button onclick="toggleRawMonitor()" id="rawToggleBtn" title="Monitor de protocolo IRC Raw (RFC 1459)" class="w-9 h-9 sm:w-auto sm:px-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 active:scale-95 flex items-center justify-center gap-1.5 text-slate-300 hover:text-white border border-slate-700/60 transition text-xs">
+        <i class="fa-solid fa-terminal text-amber-400"></i>
+        <span class="hidden md:inline font-mono">RAW</span>
+      </button>
+
+      <!-- Users / Nicklist Drawer Toggle -->
+      <button onclick="toggleRightDrawer()" id="usersToggleBtn" title="Usuarios en el canal" class="w-9 h-9 sm:w-auto sm:px-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 active:scale-95 flex items-center justify-center gap-1.5 text-slate-300 hover:text-white border border-slate-700/60 transition text-xs">
+        <i class="fa-solid fa-users text-sky-400"></i>
+        <span id="headerUserCount" class="font-mono text-xs">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE -->
+  <div class="flex-1 flex min-h-0 relative overflow-hidden">
+
+    <!-- LEFT SIDEBAR / DRAWER: Network, Buffers (Channels & Queries), Nick Info -->
+    <aside id="leftDrawer" class="fixed lg:static inset-y-0 left-0 z-40 w-72 sm:w-76 bg-slate-900 border-r border-slate-800/90 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-out shrink-0">
+      <!-- App Header inside Sidebar -->
+      <div class="p-3.5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-950/50">
+            <i class="fa-solid fa-satellite-dish text-white text-sm"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="font-bold text-sm tracking-tight text-white">NexusIRC</span>
+              <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-semibold">WSS Real</span>
+            </div>
+            <p id="sidebarServerHost" class="text-[11px] font-mono text-slate-400 truncate max-w-[165px]">Sin servidor activo</p>
+          </div>
+        </div>
+        <button onclick="closeAllDrawers()" class="lg:hidden w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Quick Join Channel Bar -->
+      <div class="p-2.5 border-b border-slate-800/80 bg-slate-900/50">
+        <form onsubmit="handleQuickJoin(event)" class="flex gap-1.5">
+          <div class="relative flex-1">
+            <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 font-mono text-xs">#</span>
+            <input id="quickJoinInput" type="text" placeholder="Unirse a canal..." autocomplete="off"
+              class="w-full pl-6 pr-2.5 py-1.5 bg-slate-950/90 border border-slate-800 focus:border-emerald-500/70 rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none font-mono" />
+          </div>
+          <button type="submit" title="Unirse al canal (/JOIN)" class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-medium transition flex items-center gap-1 shrink-0">
+            <i class="fa-solid fa-plus text-[11px]"></i>
+            <span>Unir</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Buffer List (Status, Channels, Private Queries) -->
+      <div class="flex-1 overflow-y-auto p-2 space-y-4 select-none">
+        <!-- Server Status Buffer -->
+        <div>
+          <div class="px-2 mb-1 flex items-center justify-between">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Red / Consola</span>
+          </div>
+          <div id="statusBufferContainer"></div>
+        </div>
+
+        <!-- Channels Section -->
+        <div>
+          <div class="px-2 mb-1 flex items-center justify-between">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Canales</span>
+            <button onclick="openChannelListModal()" class="text-[11px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
+              <i class="fa-solid fa-list-ul text-[10px]"></i> Explorar
+            </button>
+          </div>
+          <div id="channelBuffersContainer" class="space-y-0.5"></div>
+        </div>
+
+        <!-- Direct Messages / Queries Section -->
+        <div>
+          <div class="px-2 mb-1 flex items-center justify-between">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Mensajes Privados (DM)</span>
+            <button onclick="openNewDmModal()" class="text-[11px] text-sky-400 hover:text-sky-300 flex items-center gap-1">
+              <i class="fa-solid fa-comment-medical text-[10px]"></i> Nuevo
+            </button>
+          </div>
+          <div id="queryBuffersContainer" class="space-y-0.5"></div>
+        </div>
+      </div>
+
+      <!-- Bottom Current User Profile & Connection Controls -->
+      <div class="p-3 border-t border-slate-800 bg-slate-950/60 flex items-center justify-between gap-2">
+        <div onclick="promptChangeNick()" class="flex items-center gap-2.5 min-w-0 cursor-pointer group" title="Cambiar Nickname (/NICK)">
+          <div id="myAvatarBadge" class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-mono font-bold text-xs flex items-center justify-center shrink-0">
+            ?
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1">
+              <span id="sidebarMyNick" class="font-mono text-xs font-semibold text-slate-200 truncate group-hover:text-emerald-400 transition">Invitado</span>
+              <i class="fa-solid fa-pen text-[9px] text-slate-500 group-hover:text-emerald-400"></i>
+            </div>
+            <p id="sidebarMyModes" class="text-[10px] font-mono text-slate-500 truncate">Sin registrar</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1">
+          <button onclick="toggleSoundEffects()" id="soundToggleBtn" title="Sonido de notificaciones" class="w-8 h-8 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs transition">
+            <i id="soundToggleIcon" class="fa-solid fa-volume-high text-emerald-400"></i>
+          </button>
+          <button onclick="openConnectModal()" title="Configurar conexión IRC" class="px-2.5 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center gap-1.5 border border-slate-700 transition">
+            <i class="fa-solid fa-plug text-emerald-400 text-[11px]"></i>
+            <span>Red</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER COLUMN: Chat Messages + Optional Raw Wire Monitor + Input Bar -->
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-950 relative">
+
+      <!-- Disconnected Banner (when socket is not open) -->
+      <div id="disconnectedBanner" class="bg-gradient-to-r from-amber-500/15 via-emerald-500/10 to-sky-500/15 border-b border-amber-500/30 px-3.5 py-2 flex items-center justify-between gap-2 text-xs">
+        <div class="flex items-center gap-2 min-w-0">
+          <i class="fa-solid fa-bolt text-amber-400 shrink-0"></i>
+          <span id="bannerStatusMsg" class="text-slate-200 truncate">Conéctate en vivo por WebSocket (<code class="font-mono text-amber-300">wss://</code>) a un servidor IRC real.</span>
+        </div>
+        <button onclick="openConnectModal()" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs shrink-0 transition shadow-xs">
+          Conectar ahora
+        </button>
+      </div>
+
+      <!-- Messages Viewport -->
+      <div id="messagesViewport" class="flex-1 overflow-y-auto px-3 sm:px-5 py-3 space-y-1.5 scroll-smooth">
+        <!-- Populated dynamically from active buffer -->
+      </div>
+
+      <!-- Scroll to bottom floating pill -->
+      <button id="scrollToBottomBtn" onclick="scrollToBottom(true)" class="hidden absolute bottom-20 right-4 z-10 px-3 py-1.5 rounded-full bg-emerald-600/95 hover:bg-emerald-500 text-white text-xs font-medium shadow-lg flex items-center gap-1.5 border border-emerald-400/30 transition">
+        <i class="fa-solid fa-arrow-down text-[11px]"></i>
+        <span>Nuevos mensajes</span>
+      </button>
+
+      <!-- Collapsible Real-Time RAW IRC Protocol Monitor (RFC 1459 / IRCv3 Frames) -->
+      <section id="rawMonitorPanel" class="hidden h-48 sm:h-56 border-t border-slate-800 bg-slate-950/98 flex flex-col shrink-0">
+        <div class="px-3 py-1.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+            <span class="font-mono font-semibold text-amber-300 text-[11px]">MONITOR DE TRÁFICO IRC RAW (RFC 1459 / IRCv3)</span>
+            <span id="rawPacketCounter" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">0 tramas</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button onclick="clearRawLogs()" class="text-[11px] text-slate-400 hover:text-white px-1.5 py-0.5 rounded hover:bg-slate-800 transition">Limpiar</button>
+            <button onclick="toggleRawMonitor()" class="text-slate-400 hover:text-white px-1.5 py-0.5 rounded hover:bg-slate-800 transition">
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+          </div>
+        </div>
+        <div id="rawLogViewport" class="flex-1 overflow-y-auto p-2.5 font-mono text-[11px] leading-relaxed space-y-1 bg-black/60"></div>
+        <form onsubmit="handleSendRawManual(event)" class="flex border-t border-slate-800 bg-slate-900/90">
+          <span class="px-2.5 py-1.5 text-[11px] font-mono text-amber-400 flex items-center bg-slate-950 border-r border-slate-800">RAW &gt;&gt;</span>
+          <input id="rawManualInput" type="text" placeholder="Ej: WHOIS NickServ  |  LIST  |  MODE #test  |  PING :12345" autocomplete="off"
+            class="flex-1 bg-transparent px-2.5 py-1 text-xs font-mono text-slate-100 placeholder-slate-500 focus:outline-none" />
+          <button type="submit" class="px-3 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-mono text-xs border-l border-slate-800 transition">
+            Enviar RFC
+          </button>
+        </form>
+      </section>
+
+      <!-- Slash Command & Nick Autocomplete Popup -->
+      <div id="autocompletePopup" class="hidden absolute bottom-16 left-3 right-3 sm:left-4 sm:right-auto sm:w-96 bg-slate-900/95 backdrop-blur-md border border-slate-700/90 rounded-2xl shadow-2xl z-20 overflow-hidden">
+        <div class="px-3 py-1.5 bg-slate-800/70 border-b border-slate-700/70 flex items-center justify-between text-[11px] text-slate-400">
+          <span id="autocompleteTitle">Comandos IRC disponibles</span>
+          <span class="font-mono text-[10px]">TAB o Tocar</span>
+        </div>
+        <div id="autocompleteList" class="max-h-48 overflow-y-auto divide-y divide-slate-800/60"></div>
+      </div>
+
+      <!-- mIRC Formatting Toolbar (Collapsible above input) -->
+      <div id="formatToolbar" class="hidden px-3 py-2 bg-slate-900/95 border-t border-slate-800 flex flex-wrap items-center gap-1.5 text-xs">
+        <span class="text-[11px] text-slate-400 mr-1">Formato IRC:</span>
+        <button type="button" onclick="insertControlCode('\x02')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 font-bold text-slate-200 border border-slate-700" title="Negrita (0x02)">B</button>
+        <button type="button" onclick="insertControlCode('\x1D')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 italic text-slate-200 border border-slate-700" title="Cursiva (0x1D)">I</button>
+        <button type="button" onclick="insertControlCode('\x1F')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 underline text-slate-200 border border-slate-700" title="Subrayado (0x1F)">U</button>
+        <button type="button" onclick="insertControlCode('\x11')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 font-mono text-slate-200 border border-slate-700" title="Monospace (0x11)">M</button>
+        <button type="button" onclick="insertControlCode('\x0F')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-rose-300 border border-slate-700 text-[11px]" title="Resetear formato (0x0F)">Reset</button>
+        <div class="h-4 w-px bg-slate-800 mx-1"></div>
+        <!-- mIRC Color Swatches -->
+        <div class="flex items-center gap-1 overflow-x-auto py-0.5">
+          <button type="button" onclick="insertControlCode('\x0304')" class="w-5 h-5 rounded-full bg-[#ff0000] border border-white/20 shrink-0" title="Rojo (04)"></button>
+          <button type="button" onclick="insertControlCode('\x0307')" class="w-5 h-5 rounded-full bg-[#fc7f00] border border-white/20 shrink-0" title="Naranja (07)"></button>
+          <button type="button" onclick="insertControlCode('\x0308')" class="w-5 h-5 rounded-full bg-[#ffff00] border border-white/20 shrink-0" title="Amarillo (08)"></button>
+          <button type="button" onclick="insertControlCode('\x0309')" class="w-5 h-5 rounded-full bg-[#00fc00] border border-white/20 shrink-0" title="Verde lima (09)"></button>
+          <button type="button" onclick="insertControlCode('\x0311')" class="w-5 h-5 rounded-full bg-[#00ffff] border border-white/20 shrink-0" title="Cian (11)"></button>
+          <button type="button" onclick="insertControlCode('\x0312')" class="w-5 h-5 rounded-full bg-[#0000fc] border border-white/20 shrink-0" title="Azul (12)"></button>
+          <button type="button" onclick="insertControlCode('\x0313')" class="w-5 h-5 rounded-full bg-[#ff00ff] border border-white/20 shrink-0" title="Magenta (13)"></button>
+        </div>
+      </div>
+
+      <!-- BOTTOM MESSAGE COMPOSER (Mobile-First Ergonomic Bar) -->
+      <footer class="bg-slate-900/95 border-t border-slate-800/90 px-2.5 sm:px-4 py-2 pb-safe shrink-0">
+        <form id="composerForm" onsubmit="handleComposerSubmit(event)" class="flex items-center gap-1.5 sm:gap-2">
+          <!-- Slash Command Helper Button -->
+          <button type="button" onclick="triggerSlashHelper()" title="Insertar comando IRC (/)"
+            class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-emerald-400 font-mono font-bold text-sm flex items-center justify-center border border-slate-700/70 shrink-0 transition">
+            /
+          </button>
+
+          <!-- Formatting Bar Button -->
+          <button type="button" onclick="toggleFormatToolbar()" title="Colores y estilos mIRC"
+            class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 hover:text-white text-sm flex items-center justify-center border border-slate-700/70 shrink-0 transition">
+            <i class="fa-solid fa-palette text-xs"></i>
+          </button>
+
+          <!-- Main Text Input -->
+          <div class="relative flex-1 min-w-0">
+            <input id="chatInput" type="text"
+              placeholder="Escribe un mensaje o comando (/join, /msg, /whois, /list)..."
+              autocomplete="off" autocorrect="off" autocapitalize="sentences"
+              oninput="handleInputAutocomplete(this.value)"
+              onkeydown="handleComposerKeydown(event)"
+              class="w-full h-10 pl-3.5 pr-9 rounded-xl bg-slate-950 border border-slate-800 focus:border-emerald-500/80 text-sm text-slate-100 placeholder-slate-500 focus:outline-none transition" />
+            <!-- Mention @ helper inside input -->
+            <button type="button" onclick="triggerMentionHelper()" title="Mencionar usuario (@)"
+              class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-400 p-1 text-xs font-mono">
+              @
+            </button>
+          </div>
+
+          <!-- Send Button -->
+          <button type="submit" aria-label="Enviar mensaje"
+            class="h-10 px-3.5 sm:px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-medium text-sm flex items-center justify-center gap-1.5 shadow-md shadow-emerald-950/50 shrink-0 transition">
+            <i class="fa-solid fa-paper-plane text-xs"></i>
+            <span class="hidden sm:inline">Enviar</span>
+          </button>
+        </form>
+      </footer>
+    </main>
+
+    <!-- RIGHT SIDEBAR / DRAWER: Live Channel Nicklist (Users) -->
+    <aside id="rightDrawer" class="fixed lg:static inset-y-0 right-0 z-40 w-68 sm:w-64 bg-slate-900 border-l border-slate-800/90 flex flex-col transform translate-x-full lg:translate-x-0 transition-transform duration-200 ease-out shrink-0">
+      <div class="p-3 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-users text-sky-400 text-xs"></i>
+          <h2 class="font-semibold text-xs uppercase tracking-wider text-slate-300">Usuarios en Canal</h2>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button onclick="refreshCurrentChannelNames()" title="Actualizar lista (/NAMES)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-xs">
+            <i class="fa-solid fa-rotate"></i>
+          </button>
+          <button onclick="closeAllDrawers()" class="lg:hidden w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Users Input -->
+      <div class="p-2 border-b border-slate-800/70">
+        <div class="relative">
+          <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-[11px]"></i>
+          <input id="userFilterInput" type="text" oninput="renderUserList()" placeholder="Filtrar nicks..."
+            class="w-full pl-7 pr-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500/60 font-mono" />
+        </div>
+      </div>
+
+      <!-- Nicklist Container -->
+      <div id="userListContainer" class="flex-1 overflow-y-auto p-2 space-y-3 select-none">
+        <!-- Populated dynamically with Operators (@), Voiced (+), Normal users -->
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- MODAL 1: CONNECTION & NETWORK SETTINGS -->
+  <div id="connectModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-700/90 rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden my-auto">
+      <!-- Modal Header -->
+      <div class="px-5 py-4 bg-slate-800/60 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+            <i class="fa-solid fa-network-wired"></i>
+          </div>
+          <div>
+            <h2 class="font-bold text-base text-white">Conexión IRC Real (WebSocket)</h2>
+            <p class="text-xs text-slate-400">Protocolo RFC 1459 + IRCv3 directo desde tu navegador</p>
+          </div>
+        </div>
+        <button onclick="closeConnectModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Connection Form -->
+      <form onsubmit="handleConnectSubmit(event)" class="p-5 space-y-4 text-xs sm:text-sm">
+        <!-- Preset Public WSS Servers -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+            Servidores IRC Públicos con WebSocket (<code class="text-emerald-400">wss://</code>)
+          </label>
+          <select id="serverPresetSelect" onchange="applyServerPreset(this.value)"
+            class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-slate-100 text-xs sm:text-sm focus:outline-none focus:border-emerald-500">
+            <option value="ergo_testnet">Ergo Official Testnet (wss://testnet.ergo.chat/webirc) — Recomendado</option>
+            <option value="unrealircd">UnrealIRCd Official Network (wss://irc.unrealircd.org)</option>
+            <option value="ergo_main">Ergo Official Network (wss://irc.ergo.chat/webirc)</option>
+            <option value="milkmedicine">MilkMedicine IRCv3 (wss://irc.milkmedicine.net/webirc)</option>
+            <option value="custom">Servidor WSS / WS Personalizado...</option>
+          </select>
+        </div>
+
+        <!-- WebSocket URL & Subprotocol -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-medium text-slate-300 mb-1">Endpoint WebSocket (<code class="font-mono text-emerald-400">wss://</code>)</label>
+            <input id="wsUrlInput" type="url" required value="wss://testnet.ergo.chat/webirc"
+              placeholder="wss://servidor.irc.org:8097/webirc"
+              class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700/80 text-slate-100 font-mono text-xs focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Subprotocolo WS</label>
+            <select id="wsSubprotocolSelect"
+              class="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700/80 text-slate-100 font-mono text-xs focus:outline-none focus:border-emerald-500">
+              <option value="auto">Auto (IRCv3 / Texto)</option>
+              <option value="text.ircv3.net">text.ircv3.net</option>
+              <option value="none">Ninguno (Raw WS)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Identity: Nickname & Username/Realname -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Nickname (Apodo)</label>
+            <div class="flex gap-1.5">
+              <input id="nickInput" type="text" required maxlength="24"
+                class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700/80 text-slate-100 font-mono text-xs focus:outline-none focus:border-emerald-500" />
+              <button type="button" onclick="randomizeNickInput()" title="Generar nick aleatorio"
+                class="px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">
+                <i class="fa-solid fa-dice"></i>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Canales Auto-Join</label>
+            <input id="channelsInput" type="text" value="#ergo,#test,#ircv3"
+              placeholder="#general,#ayuda"
+              class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700/80 text-slate-100 font-mono text-xs focus:outline-none focus:border-emerald-500" />
+          </div>
+        </div>
+
+        <!-- Advanced Options (Collapsible) -->
+        <details class="bg-slate-950/70 border border-slate-800 rounded-xl p-3">
+          <summary class="text-xs font-medium text-slate-300 cursor-pointer select-none flex items-center justify-between">
+            <span><i class="fa-solid fa-sliders text-emerald-400 mr-1.5"></i> Identidad avanzada, SASL y capacidades IRCv3</span>
+            <i class="fa-solid fa-chevron-down text-[10px] text-slate-500"></i>
+          </summary>
+          <div class="mt-3 pt-3 border-t border-slate-800/80 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Usuario (Ident)</label>
+              <input id="identInput" type="text" value="nexusweb"
+                class="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-200 font-mono text-xs" />
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Nombre Real (GECOS)</label>
+              <input id="realnameInput" type="text" value="NexusIRC HTML5 Client"
+                class="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-200 text-xs" />
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Contraseña SASL / NickServ (Opcional)</label>
+              <input id="passwordInput" type="password" placeholder="Dejar vacío si no tienes cuenta"
+                class="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-200 font-mono text-xs" />
+            </div>
+            <div class="flex items-center pt-4">
+              <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
+                <input id="ircv3CapCheckbox" type="checkbox" checked class="rounded border-slate-700 text-emerald-500 focus:ring-0" />
+                <span>Negociar capacidades IRCv3 (<code class="font-mono text-[11px]">CAP LS 302</code>)</span>
+              </label>
+            </div>
+          </div>
+        </details>
+
+        <!-- Technical note about WSS in browsers -->
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/90 text-[11px] text-slate-400 leading-relaxed flex gap-2.5">
+          <i class="fa-solid fa-shield-halved text-emerald-400 text-sm mt-0.5 shrink-0"></i>
+          <div>
+            Esta aplicación establece un socket <strong class="text-slate-200">WebSocket TLS (<code class="font-mono">wss://</code>)</strong> directo hacia el demonio IRC remoto (Ergo, UnrealIRCd, InspIRCd). Todos los paquetes <code class="font-mono">PING/PONG</code>, <code class="font-mono">JOIN</code>, <code class="font-mono">PRIVMSG</code> y <code class="font-mono">NAMES</code> son reales.
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button type="button" id="disconnectModalBtn" onclick="disconnectIRC()" class="hidden px-4 py-2.5 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 font-medium text-xs sm:text-sm transition">
+            Desconectar sesión actual
+          </button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-semibold text-xs sm:text-sm shadow-lg shadow-emerald-950/60 flex items-center gap-2 transition">
+            <i class="fa-solid fa-bolt"></i>
+            <span>Conectar al Servidor IRC</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: LIVE SERVER CHANNEL EXPLORER (/LIST) -->
+  <div id="channelListModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-slate-900 border border-slate-700/90 rounded-2xl max-w-2xl w-full max-h-[85dvh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="px-5 py-3.5 bg-slate-800/60 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-compass text-emerald-400"></i>
+          <h3 class="font-bold text-sm sm:text-base text-white">Explorador de Canales del Servidor (<code class="font-mono text-xs text-emerald-400">/LIST</code>)</h3>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="requestServerChannelList()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-emerald-400 border border-slate-700 flex items-center gap-1">
+            <i class="fa-solid fa-rotate"></i> Actualizar
+          </button>
+          <button onclick="closeChannelListModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-3 border-b border-slate-800 flex items-center gap-2">
+        <i class="fa-solid fa-magnifying-glass text-slate-500 text-xs ml-1"></i>
+        <input id="channelListFilterInput" type="text" oninput="renderChannelListModalItems()" placeholder="Buscar canal por nombre o tema..."
+          class="w-full bg-transparent text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none" />
+      </div>
+
+      <div id="channelListModalBody" class="flex-1 overflow-y-auto divide-y divide-slate-800/70 p-2">
+        <!-- Populated by numeric 322 (RPL_LIST) -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: USER WHOIS & QUICK ACTIONS -->
+  <div id="userActionModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700/90 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 bg-slate-800/60 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div id="modalUserAvatar" class="w-10 h-10 rounded-xl bg-sky-500/20 border border-sky-500/40 text-sky-300 font-mono font-bold flex items-center justify-center">
+            U
+          </div>
+          <div>
+            <h3 id="modalUserNick" class="font-mono font-bold text-base text-white">Nick</h3>
+            <p id="modalUserHost" class="font-mono text-[11px] text-slate-400">Consultando servidor...</p>
+          </div>
+        </div>
+        <button onclick="closeUserActionModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="p-4 space-y-3 text-xs">
+        <div id="whoisDetailsBox" class="p-3 rounded-xl bg-slate-950 border border-slate-800 font-mono space-y-1 text-slate-300 min-h-[72px]">
+          Pulsa "Consultar WHOIS" para solicitar datos en vivo al servidor.
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button onclick="startPrivateChatFromModal()" class="px-3 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium flex items-center justify-center gap-2 transition">
+            <i class="fa-solid fa-comment-dots"></i> Mensaje Privado
+          </button>
+          <button onclick="sendWhoisFromModal()" class="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium flex items-center justify-center gap-2 transition">
+            <i class="fa-solid fa-id-card text-sky-400"></i> Consultar WHOIS
+          </button>
+          <button onclick="mentionUserFromModal()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center justify-center gap-1.5 transition">
+            <i class="fa-solid fa-at text-emerald-400"></i> Mencionar
+          </button>
+          <button onclick="sendCtcpPingFromModal()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center justify-center gap-1.5 transition">
+            <i class="fa-solid fa-stopwatch text-amber-400"></i> CTCP PING
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: CHANNEL TOPIC VIEWER / EDITOR & CUSTOM PROMPT -->
+  <div id="dialogModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700/90 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden">
+      <div class="px-5 py-3.5 bg-slate-800/60 border-b border-slate-800 flex items-center justify-between">
+        <h3 id="dialogModalTitle" class="font-bold text-sm text-white">Acción IRC</h3>
+        <button onclick="closeDialogModal()" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <form onsubmit="submitDialogModal(event)" class="p-4 space-y-3">
+        <p id="dialogModalDesc" class="text-xs text-slate-300 leading-relaxed"></p>
+        <input id="dialogModalInput" type="text" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs sm:text-sm text-white font-mono focus:outline-none focus:border-emerald-500" />
+        <div class="flex justify-end gap-2 pt-1">
+          <button type="button" onclick="closeDialogModal()" class="px-3.5 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs">Cancelar</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold">Confirmar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed top-16 right-4 z-50 space-y-2 pointer-events-none"></div>
+
+  <script>
+    /***************************************************************************
+     * NEXUSIRC — REAL RFC 1459 & IRCv3 OVER WEBSOCKETS CLIENT ENGINE
+     * Zero simulation: All traffic is exchanged via browser WebSocket (wss://)
+     ***************************************************************************/
+
+    const SERVER_PRESETS = {
+      ergo_testnet: {
+        name: 'Ergo Official Testnet',
+        url: 'wss://testnet.ergo.chat/webirc',
+        subprotocol: 'auto',
+        channels: '#ergo,#test,#ircv3'
+      },
+      unrealircd: {
+        name: 'UnrealIRCd Official Server',
+        url: 'wss://irc.unrealircd.org',
+        subprotocol: 'none',
+        channels: '#websocket,#unrealircd'
+      },
+      ergo_main: {
+        name: 'Ergo Official Network',
+        url: 'wss://irc.ergo.chat/webirc',
+        subprotocol: 'auto',
+        channels: '#ergo,#general'
+      },
+      milkmedicine: {
+        name: 'MilkMedicine IRCv3',
+        url: 'wss://irc.milkmedicine.net/webirc',
+        subprotocol: 'auto',
+        channels: '#general,#tech'
+      }
+    };
+
+    const SLASH_COMMANDS = [
+      { cmd: '/join', syntax: '/join #canal [clave]', desc: 'Unirse a un canal IRC real en el servidor' },
+      { cmd: '/part', syntax: '/part [#canal] [razón]', desc: 'Salir del canal actual o especificado' },
+      { cmd: '/msg', syntax: '/msg <nick|#canal> <mensaje>', desc: 'Enviar un mensaje privado o a un canal' },
+      { cmd: '/query', syntax: '/query <nick> [mensaje]', desc: 'Abrir ventana de chat privado con un usuario' },
+      { cmd: '/me', syntax: '/me <acción>', desc: 'Enviar acción CTCP ACTION al canal actual' },
+      { cmd: '/nick', syntax: '/nick <nuevo_nick>', desc: 'Cambiar tu apodo (Nickname) en el servidor' },
+      { cmd: '/whois', syntax: '/whois <nick>', desc: 'Consultar información real del usuario en el servidor' },
+      { cmd: '/topic', syntax: '/topic [nuevo_tema]', desc: 'Ver o cambiar el topic del canal actual' },
+      { cmd: '/list', syntax: '/list', desc: 'Listar todos los canales públicos del servidor' },
+      { cmd: '/names', syntax: '/names [#canal]', desc: 'Actualizar lista de usuarios del canal' },
+      { cmd: '/mode', syntax: '/mode <objetivo> <modos>', desc: 'Consultar o establecer modos de canal/usuario' },
+      { cmd: '/kick', syntax: '/kick <nick> [razón]', desc: 'Expulsar a un usuario del canal (requiere @ op)' },
+      { cmd: '/away', syntax: '/away [mensaje]', desc: 'Marcar estado ausente (o regresar si va vacío)' },
+      { cmd: '/ns', syntax: '/ns <comando>', desc: 'Enviar comando directo al servicio NickServ' },
+      { cmd: '/cs', syntax: '/cs <comando>', desc: 'Enviar comando directo al servicio ChanServ' },
+      { cmd: '/raw', syntax: '/raw <línea RFC 1459>', desc: 'Enviar comando crudo directamente por el socket' },
+      { cmd: '/clear', syntax: '/clear', desc: 'Limpiar el historial de mensajes de la ventana actual' },
+      { cmd: '/quit', syntax: '/quit [mensaje]', desc: 'Cerrar sesión IRC y desconectar el WebSocket' }
+    ];
+
+    const STATUS_BUFFER_ID = '*status*';
+
+    const state = {
+      ws: null,
+      connected: false,
+      connecting: false,
+      registered: false,
+      serverUrl: '',
+      serverHost: '',
+      networkName: '',
+      nick: '',
+      ident: 'nexusweb',
+      realname: 'NexusIRC HTML5 Client',
+      password: '',
+      userModes: '',
+      autoJoinChannels: [],
+      useIrcv3: true,
+      capNegotiating: false,
+      enabledCaps: new Set(),
+
+      // Buffers: key -> { id, name, type: 'status'|'channel'|'query', messages: [], users: Map(nick -> prefix), topic: '', modes: '', unread: 0, highlights: 0, namReplyInProgress: false }
+      buffers: new Map(),
+      activeBufferId: STATUS_BUFFER_ID,
+
+      // Server prefixes e.g. { '@': 'o', '+': 'v', '~': 'q', '&': 'a', '%': 'h' }
+      prefixRanks: { '~': 5, '&': 4, '@': 3, '%': 2, '+': 1, '': 0 },
+
+      // Live /LIST cache
+      serverChannelsList: [],
+      listLoading: false,
+
+      // WHOIS inspector target
+      inspectedNick: null,
+      whoisData: {},
+
+      // Ping / Latency tracking
+      pingIntervalId: null,
+      lastPingSentAt: 0,
+      latencyMs: null,
+
+      // Raw traffic logs
+      rawLogs: [],
+      rawFrameCount: 0,
+
+      // Input history (up/down arrows)
+      commandHistory: [],
+      historyIndex: -1,
+
+      // Audio notifications
+      soundEnabled: true,
+      audioCtx: null,
+
+      // Dialog callback
+      dialogCallback: null
+    };
+
+    function initState() {
+      const randomSuffix = Math.floor(100 + Math.random() * 899);
+      state.nick = `Nexus_${randomSuffix}`;
+      document.getElementById('nickInput').value = state.nick;
+
+      // Ensure Status Buffer always exists
+      ensureBuffer(STATUS_BUFFER_ID, 'Servidor (Estado)', 'status');
+      addSystemMessage(
+        STATUS_BUFFER_ID,
+        'Bienvenido a NexusIRC — Cliente IRC real sobre WebSockets (RFC 1459 + IRCv3). Selecciona un servidor público wss:// o ingresa tu propio nodo para conectarte en vivo.',
+        'info'
+      );
+      renderAll();
+    }
+
+    function ensureBuffer(id, displayName, type = 'channel') {
+      const key = id.toLowerCase();
+      if (!state.buffers.has(key)) {
+        state.buffers.set(key, {
+          id: key,
+          name: displayName || id,
+          type,
+          messages: [],
+          users: new Map(), // lowercaseNick -> { nick, prefix }
+          topic: '',
+          modes: '',
+          unread: 0,
+          highlights: 0,
+          namReplyInProgress: false
+        });
+      }
+      return state.buffers.get(key);
+    }
+
+    function isChannelName(target) {
+      return Boolean(target && (target.startsWith('#') || target.startsWith('&')));
+    }
+
+    function nickColorClass(nick) {
+      const palette = [
+        'text-emerald-400', 'text-sky-400', 'text-amber-400', 'text-rose-400',
+        'text-violet-400', 'text-teal-300', 'text-pink-400', 'text-indigo-400',
+        'text-lime-400', 'text-cyan-300', 'text-orange-400', 'text-fuchsia-400'
+      ];
+      let hash = 0;
+      const clean = (nick || '').replace(/^[~&@%+]+/, '');
+      for (let i = 0; i < clean.length; i++) {
+        hash = clean.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      return palette[Math.abs(hash) % palette.length];
+    }
+
+    function applyServerPreset(presetKey) {
+      if (presetKey === 'custom') {
+        document.getElementById('wsUrlInput').value = '';
+        document.getElementById('wsUrlInput').focus();
+        return;
+      }
+      const preset = SERVER_PRESETS[presetKey];
+      if (!preset) return;
+      document.getElementById('wsUrlInput').value = preset.url;
+      document.getElementById('wsSubprotocolSelect').value = preset.subprotocol;
+      document.getElementById('channelsInput').value = preset.channels;
+    }
+
+    function randomizeNickInput() {
+      const num = Math.floor(100 + Math.random() * 899);
+      document.getElementById('nickInput').value = `UserIRC_${num}`;
+    }
+
+    function handleConnectSubmit(e) {
+      e.preventDefault();
+      const wsUrl = document.getElementById('wsUrlInput').value.trim();
+      const subprotoMode = document.getElementById('wsSubprotocolSelect').value;
+      const nick = document.getElementById('nickInput').value.trim().replace(/\s+/g, '_');
+      const channelsRaw = document.getElementById('channelsInput').value.trim();
+      const ident = document.getElementById('identInput').value.trim() || 'nexusweb';
+      const realname = document.getElementById('realnameInput').value.trim() || 'NexusIRC Web Client';
+      const password = document.getElementById('passwordInput').value;
+      const useIrcv3 = document.getElementById('ircv3CapCheckbox').checked;
+
+      if (!wsUrl || !nick) return;
+
+      state.nick = nick;
+      state.ident = ident;
+      state.realname = realname;
+      state.password = password;
+      state.useIrcv3 = useIrcv3;
+      state.autoJoinChannels = channelsRaw
+        .split(',')
+        .map(c => c.trim())
+        .filter(Boolean)
+        .map(c => (c.startsWith('#') || c.startsWith('&') ? c : '#' + c));
+
+      closeConnectModal();
+      connectToWebSocketIRC(wsUrl, subprotoMode, false);
+    }
+
+    function connectToWebSocketIRC(wsUrl, subprotoMode = 'auto', isFallbackAttempt = false) {
+      // Clean up any existing socket
+      if (state.ws) {
+        try {
+          state.ws.onclose = null;
+          state.ws.onerror = null;
+          state.ws.onmessage = null;
+          state.ws.close();
+        } catch (_) {}
+      }
+      stopPingTimer();
+
+      state.serverUrl = wsUrl;
+      try {
+        const parsed = new URL(wsUrl);
+        state.serverHost = parsed.host;
+      } catch (_) {
+        state.serverHost = wsUrl;
+      }
+
+      state.connecting = true;
+      state.connected = false;
+      state.registered = false;
+      state.latencyMs = null;
+      state.enabledCaps.clear();
+
+      updateConnectionUI();
+      switchBuffer(STATUS_BUFFER_ID);
+
+      let protocols = undefined;
+      if (subprotoMode === 'auto' && !isFallbackAttempt) {
+        protocols = ['text.ircv3.net', 'binary.ircv3.net'];
+      } else if (subprotoMode === 'text.ircv3.net' && !isFallbackAttempt) {
+        protocols = ['text.ircv3.net'];
+      }
+
+      addSystemMessage(
+        STATUS_BUFFER_ID,
+        `Abriendo conexión WebSocket hacia ${wsUrl} ${protocols ? `(subprotocolos: ${protocols.join(', ')})` : '(sin subprotocolo específico)'}...`,
+        'info'
+      );
+
+      let ws;
+      try {
+        ws = protocols ? new WebSocket(wsUrl, protocols) : new WebSocket(wsUrl);
+      } catch (err) {
+        state.connecting = false;
+        updateConnectionUI();
+        addSystemMessage(STATUS_BUFFER_ID, `Error al crear WebSocket: ${err.message}`, 'error');
+        showToast('Error en URL WebSocket', 'error');
+        return;
+      }
+
+      state.ws = ws;
+      let openedSuccessfully = false;
+
+      ws.onopen = () => {
+        openedSuccessfully = true;
+        state.connecting = false;
+        state.connected = true;
+        updateConnectionUI();
+
+        const negotiatedProto = ws.protocol ? ` (Subprotocolo negociado: ${ws.protocol})` : '';
+        addSystemMessage(STATUS_BUFFER_ID, `Socket TLS establecido con ${state.serverHost}${negotiatedProto}. Iniciando handshake RFC 1459...`, 'success');
+        showToast(`Conectado a ${state.serverHost}`, 'success');
+
+        // Send IRCv3 CAP negotiation + RFC 1459 registration
+        if (state.useIrcv3) {
+          state.capNegotiating = true;
+          sendRawIRC('CAP LS 302');
+        }
+        if (state.password) {
+          sendRawIRC(`PASS :${state.password}`);
+        }
+        sendRawIRC(`NICK ${state.nick}`);
+        sendRawIRC(`USER ${state.ident} 0 * :${state.realname}`);
+
+        startPingTimer();
+      };
+
+      ws.onmessage = async (event) => {
+        let textData = '';
+        if (typeof event.data === 'string') {
+          textData = event.data;
+        } else if (event.data instanceof Blob) {
+          textData = await event.data.text();
+        } else if (event.data instanceof ArrayBuffer) {
+          textData = new TextDecoder('utf-8').decode(event.data);
+        }
+
+        const lines = textData.split(/\r?\n/);
+        for (const rawLine of lines) {
+          if (rawLine.trim().length > 0) {
+            handleIncomingRawLine(rawLine);
+          }
+        }
+      };
+
+      ws.onerror = () => {
+        // Check if subprotocol negotiation failed on servers that reject Sec-WebSocket-Protocol
+        if (!openedSuccessfully && !isFallbackAttempt && protocols) {
+          addSystemMessage(
+            STATUS_BUFFER_ID,
+            'El servidor rechazó el encabezado Sec-WebSocket-Protocol; reintentando automáticamente en modo WebSocket directo...',
+            'warn'
+          );
+          connectToWebSocketIRC(wsUrl, 'none', true);
+          return;
+        }
+        addSystemMessage(
+          STATUS_BUFFER_ID,
+          `Error de transporte WebSocket en ${state.serverHost}. Verifica que el servidor acepte conexiones wss:// desde el navegador.`,
+          'error'
+        );
+      };
+
+      ws.onclose = (ev) => {
+        if (!openedSuccessfully && !isFallbackAttempt && protocols) {
+          return; // Handled by fallback retry
+        }
+        stopPingTimer();
+        state.connecting = false;
+        state.connected = false;
+        state.registered = false;
+        updateConnectionUI();
+        addSystemMessage(
+          STATUS_BUFFER_ID,
+          `Conexión WebSocket cerrada (código ${ev.code}${ev.reason ? `: ${ev.reason}` : ''}).`,
+          'warn'
+        );
+      };
+    }
+
+    function disconnectIRC() {
+      if (state.ws && state.connected) {
+        sendRawIRC('QUIT :NexusIRC WebSocket Client — Sesión finalizada');
+        try {
+          state.ws.close();
+        } catch (_) {}
+      }
+      stopPingTimer();
+      state.connected = false;
+      state.connecting = false;
+      state.registered = false;
+      updateConnectionUI();
+      closeConnectModal();
+      showToast('Sesión IRC desconectada', 'info');
+    }
+
+    function sendRawIRC(commandLine) {
+      if (!state.ws || state.ws.readyState !== WebSocket.OPEN) {
+        addSystemMessage(state.activeBufferId, 'No estás conectado a ningún servidor IRC.', 'error');
+        return false;
+      }
+      // Clean accidental CR/LF injection
+      const cleanLine = commandLine.replace(/[\r\n]+/g, '');
+      state.ws.send(cleanLine);
+      appendRawTrafficLog('OUT', cleanLine);
+      return true;
+    }
+
+    function startPingTimer() {
+      stopPingTimer();
+      state.pingIntervalId = setInterval(() => {
+        if (state.connected && state.registered) {
+          state.lastPingSentAt = Date.now();
+          sendRawIRC(`PING :nexus_${state.lastPingSentAt}`);
+        }
+      }, 35000);
+    }
+
+    function stopPingTimer() {
+      if (state.pingIntervalId) {
+        clearInterval(state.pingIntervalId);
+        state.pingIntervalId = null;
+      }
+    }
+
+    function parseIrcLine(line) {
+      let idx = 0;
+      const tags = {};
+
+      // 1. Optional IRCv3 @tags
+      if (line.startsWith('@')) {
+        const spaceIdx = line.indexOf(' ');
+        if (spaceIdx !== -1) {
+          const rawTags = line.slice(1, spaceIdx).split(';');
+          for (const t of rawTags) {
+            const eq = t.indexOf('=');
+            if (eq !== -1) {
+              tags[t.slice(0, eq)] = t.slice(eq + 1).replace(/\\s/g, ' ');
+            } else {
+              tags[t] = true;
+            }
+          }
+          idx = spaceIdx + 1;
+          while (line[idx] === ' ') idx++;
+        }
+      }
+
+      // 2. Optional :prefix (nick!user@host or server.host)
+      let prefix = '';
+      let nick = '';
+      let user = '';
+      let host = '';
+      if (line[idx] === ':') {
+        const spaceIdx = line.indexOf(' ', idx);
+        if (spaceIdx !== -1) {
+          prefix = line.slice(idx + 1, spaceIdx);
+          idx = spaceIdx + 1;
+          while (line[idx] === ' ') idx++;
+
+          const bangIdx = prefix.indexOf('!');
+          const atIdx = prefix.indexOf('@');
+          if (bangIdx !== -1 && atIdx !== -1 && bangIdx < atIdx) {
+            nick = prefix.slice(0, bangIdx);
+            user = prefix.slice(bangIdx + 1, atIdx);
+            host = prefix.slice(atIdx + 1);
+          } else {
+            nick = prefix;
+          }
+        }
+      }
+
+      // 3. Command & Params
+      const rest = line.slice(idx);
+      const params = [];
+      let pos = 0;
+      let command = '';
+
+      while (pos < rest.length) {
+        while (rest[pos] === ' ') pos++;
+        if (pos >= rest.length) break;
+
+        if (rest[pos] === ':') {
+          params.push(rest.slice(pos + 1));
+          break;
+        }
+
+        const nextSpace = rest.indexOf(' ', pos);
+        if (nextSpace === -1) {
+          params.push(rest.slice(pos));
+          break;
+        } else {
+          params.push(rest.slice(pos, nextSpace));
+          pos = nextSpace + 1;
+        }
+      }
+
+      if (params.length > 0) {
+        command = params.shift().toUpperCase();
+      }
+
+      return { raw: line, tags, prefix, nick, user, host, command, params };
+    }
+
+    function handleIncomingRawLine(rawLine) {
+      appendRawTrafficLog('IN', rawLine);
+      const msg = parseIrcLine(rawLine);
+      if (!msg.command) return;
+
+      // Server timestamp support from IRCv3 @time tag
+      const msgTimestamp = msg.tags.time ? new Date(msg.tags.time) : new Date();
+      const cmd = msg.command;
+      const p = msg.params;
+
+      // 1. Automatic PING -> PONG heartbeat response
+      if (cmd === 'PING') {
+        const token = p[p.length - 1] || state.serverHost;
+        sendRawIRC(`PONG :${token}`);
+        return;
+      }
+
+      if (cmd === 'PONG') {
+        const token = p[p.length - 1] || '';
+        if (token.startsWith('nexus_') && state.lastPingSentAt > 0) {
+          state.latencyMs = Math.max(1, Date.now() - state.lastPingSentAt);
+          updateConnectionUI();
+        }
+        return;
+      }
+
+      // 2. IRCv3 CAP Negotiation
+      if (cmd === 'CAP') {
+        const subCmd = (p[1] || '').toUpperCase();
+        const capListRaw = p[p.length - 1] || '';
+        if (subCmd === 'LS') {
+          const isMultiline = p[2] === '*';
+          const desiredCaps = ['server-time', 'message-tags', 'multi-prefix', 'echo-message', 'away-notify', 'chathistory', 'batch'];
+          if (state.password) desiredCaps.push('sasl');
+
+          const offered = capListRaw.split(/\s+/).map(c => c.split('=')[0]);
+          const toReq = offered.filter(c => desiredCaps.includes(c));
+
+          if (toReq.length > 0) {
+            sendRawIRC(`CAP REQ :${toReq.join(' ')}`);
+          } else if (!isMultiline && state.capNegotiating) {
+            state.capNegotiating = false;
+            sendRawIRC('CAP END');
+          }
+        } else if (subCmd === 'ACK') {
+          capListRaw.split(/\s+/).filter(Boolean).forEach(c => state.enabledCaps.add(c));
+          if (state.enabledCaps.has('sasl') && state.password) {
+            sendRawIRC('AUTHENTICATE PLAIN');
+          } else if (state.capNegotiating) {
+            state.capNegotiating = false;
+            sendRawIRC('CAP END');
+          }
+        } else if (subCmd === 'NAK') {
+          if (state.capNegotiating) {
+            state.capNegotiating = false;
+            sendRawIRC('CAP END');
+          }
+        }
+        return;
+      }
+
+      // SASL PLAIN Authentication step
+      if (cmd === 'AUTHENTICATE' && p[0] === '+') {
+        const authStr = `${state.nick}\x00${state.nick}\x00${state.password}`;
+        const b64 = btoa(unescape(encodeURIComponent(authStr)));
+        sendRawIRC(`AUTHENTICATE ${b64}`);
+        return;
+      }
+
+      // SASL Numerics (903 = Success, 904/905 = Fail)
+      if (cmd === '903' || cmd === '904' || cmd === '905') {
+        addSystemMessage(STATUS_BUFFER_ID, `[SASL] ${p[p.length - 1]}`, cmd === '903' ? 'success' : 'warn');
+        if (state.capNegotiating) {
+          state.capNegotiating = false;
+          sendRawIRC('CAP END');
+        }
+        return;
+      }
+
+      // 3. Welcome & Registration Complete (001 RPL_WELCOME)
+      if (cmd === '001') {
+        state.registered = true;
+        if (p[0]) state.nick = p[0];
+        addSystemMessage(STATUS_BUFFER_ID, p[p.length - 1] || 'Registro IRC completado.', 'success', msgTimestamp);
+        updateConnectionUI();
+
+        // Measure initial ping
+        state.lastPingSentAt = Date.now();
+        sendRawIRC(`PING :nexus_${state.lastPingSentAt}`);
+
+        // Auto-join channels configured by user
+        if (state.autoJoinChannels.length > 0) {
+          sendRawIRC(`JOIN ${state.autoJoinChannels.join(',')}`);
+        }
+        return;
+      }
+
+      // 005 RPL_ISUPPORT: Extract NETWORK name
+      if (cmd === '005') {
+        for (const token of p) {
+          if (token.startsWith('NETWORK=')) {
+            state.networkName = token.slice(8);
+            updateConnectionUI();
+          }
+        }
+        addSystemMessage(STATUS_BUFFER_ID, p.slice(1).join(' '), 'server', msgTimestamp);
+        return;
+      }
+
+      // 433 ERR_NICKNAMEINUSE: Automatic collision recovery
+      if (cmd === '433') {
+        const triedNick = p[1] || state.nick;
+        addSystemMessage(STATUS_BUFFER_ID, `El nick "${triedNick}" ya está en uso en el servidor.`, 'warn', msgTimestamp);
+        if (!state.registered) {
+          state.nick = `${state.nick}_${Math.floor(10 + Math.random() * 89)}`;
+          addSystemMessage(STATUS_BUFFER_ID, `Probando nick alternativo: ${state.nick}`, 'info', msgTimestamp);
+          sendRawIRC(`NICK ${state.nick}`);
+          updateConnectionUI();
+        }
+        return;
+      }
+
+      // 4. JOIN
+      if (cmd === 'JOIN') {
+        const chanName = p[0];
+        const buf = ensureBuffer(chanName, chanName, 'channel');
+        const joinerNick = msg.nick || state.nick;
+
+        if (joinerNick.toLowerCase() === state.nick.toLowerCase()) {
+          state.nick = joinerNick;
+          addSystemMessage(buf.id, `Te has unido a ${chanName}`, 'join', msgTimestamp);
+          switchBuffer(buf.id);
+          sendRawIRC(`MODE ${chanName}`);
+        } else {
+          buf.users.set(joinerNick.toLowerCase(), { nick: joinerNick, prefix: '' });
+          addSystemMessage(buf.id, `${joinerNick} (${msg.user}@${msg.host}) se ha unido al canal`, 'join', msgTimestamp);
+          if (state.activeBufferId === buf.id) renderUserList();
+        }
+        renderSidebarBuffers();
+        return;
+      }
+
+      // 5. PART
+      if (cmd === 'PART') {
+        const chanName = p[0];
+        const reason = p[1] ? ` (${p[1]})` : '';
+        const key = chanName.toLowerCase();
+        const buf = state.buffers.get(key);
+        if (!buf) return;
+
+        if (msg.nick.toLowerCase() === state.nick.toLowerCase()) {
+          state.buffers.delete(key);
+          if (state.activeBufferId === key) {
+            switchBuffer(STATUS_BUFFER_ID);
+          } else {
+            renderAll();
+          }
+          addSystemMessage(STATUS_BUFFER_ID, `Has salido de ${chanName}${reason}`, 'part', msgTimestamp);
+        } else {
+          buf.users.delete(msg.nick.toLowerCase());
+          addSystemMessage(buf.id, `${msg.nick} ha salido de ${chanName}${reason}`, 'part', msgTimestamp);
+          if (state.activeBufferId === buf.id) renderUserList();
+        }
+        return;
+      }
+
+      // 6. QUIT
+      if (cmd === 'QUIT') {
+        const reason = p[0] ? ` (${p[0]})` : '';
+        const quittingKey = msg.nick.toLowerCase();
+        for (const buf of state.buffers.values()) {
+          if (buf.type === 'channel' && buf.users.has(quittingKey)) {
+            buf.users.delete(quittingKey);
+            addSystemMessage(buf.id, `${msg.nick} se ha desconectado${reason}`, 'part', msgTimestamp);
+          }
+        }
+        renderUserList();
+        return;
+      }
+
+      // 7. KICK
+      if (cmd === 'KICK') {
+        const chanName = p[0];
+        const kickedNick = p[1] || '';
+        const reason = p[2] ? ` (${p[2]})` : '';
+        const buf = state.buffers.get(chanName.toLowerCase());
+        if (!buf) return;
+
+        buf.users.delete(kickedNick.toLowerCase());
+        addSystemMessage(buf.id, `${kickedNick} fue expulsado por ${msg.nick}${reason}`, 'error', msgTimestamp);
+        if (kickedNick.toLowerCase() === state.nick.toLowerCase()) {
+          showToast(`Fuiste expulsado de ${chanName}`, 'error');
+        }
+        renderUserList();
+        return;
+      }
+
+      // 8. NICK change
+      if (cmd === 'NICK') {
+        const oldNick = msg.nick;
+        const newNick = p[0];
+        if (!newNick) return;
+
+        if (oldNick.toLowerCase() === state.nick.toLowerCase()) {
+          state.nick = newNick;
+          addSystemMessage(STATUS_BUFFER_ID, `Ahora eres conocido como ${newNick}`, 'info', msgTimestamp);
+          updateConnectionUI();
+        }
+
+        for (const buf of state.buffers.values()) {
+          if (buf.type === 'channel' && buf.users.has(oldNick.toLowerCase())) {
+            const existing = buf.users.get(oldNick.toLowerCase());
+            buf.users.delete(oldNick.toLowerCase());
+            buf.users.set(newNick.toLowerCase(), { nick: newNick, prefix: existing.prefix });
+            addSystemMessage(buf.id, `${oldNick} cambió su nick a ${newNick}`, 'info', msgTimestamp);
+          }
+        }
+        renderUserList();
+        return;
+      }
+
+      // 9. TOPIC & 332 (RPL_TOPIC)
+      if (cmd === 'TOPIC') {
+        const chanName = p[0];
+        const newTopic = p[1] || '';
+        const buf = ensureBuffer(chanName, chanName, 'channel');
+        buf.topic = newTopic;
+        addSystemMessage(buf.id, `${msg.nick} cambió el tema a: "${newTopic}"`, 'info', msgTimestamp);
+        renderHeader();
+        return;
+      }
+
+      if (cmd === '332') {
+        const chanName = p[1];
+        const topic = p[2] || '';
+        const buf = ensureBuffer(chanName, chanName, 'channel');
+        buf.topic = topic;
+        addSystemMessage(buf.id, `Tema de ${chanName}: ${topic}`, 'info', msgTimestamp);
+        renderHeader();
+        return;
+      }
+
+      // 10. 353 (RPL_NAMREPLY) & 366 (RPL_ENDOFNAMES)
+      if (cmd === '353') {
+        const chanName = p[2];
+        const namesRaw = (p[3] || '').trim().split(/\s+/);
+        const buf = ensureBuffer(chanName, chanName, 'channel');
+
+        if (!buf.namReplyInProgress) {
+          buf.users.clear();
+          buf.namReplyInProgress = true;
+        }
+
+        for (const entry of namesRaw) {
+          if (!entry) continue;
+          const match = entry.match(/^([~&@%+]*)(.+)$/);
+          if (match) {
+            const prefixes = match[1] || '';
+            const primaryPrefix = prefixes[0] || '';
+            const cleanNick = match[2];
+            buf.users.set(cleanNick.toLowerCase(), { nick: cleanNick, prefix: primaryPrefix });
+          }
+        }
+        return;
+      }
+
+      if (cmd === '366') {
+        const chanName = p[1];
+        const buf = state.buffers.get((chanName || '').toLowerCase());
+        if (buf) {
+          buf.namReplyInProgress = false;
+        }
+        renderHeader();
+        renderUserList();
+        return;
+      }
+
+      // 11. 324 (RPL_CHANNELMODEIS) & MODE
+      if (cmd === '324') {
+        const chanName = p[1];
+        const modes = p.slice(2).join(' ');
+        const buf = state.buffers.get((chanName || '').toLowerCase());
+        if (buf) {
+          buf.modes = modes;
+          renderHeader();
+        }
+        return;
+      }
+
+      if (cmd === 'MODE') {
+        const target = p[0] || '';
+        const modeStr = p.slice(1).join(' ');
+        if (isChannelName(target)) {
+          const buf = ensureBuffer(target, target, 'channel');
+          addSystemMessage(buf.id, `${msg.nick || 'Servidor'} estableció modo ${modeStr}`, 'info', msgTimestamp);
+          // Refresh names to keep @/+ prefixes accurate
+          sendRawIRC(`NAMES ${target}`);
+          sendRawIRC(`MODE ${target}`);
+        } else {
+          state.userModes = modeStr;
+          addSystemMessage(STATUS_BUFFER_ID, `Modo de usuario para ${target}: ${modeStr}`, 'info', msgTimestamp);
+          updateConnectionUI();
+        }
+        return;
+      }
+
+      // 12. 321, 322, 323 (/LIST Live Server Channel Explorer)
+      if (cmd === '321') {
+        state.serverChannelsList = [];
+        state.listLoading = true;
+        renderChannelListModalItems();
+        return;
+      }
+      if (cmd === '322') {
+        const chan = p[1] || '';
+        const count = parseInt(p[2] || '0', 10);
+        const topic = p[3] || '';
+        if (chan && chan !== '*') {
+          state.serverChannelsList.push({ channel: chan, users: count, topic });
+        }
+        return;
+      }
+      if (cmd === '323') {
+        state.listLoading = false;
+        state.serverChannelsList.sort((a, b) => b.users - a.users);
+        renderChannelListModalItems();
+        return;
+      }
+
+      // 13. WHOIS Numerics (311, 312, 317, 318, 319, 330)
+      if (['311', '312', '317', '318', '319', '330'].includes(cmd)) {
+        const targetNick = p[1] || '';
+        const infoLine = p.slice(1).join(' ');
+        addSystemMessage(state.activeBufferId, `[WHOIS] ${infoLine}`, 'server', msgTimestamp);
+
+        if (!state.whoisData[targetNick.toLowerCase()]) {
+          state.whoisData[targetNick.toLowerCase()] = [];
+        }
+        if (cmd !== '318') {
+          state.whoisData[targetNick.toLowerCase()].push(p.slice(2).join(' '));
+        }
+        updateWhoisModalIfOpen(targetNick);
+        return;
+      }
+
+      // 14. PRIVMSG & NOTICE
+      if (cmd === 'PRIVMSG' || cmd === 'NOTICE') {
+        const target = p[0] || '';
+        const text = p[1] || '';
+        const sender = msg.nick || msg.prefix || 'Servidor';
+        const isEchoFromSelf = sender.toLowerCase() === state.nick.toLowerCase();
+
+        // Check for CTCP (\x01...\x01)
+        if (text.startsWith('\x01') && text.endsWith('\x01') && text.length > 2) {
+          const ctcpBody = text.slice(1, -1);
+          const spacePos = ctcpBody.indexOf(' ');
+          const ctcpCmd = (spacePos === -1 ? ctcpBody : ctcpBody.slice(0, spacePos)).toUpperCase();
+          const ctcpArg = spacePos === -1 ? '' : ctcpBody.slice(spacePos + 1);
+
+          if (ctcpCmd === 'ACTION') {
+            const bufId = isChannelName(target)
+              ? target
+              : (isEchoFromSelf ? target : sender);
+            const bufType = isChannelName(target) ? 'channel' : 'query';
+            const buf = ensureBuffer(bufId, bufId, bufType);
+            addChatMessage(buf.id, {
+              sender,
+              text: ctcpArg,
+              type: 'action',
+              timestamp: msgTimestamp,
+              self: isEchoFromSelf
+            });
+            return;
+          }
+
+          if (cmd === 'PRIVMSG' && !isEchoFromSelf) {
+            if (ctcpCmd === 'VERSION') {
+              sendRawIRC(`NOTICE ${sender} :\x01VERSION NexusIRC HTML5 WebSocket Client (RFC1459/IRCv3)\x01`);
+              addSystemMessage(STATUS_BUFFER_ID, `[CTCP VERSION] solicitado por ${sender}`, 'info', msgTimestamp);
+              return;
+            }
+            if (ctcpCmd === 'PING') {
+              sendRawIRC(`NOTICE ${sender} :\x01PING ${ctcpArg}\x01`);
+              addSystemMessage(STATUS_BUFFER_ID, `[CTCP PING] solicitado por ${sender}`, 'info', msgTimestamp);
+              return;
+            }
+            if (ctcpCmd === 'TIME') {
+              sendRawIRC(`NOTICE ${sender} :\x01TIME ${new Date().toUTCString()}\x01`);
+              return;
+            }
+          }
+
+          addSystemMessage(state.activeBufferId, `[CTCP ${ctcpCmd}] de ${sender}: ${ctcpArg}`, 'info', msgTimestamp);
+          return;
+        }
+
+        // Standard PRIVMSG or NOTICE
+        // Ignore our own echo-message if we already rendered it locally
+        if (isEchoFromSelf && state.enabledCaps.has('echo-message')) {
+          return;
+        }
+
+        let destBufferId = STATUS_BUFFER_ID;
+        if (isChannelName(target)) {
+          const buf = ensureBuffer(target, target, 'channel');
+          destBufferId = buf.id;
+        } else if (cmd === 'PRIVMSG') {
+          // Direct Message (Query) to us
+          const peer = isEchoFromSelf ? target : sender;
+          const buf = ensureBuffer(peer, peer, 'query');
+          destBufferId = buf.id;
+        } else {
+          // Server or service NOTICE (e.g. NickServ / ChanServ / Auth)
+          destBufferId = state.activeBufferId || STATUS_BUFFER_ID;
+        }
+
+        addChatMessage(destBufferId, {
+          sender,
+          hostmask: msg.user ? `${msg.user}@${msg.host}` : '',
+          text,
+          type: cmd === 'NOTICE' ? 'notice' : 'privmsg',
+          timestamp: msgTimestamp,
+          self: isEchoFromSelf
+        });
+        return;
+      }
+
+      // 15. MOTD & General Server Numerics
+      if (['375', '372', '376', '422'].includes(cmd)) {
+        addSystemMessage(STATUS_BUFFER_ID, p[p.length - 1] || '', 'motd', msgTimestamp);
+        return;
+      }
+
+      // Error Numerics (400-599)
+      const numCode = parseInt(cmd, 10);
+      if (!isNaN(numCode) && numCode >= 400 && numCode < 600) {
+        const errText = p.slice(1).join(' ');
+        addSystemMessage(state.activeBufferId, `[Error ${cmd}] ${errText}`, 'error', msgTimestamp);
+        return;
+      }
+
+      // Any other server numeric / informational reply
+      if (p.length > 0) {
+        const displayParams = p[0] === state.nick ? p.slice(1) : p;
+        addSystemMessage(STATUS_BUFFER_ID, displayParams.join(' '), 'server', msgTimestamp);
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatIrcTextToHtml(rawText) {
+      let bold = false;
+      let italic = false;
+      let underline = false;
+      let monospace = false;
+      let fg = null;
+
+      let out = '';
+      let i = 0;
+
+      function currentSpanOpen() {
+        const classes = [];
+        if (bold) classes.push('font-bold');
+        if (italic) classes.push('italic');
+        if (underline) classes.push('underline');
+        if (monospace) classes.push('font-mono bg-slate-800/80 px-1 rounded');
+        if (fg !== null && fg >= 0 && fg <= 15) classes.push(`mirc-fg-${fg}`);
+        return classes.length > 0 ? `<span class="${classes.join(' ')}">` : '';
+      }
+
+      let spanActive = false;
+      function refreshSpan() {
+        if (spanActive) {
+          out += '</span>';
+          spanActive = false;
+        }
+        const openTag = currentSpanOpen();
+        if (openTag) {
+          out += openTag;
+          spanActive = true;
+        }
+      }
+
+      let chunk = '';
+      function flushChunk() {
+        if (!chunk) return;
+        let safe = escapeHtml(chunk);
+        // Linkify https:// or wss:// URLs
+        safe = safe.replace(
+          /\b((?:https?|wss?):\/\/[^\s<]+)/gi,
+          '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:underline break-all">$1</a>'
+        );
+        // Make #channel references clickable
+        safe = safe.replace(
+          /(^|\s)(#[a-zA-Z0-9_\-]{2,32})\b/g,
+          '$1<button type="button" onclick="joinChannelByName(\'$2\')" class="text-sky-400 hover:underline font-mono">$2</button>'
+        );
+        out += safe;
+        chunk = '';
+      }
+
+      while (i < rawText.length) {
+        const code = rawText.charCodeAt(i);
+        if (code === 0x02) { // Bold
+          flushChunk();
+          bold = !bold;
+          refreshSpan();
+          i++;
+        } else if (code === 0x1D) { // Italic
+          flushChunk();
+          italic = !italic;
+          refreshSpan();
+          i++;
+        } else if (code === 0x1F) { // Underline
+          flushChunk();
+          underline = !underline;
+          refreshSpan();
+          i++;
+        } else if (code === 0x11) { // Monospace
+          flushChunk();
+          monospace = !monospace;
+          refreshSpan();
+          i++;
+        } else if (code === 0x0F) { // Reset
+          flushChunk();
+          bold = italic = underline = monospace = false;
+          fg = null;
+          refreshSpan();
+          i++;
+        } else if (code === 0x03) { // mIRC Color
+          flushChunk();
+          i++;
+          const colorMatch = rawText.slice(i).match(/^(\d{1,2})(?:,(\d{1,2}))?/);
+          if (colorMatch) {
+            fg = parseInt(colorMatch[1], 10);
+            i += colorMatch[0].length;
+          } else {
+            fg = null;
+          }
+          refreshSpan();
+        } else {
+          chunk += rawText[i];
+          i++;
+        }
+      }
+
+      flushChunk();
+      if (spanActive) out += '</span>';
+      return out;
+    }
+
+    function addSystemMessage(bufferId, text, subtype = 'info', timestamp = new Date()) {
+      const buf = ensureBuffer(bufferId, bufferId);
+      buf.messages.push({
+        id: `${Date.now()}_${Math.random()}`,
+        kind: 'system',
+        subtype,
+        text,
+        timestamp
+      });
+      if (buf.messages.length > 400) buf.messages.shift();
+
+      if (state.activeBufferId === buf.id) {
+        renderMessages(false);
+      } else {
+        buf.unread++;
+        renderSidebarBuffers();
+      }
+    }
+
+    function addChatMessage(bufferId, { sender, hostmask = '', text, type = 'privmsg', timestamp = new Date(), self = false }) {
+      const buf = ensureBuffer(bufferId, bufferId);
+      const isMention = !self && state.nick && new RegExp(`\\b${escapeRegExp(state.nick)}\\b`, 'i').test(text);
+      const isDirectQuery = buf.type === 'query' && !self;
+
+      buf.messages.push({
+        id: `${Date.now()}_${Math.random()}`,
+        kind: 'chat',
+        sender,
+        hostmask,
+        text,
+        type,
+        self,
+        isMention,
+        timestamp
+      });
+
+      if (buf.messages.length > 400) buf.messages.shift();
+
+      if (isMention || isDirectQuery) {
+        playNotificationBeep(isMention ? 660 : 520);
+      }
+
+      if (state.activeBufferId === buf.id) {
+        renderMessages(self);
+      } else {
+        buf.unread++;
+        if (isMention || isDirectQuery) buf.highlights++;
+        renderSidebarBuffers();
+      }
+    }
+
+    function escapeRegExp(str) {
+      return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function playNotificationBeep(freq = 600) {
+      if (!state.soundEnabled) return;
+      try {
+        if (!state.audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContextClass) return;
+          state.audioCtx = new AudioContextClass();
+        }
+        if (state.audioCtx.state === 'suspended') {
+          state.audioCtx.resume();
+        }
+        const osc = state.audioCtx.createOscillator();
+        const gain = state.audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, state.audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.06, state.audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, state.audioCtx.currentTime + 0.14);
+        osc.connect(gain);
+        gain.connect(state.audioCtx.destination);
+        osc.start();
+        osc.stop(state.audioCtx.currentTime + 0.14);
+      } catch (_) {}
+    }
+
+    function toggleSoundEffects() {
+      state.soundEnabled = !state.soundEnabled;
+      const icon = document.getElementById('soundToggleIcon');
+      if (state.soundEnabled) {
+        icon.className = 'fa-solid fa-volume-high text-emerald-400';
+        showToast('Sonidos activados', 'info');
+      } else {
+        icon.className = 'fa-solid fa-volume-xmark text-slate-500';
+        showToast('Sonidos silenciados', 'info');
+      }
+    }
+
+    function handleComposerSubmit(e) {
+      e.preventDefault();
+      const inputEl = document.getElementById('chatInput');
+      const raw = inputEl.value;
+      if (!raw.trim()) return;
+
+      // Store in command history
+      state.commandHistory.unshift(raw);
+      if (state.commandHistory.length > 50) state.commandHistory.pop();
+      state.historyIndex = -1;
+
+      inputEl.value = '';
+      hideAutocomplete();
+      processUserInputLine(raw);
+    }
+
+    function processUserInputLine(input) {
+      if (input.startsWith('/')) {
+        const spaceIdx = input.indexOf(' ');
+        const cmd = (spaceIdx === -1 ? input.slice(1) : input.slice(1, spaceIdx)).toLowerCase();
+        const argStr = spaceIdx === -1 ? '' : input.slice(spaceIdx + 1).trim();
+        const args = argStr ? argStr.split(/\s+/) : [];
+
+        switch (cmd) {
+          case 'join':
+          case 'j': {
+            if (!argStr) {
+              showToast('Uso: /join #canal', 'warn');
+              return;
+            }
+            const chan = args[0].startsWith('#') || args[0].startsWith('&') ? args[0] : `#${args[0]}`;
+            const key = args[1] ? ` ${args[1]}` : '';
+            sendRawIRC(`JOIN ${chan}${key}`);
+            return;
+          }
+          case 'part':
+          case 'leave': {
+            const activeBuf = state.buffers.get(state.activeBufferId);
+            let targetChan = args[0] && isChannelName(args[0]) ? args[0] : (activeBuf && activeBuf.type === 'channel' ? activeBuf.name : '');
+            const reason = args[0] && isChannelName(args[0]) ? args.slice(1).join(' ') : argStr;
+            if (!targetChan) {
+              showToast('No estás en un canal para salir', 'warn');
+              return;
+            }
+            sendRawIRC(`PART ${targetChan}${reason ? ` :${reason}` : ''}`);
+            return;
+          }
+          case 'me': {
+            if (!argStr) return;
+            const buf = state.buffers.get(state.activeBufferId);
+            if (!buf || buf.type === 'status') {
+              showToast('Abre un canal o chat privado para usar /me', 'warn');
+              return;
+            }
+            if (sendRawIRC(`PRIVMSG ${buf.name} :\x01ACTION ${argStr}\x01`)) {
+              addChatMessage(buf.id, { sender: state.nick, text: argStr, type: 'action', self: true });
+            }
+            return;
+          }
+          case 'msg':
+          case 'privmsg':
+          case 'query': {
+            const target = args[0];
+            const messageText = args.slice(1).join(' ');
+            if (!target) {
+              showToast('Uso: /msg <nick|#canal> <texto>', 'warn');
+              return;
+            }
+            const bufType = isChannelName(target) ? 'channel' : 'query';
+            const buf = ensureBuffer(target, target, bufType);
+            switchBuffer(buf.id);
+            if (messageText) {
+              if (sendRawIRC(`PRIVMSG ${target} :${messageText}`)) {
+                addChatMessage(buf.id, { sender: state.nick, text: messageText, type: 'privmsg', self: true });
+              }
+            }
+            return;
+          }
+          case 'nick': {
+            if (!args[0]) {
+              showToast('Uso: /nick <NuevoNick>', 'warn');
+              return;
+            }
+            sendRawIRC(`NICK ${args[0]}`);
+            return;
+          }
+          case 'whois': {
+            const targetNick = args[0] || state.nick;
+            sendRawIRC(`WHOIS ${targetNick}`);
+            return;
+          }
+          case 'topic': {
+            const buf = state.buffers.get(state.activeBufferId);
+            if (!buf || buf.type !== 'channel') {
+              showToast('El comando /topic requiere un canal activo', 'warn');
+              return;
+            }
+            if (!argStr) {
+              sendRawIRC(`TOPIC ${buf.name}`);
+            } else {
+              sendRawIRC(`TOPIC ${buf.name} :${argStr}`);
+            }
+            return;
+          }
+          case 'list': {
+            openChannelListModal();
+            return;
+          }
+          case 'names': {
+            const buf = state.buffers.get(state.activeBufferId);
+            const chan = args[0] || (buf && buf.type === 'channel' ? buf.name : '');
+            if (chan) sendRawIRC(`NAMES ${chan}`);
+            return;
+          }
+          case 'mode': {
+            if (!argStr) return;
+            sendRawIRC(`MODE ${argStr}`);
+            return;
+          }
+          case 'kick': {
+            const buf = state.buffers.get(state.activeBufferId);
+            if (!buf || buf.type !== 'channel' || !args[0]) {
+              showToast('Uso: /kick <nick> [razón]', 'warn');
+              return;
+            }
+            const reason = args.slice(1).join(' ');
+            sendRawIRC(`KICK ${buf.name} ${args[0]}${reason ? ` :${reason}` : ''}`);
+            return;
+          }
+          case 'away': {
+            sendRawIRC(argStr ? `AWAY :${argStr}` : 'AWAY');
+            return;
+          }
+          case 'ns':
+          case 'nickserv': {
+            if (!argStr) return;
+            sendRawIRC(`PRIVMSG NickServ :${argStr}`);
+            addSystemMessage(state.activeBufferId, `-> *NickServ* ${argStr}`, 'info');
+            return;
+          }
+          case 'cs':
+          case 'chanserv': {
+            if (!argStr) return;
+            sendRawIRC(`PRIVMSG ChanServ :${argStr}`);
+            addSystemMessage(state.activeBufferId, `-> *ChanServ* ${argStr}`, 'info');
+            return;
+          }
+          case 'raw':
+          case 'quote': {
+            if (!argStr) return;
+            sendRawIRC(argStr);
+            return;
+          }
+          case 'clear': {
+            const buf = state.buffers.get(state.activeBufferId);
+            if (buf) {
+              buf.messages = [];
+              renderMessages(true);
+            }
+            return;
+          }
+          case 'quit':
+          case 'disconnect': {
+            sendRawIRC(`QUIT :${argStr || 'NexusIRC WebSocket Client'}`);
+            return;
+          }
+          default: {
+            // Pass any unrecognized slash command as raw RFC 1459 command
+            sendRawIRC(`${cmd.toUpperCase()}${argStr ? ` ${argStr}` : ''}`);
+            return;
+          }
+        }
+      }
+
+      // Standard Chat Message to Active Buffer
+      const activeBuf = state.buffers.get(state.activeBufferId);
+      if (!activeBuf || activeBuf.type === 'status') {
+        // If user types in status buffer without slash, treat as raw IRC or remind them to join a channel
+        addSystemMessage(
+          STATUS_BUFFER_ID,
+          'Estás en la consola de estado del servidor. Únete a un canal (ej. /join #test) o usa /raw <comando> para enviar comandos RFC.',
+          'warn'
+        );
+        return;
+      }
+
+      if (sendRawIRC(`PRIVMSG ${activeBuf.name} :${input}`)) {
+        addChatMessage(activeBuf.id, {
+          sender: state.nick,
+          text: input,
+          type: 'privmsg',
+          self: true
+        });
+      }
+    }
+
+    function switchBuffer(bufferId) {
+      const key = bufferId.toLowerCase();
+      if (!state.buffers.has(key)) return;
+      state.activeBufferId = key;
+      const buf = state.buffers.get(key);
+      buf.unread = 0;
+      buf.highlights = 0;
+
+      closeAllDrawers();
+      renderAll();
+      scrollToBottom(true);
+    }
+
+    function renderAll() {
+      updateConnectionUI();
+      renderHeader();
+      renderSidebarBuffers();
+      renderMessages(true);
+      renderUserList();
+    }
+
+    function updateConnectionUI() {
+      const dot = document.getElementById('connStatusDot');
+      const text = document.getElementById('connStatusText');
+      const pingBadge = document.getElementById('connPingBadge');
+      const banner = document.getElementById('disconnectedBanner');
+      const disconnectBtn = document.getElementById('disconnectModalBtn');
+      const hostEl = document.getElementById('sidebarServerHost');
+      const nickEl = document.getElementById('sidebarMyNick');
+      const modesEl = document.getElementById('sidebarMyModes');
+      const avatarEl = document.getElementById('myAvatarBadge');
+
+      nickEl.textContent = state.nick || 'Invitado';
+      avatarEl.textContent = (state.nick || '?').slice(0, 2).toUpperCase();
+
+      if (state.connecting) {
+        dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-ping';
+        text.textContent = 'Conectando...';
+        pingBadge.classList.add('hidden');
+        banner.classList.remove('hidden');
+        document.getElementById('bannerStatusMsg').textContent = `Estableciendo handshake WebSocket con ${state.serverHost}...`;
+        disconnectBtn.classList.remove('hidden');
+        hostEl.textContent = state.serverHost;
+        modesEl.textContent = 'Negociando RFC...';
+      } else if (state.connected) {
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+        text.textContent = state.networkName || state.serverHost || 'Conectado';
+        if (state.latencyMs !== null) {
+          pingBadge.textContent = `${state.latencyMs}ms`;
+          pingBadge.classList.remove('hidden');
+        } else {
+          pingBadge.classList.add('hidden');
+        }
+        banner.classList.add('hidden');
+        disconnectBtn.classList.remove('hidden');
+        hostEl.textContent = state.serverHost;
+        modesEl.textContent = state.registered
+          ? (state.userModes ? `Modo ${state.userModes}` : 'Registrado (IRCv3)')
+          : 'Registrando nick...';
+      } else {
+        dot.className = 'w-2 h-2 rounded-full bg-rose-500';
+        text.textContent = 'Desconectado';
+        pingBadge.classList.add('hidden');
+        banner.classList.remove('hidden');
+        document.getElementById('bannerStatusMsg').innerHTML = 'Conéctate en vivo por WebSocket (<code class="font-mono text-amber-300">wss://</code>) a un servidor IRC real.';
+        disconnectBtn.classList.add('hidden');
+        hostEl.textContent = 'Sin servidor activo';
+        modesEl.textContent = 'Desconectado';
+      }
+    }
+
+    function renderHeader() {
+      const buf = state.buffers.get(state.activeBufferId);
+      if (!buf) return;
+
+      const iconEl = document.getElementById('headerBufferIcon');
+      const titleEl = document.getElementById('headerBufferTitle');
+      const modesEl = document.getElementById('headerChannelModes');
+      const topicEl = document.getElementById('headerBufferTopic');
+      const countEl = document.getElementById('headerUserCount');
+
+      if (buf.type === 'status') {
+        iconEl.textContent = '⚡';
+        titleEl.textContent = state.networkName ? `${state.networkName} (Consola)` : 'Servidor (Estado)';
+        modesEl.classList.add('hidden');
+        topicEl.textContent = state.connected
+          ? `Conectado a ${state.serverUrl} como ${state.nick}`
+          : 'Pulsa en "Red" o "Conectar" para abrir un socket IRC real';
+        countEl.textContent = '0';
+      } else if (buf.type === 'channel') {
+        iconEl.textContent = '#';
+        titleEl.textContent = buf.name.replace(/^#/, '');
+        if (buf.modes) {
+          modesEl.textContent = buf.modes;
+          modesEl.classList.remove('hidden');
+        } else {
+          modesEl.classList.add('hidden');
+        }
+        topicEl.textContent = buf.topic || 'Sin tema definido en el canal (Toca para ver/editar /TOPIC)';
+        countEl.textContent = String(buf.users.size);
+      } else {
+        iconEl.textContent = '@';
+        titleEl.textContent = buf.name;
+        modesEl.classList.add('hidden');
+        topicEl.textContent = `Conversación privada directa (PRIVMSG) con ${buf.name}`;
+        countEl.textContent = '2';
+      }
+    }
+
+    function renderSidebarBuffers() {
+      const statusContainer = document.getElementById('statusBufferContainer');
+      const chanContainer = document.getElementById('channelBuffersContainer');
+      const queryContainer = document.getElementById('queryBuffersContainer');
+
+      statusContainer.innerHTML = '';
+      chanContainer.innerHTML = '';
+      queryContainer.innerHTML = '';
+
+      let totalMobileUnread = 0;
+
+      for (const buf of state.buffers.values()) {
+        const isActive = buf.id === state.activeBufferId;
+        totalMobileUnread += buf.unread;
+
+        const item = document.createElement('div');
+        item.className = `group flex items-center justify-between px-2.5 py-2 rounded-xl cursor-pointer text-xs font-medium transition ${
+          isActive
+            ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
+            : 'text-slate-300 hover:bg-slate-800/80 hover:text-white border border-transparent'
+        }`;
+        item.onclick = () => switchBuffer(buf.id);
+
+        const left = document.createElement('div');
+        left.className = 'flex items-center gap-2 min-w-0 flex-1';
+
+        const prefixSpan = document.createElement('span');
+        prefixSpan.className = `font-mono font-bold ${isActive ? 'text-emerald-400' : 'text-slate-500'}`;
+        prefixSpan.textContent = buf.type === 'status' ? '⚡' : (buf.type === 'channel' ? '#' : '@');
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'truncate font-mono';
+        nameSpan.textContent = buf.type === 'channel' ? buf.name.replace(/^#/, '') : buf.name;
+
+        left.appendChild(prefixSpan);
+        left.appendChild(nameSpan);
+        item.appendChild(left);
+
+        const right = document.createElement('div');
+        right.className = 'flex items-center gap-1 shrink-0';
+
+        if (buf.unread > 0) {
+          const badge = document.createElement('span');
+          badge.className = `px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+            buf.highlights > 0 ? 'bg-rose-500 text-white' : 'bg-slate-700 text-slate-200'
+          }`;
+          badge.textContent = buf.unread > 99 ? '99+' : String(buf.unread);
+          right.appendChild(badge);
+        }
+
+        if (buf.type !== 'status') {
+          const closeBtn = document.createElement('button');
+          closeBtn.className = 'opacity-60 sm:opacity-0 group-hover:opacity-100 hover:text-rose-400 px-1 transition';
+          closeBtn.innerHTML = '<i class="fa-solid fa-xmark text-[11px]"></i>';
+          closeBtn.title = buf.type === 'channel' ? 'Salir del canal (/PART)' : 'Cerrar ventana privada';
+          closeBtn.onclick = (ev) => {
+            ev.stopPropagation();
+            closeBuffer(buf.id);
+          };
+          right.appendChild(closeBtn);
+        }
+
+        item.appendChild(right);
+
+        if (buf.type === 'status') {
+          statusContainer.appendChild(item);
+        } else if (buf.type === 'channel') {
+          chanContainer.appendChild(item);
+        } else {
+          queryContainer.appendChild(item);
+        }
+      }
+
+      if (chanContainer.children.length === 0) {
+        chanContainer.innerHTML = '<p class="px-2.5 py-2 text-[11px] text-slate-500 italic">Sin canales activos</p>';
+      }
+      if (queryContainer.children.length === 0) {
+        queryContainer.innerHTML = '<p class="px-2.5 py-2 text-[11px] text-slate-500 italic">Sin chats privados</p>';
+      }
+
+      const mobileDot = document.getElementById('mobileUnreadDot');
+      if (totalMobileUnread > 0) {
+        mobileDot.classList.remove('hidden');
+      } else {
+        mobileDot.classList.add('hidden');
+      }
+    }
+
+    function closeBuffer(bufferId) {
+      const buf = state.buffers.get(bufferId);
+      if (!buf || buf.type === 'status') return;
+      if (buf.type === 'channel' && state.connected) {
+        sendRawIRC(`PART ${buf.name} :Cerrando canal`);
+      }
+      state.buffers.delete(bufferId);
+      if (state.activeBufferId === bufferId) {
+        switchBuffer(STATUS_BUFFER_ID);
+      } else {
+        renderAll();
+      }
+    }
+
+    function renderMessages(forceScroll = false) {
+      const viewport = document.getElementById('messagesViewport');
+      const buf = state.buffers.get(state.activeBufferId);
+      if (!buf) return;
+
+      const isNearBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight < 90;
+      viewport.innerHTML = '';
+
+      if (buf.messages.length === 0) {
+        viewport.innerHTML = `
+          <div class="h-full flex flex-col items-center justify-center text-center p-6 text-slate-500">
+            <div class="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mb-3 text-emerald-400">
+              <i class="fa-solid fa-comments text-lg"></i>
+            </div>
+            <p class="text-xs sm:text-sm font-medium text-slate-300">Ventana ${escapeHtml(buf.name)} lista</p>
+            <p class="text-xs text-slate-500 mt-1 max-w-xs">Los mensajes en vivo del servidor IRC aparecerán aquí en tiempo real.</p>
+          </div>
+        `;
+        return;
+      }
+
+      for (const m of buf.messages) {
+        const timeStr = m.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+        const row = document.createElement('div');
+
+        if (m.kind === 'system') {
+          let badgeColor = 'text-slate-400 border-slate-800 bg-slate-900/50';
+          let iconHtml = '<i class="fa-solid fa-circle-info text-sky-400"></i>';
+
+          if (m.subtype === 'success') {
+            badgeColor = 'text-emerald-300 border-emerald-500/20 bg-emerald-500/5';
+            iconHtml = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
+          } else if (m.subtype === 'error') {
+            badgeColor = 'text-rose-300 border-rose-500/30 bg-rose-500/10';
+            iconHtml = '<i class="fa-solid fa-triangle-exclamation text-rose-400"></i>';
+          } else if (m.subtype === 'warn') {
+            badgeColor = 'text-amber-300 border-amber-500/20 bg-amber-500/5';
+            iconHtml = '<i class="fa-solid fa-bolt text-amber-400"></i>';
+          } else if (m.subtype === 'join') {
+            badgeColor = 'text-emerald-400/90 border-transparent';
+            iconHtml = '<span class="font-mono text-emerald-400">--&gt;</span>';
+          } else if (m.subtype === 'part') {
+            badgeColor = 'text-slate-400 border-transparent';
+            iconHtml = '<span class="font-mono text-rose-400">&lt;--</span>';
+          } else if (m.subtype === 'motd') {
+            badgeColor = 'text-slate-300 border-slate-800/60 bg-slate-900/40 font-mono text-[11px]';
+            iconHtml = '<span class="text-slate-600">*</span>';
+          }
+
+          row.className = `px-2.5 py-1 rounded-lg border text-xs flex items-start gap-2 leading-relaxed ${badgeColor}`;
+          row.innerHTML = `
+            <span class="font-mono text-[10px] text-slate-500 shrink-0 mt-0.5">${timeStr}</span>
+            <span class="shrink-0 mt-0.5 text-[11px]">${iconHtml}</span>
+            <div class="flex-1 min-w-0 break-words">${formatIrcTextToHtml(m.text)}</div>
+          `;
+        } else {
+          // Chat message (PRIVMSG, NOTICE, or CTCP ACTION)
+          const highlightClasses = m.isMention
+            ? 'bg-emerald-500/15 border-l-2 border-emerald-400 pl-2.5'
+            : (m.type === 'notice' ? 'bg-amber-500/10 border-l-2 border-amber-400 pl-2.5' : 'hover:bg-slate-900/60');
+
+          row.className = `px-2 py-1 rounded-lg text-xs sm:text-sm flex items-baseline gap-2 leading-relaxed transition ${highlightClasses}`;
+
+          const senderColor = m.self ? 'text-emerald-300' : nickColorClass(m.sender);
+          const safeSender = escapeHtml(m.sender);
+
+          if (m.type === 'action') {
+            row.innerHTML = `
+              <span class="font-mono text-[10px] text-slate-500 shrink-0">${timeStr}</span>
+              <div class="flex-1 min-w-0 break-words italic text-slate-200">
+                <span class="text-amber-400 not-italic font-mono mr-1">*</span>
+                <button type="button" onclick="openUserActionModal('${safeSender}')" class="font-mono font-semibold ${senderColor} hover:underline">${safeSender}</button>
+                <span>${formatIrcTextToHtml(m.text)}</span>
+              </div>
+            `;
+          } else {
+            const noticeBadge = m.type === 'notice'
+              ? '<span class="text-[10px] font-mono uppercase px-1 rounded bg-amber-500/20 text-amber-300 mr-1">NOTICE</span>'
+              : '';
+            row.innerHTML = `
+              <span class="font-mono text-[10px] text-slate-500 shrink-0">${timeStr}</span>
+              <button type="button" onclick="openUserActionModal('${safeSender}')" class="font-mono font-semibold ${senderColor} hover:underline shrink-0">&lt;${safeSender}&gt;</button>
+              <div class="flex-1 min-w-0 break-words text-slate-100">${noticeBadge}${formatIrcTextToHtml(m.text)}</div>
+            `;
+          }
+        }
+
+        viewport.appendChild(row);
+      }
+
+      if (forceScroll || isNearBottom) {
+        scrollToBottom(false);
+      } else {
+        document.getElementById('scrollToBottomBtn').classList.remove('hidden');
+      }
+    }
+
+    function scrollToBottom(smooth = false) {
+      const viewport = document.getElementById('messagesViewport');
+      viewport.scrollTo({
+        top: viewport.scrollHeight,
+        behavior: smooth ? 'smooth' : 'auto'
+      });
+      document.getElementById('scrollToBottomBtn').classList.add('hidden');
+    }
+
+    function renderUserList() {
+      const container = document.getElementById('userListContainer');
+      const filterText = (document.getElementById('userFilterInput').value || '').trim().toLowerCase();
+      const buf = state.buffers.get(state.activeBufferId);
+
+      container.innerHTML = '';
+
+      if (!buf || buf.type !== 'channel') {
+        container.innerHTML = `
+          <div class="p-4 text-center text-xs text-slate-500">
+            Selecciona un canal (<code class="font-mono text-slate-400">#</code>) para ver e interactuar con los usuarios conectados.
+          </div>
+        `;
+        return;
+      }
+
+      const usersArr = Array.from(buf.users.values()).filter(u =>
+        !filterText || u.nick.toLowerCase().includes(filterText)
+      );
+
+      usersArr.sort((a, b) => {
+        const rankA = state.prefixRanks[a.prefix] || 0;
+        const rankB = state.prefixRanks[b.prefix] || 0;
+        if (rankA !== rankB) return rankB - rankA;
+        return a.nick.localeCompare(b.nick, undefined, { sensitivity: 'base' });
+      });
+
+      const groups = [
+        { label: 'Operadores', filter: u => ['~', '&', '@', '%'].includes(u.prefix), badgeColor: 'text-amber-400' },
+        { label: 'Con Voz (+)', filter: u => u.prefix === '+', badgeColor: 'text-sky-400' },
+        { label: 'Usuarios', filter: u => !u.prefix, badgeColor: 'text-slate-500' }
+      ];
+
+      for (const grp of groups) {
+        const members = usersArr.filter(grp.filter);
+        if (members.length === 0) continue;
+
+        const sec = document.createElement('div');
+        sec.innerHTML = `
+          <div class="px-2 mb-1 flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            <span>${grp.label}</span>
+            <span class="font-mono">${members.length}</span>
+          </div>
+        `;
+
+        const list = document.createElement('div');
+        list.className = 'space-y-0.5';
+
+        for (const u of members) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.onclick = () => openUserActionModal(u.nick);
+          btn.className = 'w-full px-2.5 py-1.5 rounded-xl hover:bg-slate-800/90 flex items-center gap-2 text-left text-xs transition group';
+
+          const colorCls = nickColorClass(u.nick);
+          btn.innerHTML = `
+            <span class="w-2 h-2 rounded-full bg-emerald-400/80 shrink-0"></span>
+            <span class="font-mono font-bold ${grp.badgeColor} shrink-0">${escapeHtml(u.prefix)}</span>
+            <span class="font-mono truncate ${colorCls} group-hover:underline flex-1">${escapeHtml(u.nick)}</span>
+          `;
+          list.appendChild(btn);
+        }
+
+        sec.appendChild(list);
+        container.appendChild(sec);
+      }
+    }
+
+    function appendRawTrafficLog(direction, line) {
+      state.rawFrameCount++;
+      const timeStr = new Date().toLocaleTimeString([], { hour12: false });
+      state.rawLogs.push({ direction, line, timeStr });
+      if (state.rawLogs.length > 250) state.rawLogs.shift();
+
+      const counterEl = document.getElementById('rawPacketCounter');
+      if (counterEl) counterEl.textContent = `${state.rawFrameCount} tramas`;
+
+      const viewport = document.getElementById('rawLogViewport');
+      if (!viewport || document.getElementById('rawMonitorPanel').classList.contains('hidden')) return;
+
+      const row = document.createElement('div');
+      const isOut = direction === 'OUT';
+      row.className = `flex items-baseline gap-2 break-all ${isOut ? 'text-emerald-300' : 'text-sky-300'}`;
+      row.innerHTML = `
+        <span class="text-slate-500 shrink-0">${timeStr}</span>
+        <span class="font-bold shrink-0 ${isOut ? 'text-emerald-400' : 'text-amber-400'}">${isOut ? '>>' : '<<'}</span>
+        <span>${escapeHtml(line)}</span>
+      `;
+      viewport.appendChild(row);
+      viewport.scrollTop = viewport.scrollHeight;
+    }
+
+    function toggleRawMonitor() {
+      const panel = document.getElementById('rawMonitorPanel');
+      panel.classList.toggle('hidden');
+      if (!panel.classList.contains('hidden')) {
+        const viewport = document.getElementById('rawLogViewport');
+        viewport.innerHTML = '';
+        for (const item of state.rawLogs) {
+          const isOut = item.direction === 'OUT';
+          const row = document.createElement('div');
+          row.className = `flex items-baseline gap-2 break-all ${isOut ? 'text-emerald-300' : 'text-sky-300'}`;
+          row.innerHTML = `
+            <span class="text-slate-500 shrink-0">${item.timeStr}</span>
+            <span class="font-bold shrink-0 ${isOut ? 'text-emerald-400' : 'text-amber-400'}">${isOut ? '>>' : '<<'}</span>
+            <span>${escapeHtml(item.line)}</span>
+          `;
+          viewport.appendChild(row);
+        }
+        viewport.scrollTop = viewport.scrollHeight;
+      }
+    }
+
+    function clearRawLogs() {
+      state.rawLogs = [];
+      document.getElementById('rawLogViewport').innerHTML = '';
+    }
+
+    function handleSendRawManual(e) {
+      e.preventDefault();
+      const input = document.getElementById('rawManualInput');
+      const val = input.value.trim();
+      if (!val) return;
+      sendRawIRC(val);
+      input.value = '';
+    }
+
+    // Slash & Nick Autocomplete
+    function handleInputAutocomplete(val) {
+      const popup = document.getElementById('autocompletePopup');
+      const list = document.getElementById('autocompleteList');
+      const title = document.getElementById('autocompleteTitle');
+
+      // 1. Slash command suggestions
+      if (val.startsWith('/') && !val.includes(' ')) {
+        const query = val.toLowerCase();
+        const matches = SLASH_COMMANDS.filter(c => c.cmd.startsWith(query));
+        if (matches.length === 0) {
+          hideAutocomplete();
+          return;
+        }
+        title.textContent = 'Comandos IRC (RFC 1459)';
+        list.innerHTML = '';
+        for (const item of matches) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'w-full px-3 py-2 text-left hover:bg-slate-800 flex items-center justify-between gap-2 text-xs transition';
+          btn.onclick = () => {
+            const input = document.getElementById('chatInput');
+            input.value = `${item.cmd} `;
+            input.focus();
+            hideAutocomplete();
+          };
+          btn.innerHTML = `
+            <span class="font-mono font-semibold text-emerald-400">${escapeHtml(item.syntax)}</span>
+            <span class="text-slate-400 truncate text-[11px]">${escapeHtml(item.desc)}</span>
+          `;
+          list.appendChild(btn);
+        }
+        popup.classList.remove('hidden');
+        return;
+      }
+
+      // 2. @nick mention suggestions
+      const lastWordMatch = val.match(/(?:^|\s)@([a-zA-Z0-9_\-\[\]\\`^{|}]{0,20})$/);
+      const activeBuf = state.buffers.get(state.activeBufferId);
+      if (lastWordMatch && activeBuf && activeBuf.type === 'channel') {
+        const partial = lastWordMatch[1].toLowerCase();
+        const users = Array.from(activeBuf.users.values())
+          .filter(u => u.nick.toLowerCase().startsWith(partial))
+          .slice(0, 8);
+        if (users.length === 0) {
+          hideAutocomplete();
+          return;
+        }
+        title.textContent = 'Mencionar usuario en el canal';
+        list.innerHTML = '';
+        for (const u of users) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'w-full px-3 py-2 text-left hover:bg-slate-800 flex items-center gap-2 text-xs font-mono text-slate-200 transition';
+          btn.onclick = () => {
+            const input = document.getElementById('chatInput');
+            input.value = val.replace(/@([a-zA-Z0-9_\-\[\]\\`^{|}]{0,20})$/, `${u.nick}: `);
+            input.focus();
+            hideAutocomplete();
+          };
+          btn.innerHTML = `<span class="text-emerald-400">${escapeHtml(u.prefix || '@')}</span><span>${escapeHtml(u.nick)}</span>`;
+          list.appendChild(btn);
+        }
+        popup.classList.remove('hidden');
+        return;
+      }
+
+      hideAutocomplete();
+    }
+
+    function hideAutocomplete() {
+      document.getElementById('autocompletePopup').classList.add('hidden');
+    }
+
+    function triggerSlashHelper() {
+      const input = document.getElementById('chatInput');
+      input.value = '/';
+      input.focus();
+      handleInputAutocomplete('/');
+    }
+
+    function triggerMentionHelper() {
+      const input = document.getElementById('chatInput');
+      input.value = (input.value ? input.value + ' @' : '@');
+      input.focus();
+      handleInputAutocomplete(input.value);
+    }
+
+    function handleComposerKeydown(e) {
+      const input = e.target;
+      if (e.key === 'ArrowUp' && state.commandHistory.length > 0) {
+        e.preventDefault();
+        if (state.historyIndex < state.commandHistory.length - 1) {
+          state.historyIndex++;
+          input.value = state.commandHistory[state.historyIndex];
+        }
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (state.historyIndex > 0) {
+          state.historyIndex--;
+          input.value = state.commandHistory[state.historyIndex];
+        } else {
+          state.historyIndex = -1;
+          input.value = '';
+        }
+      } else if (e.key === 'Escape') {
+        hideAutocomplete();
+      }
+    }
+
+    function toggleFormatToolbar() {
+      document.getElementById('formatToolbar').classList.toggle('hidden');
+    }
+
+    function insertControlCode(codeStr) {
+      const input = document.getElementById('chatInput');
+      const start = input.selectionStart || input.value.length;
+      const end = input.selectionEnd || input.value.length;
+      input.value = input.value.slice(0, start) + codeStr + input.value.slice(end);
+      input.focus();
+    }
+
+    function toggleLeftDrawer() {
+      const left = document.getElementById('leftDrawer');
+      const right = document.getElementById('rightDrawer');
+      const backdrop = document.getElementById('mobileBackdrop');
+
+      right.classList.add('translate-x-full');
+      const isClosed = left.classList.contains('-translate-x-full');
+      if (isClosed) {
+        left.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+      } else {
+        left.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+    }
+
+    function toggleRightDrawer() {
+      const left = document.getElementById('leftDrawer');
+      const right = document.getElementById('rightDrawer');
+      const backdrop = document.getElementById('mobileBackdrop');
+
+      left.classList.add('-translate-x-full');
+      const isClosed = right.classList.contains('translate-x-full');
+      if (isClosed) {
+        right.classList.remove('translate-x-full');
+        backdrop.classList.remove('hidden');
+      } else {
+        right.classList.add('translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+    }
+
+    function closeAllDrawers() {
+      document.getElementById('leftDrawer').classList.add('-translate-x-full');
+      document.getElementById('rightDrawer').classList.add('translate-x-full');
+      document.getElementById('mobileBackdrop').classList.add('hidden');
+    }
+
+    function openConnectModal() {
+      document.getElementById('connectModal').classList.remove('hidden');
+    }
+
+    function closeConnectModal() {
+      document.getElementById('connectModal').classList.add('hidden');
+    }
+
+    function handleQuickJoin(e) {
+      e.preventDefault();
+      const input = document.getElementById('quickJoinInput');
+      const raw = input.value.trim();
+      if (!raw) return;
+      const chan = raw.startsWith('#') || raw.startsWith('&') ? raw : `#${raw}`;
+      input.value = '';
+      joinChannelByName(chan);
+    }
+
+    function joinChannelByName(chanName) {
+      if (!state.connected) {
+        showToast('Conéctate primero a un servidor IRC', 'warn');
+        openConnectModal();
+        return;
+      }
+      sendRawIRC(`JOIN ${chanName}`);
+    }
+
+    function refreshCurrentChannelNames() {
+      const buf = state.buffers.get(state.activeBufferId);
+      if (buf && buf.type === 'channel' && state.connected) {
+        sendRawIRC(`NAMES ${buf.name}`);
+        showToast(`Actualizando usuarios de ${buf.name}`, 'info');
+      }
+    }
+
+    // Channel Explorer (/LIST) Modal
+    function openChannelListModal() {
+      document.getElementById('channelListModal').classList.remove('hidden');
+      if (state.connected && state.serverChannelsList.length === 0 && !state.listLoading) {
+        requestServerChannelList();
+      } else {
+        renderChannelListModalItems();
+      }
+    }
+
+    function closeChannelListModal() {
+      document.getElementById('channelListModal').classList.add('hidden');
+    }
+
+    function requestServerChannelList() {
+      if (!state.connected) {
+        showToast('Conéctate a un servidor IRC para listar sus canales', 'warn');
+        return;
+      }
+      state.serverChannelsList = [];
+      state.listLoading = true;
+      renderChannelListModalItems();
+      sendRawIRC('LIST');
+    }
+
+    function renderChannelListModalItems() {
+      const body = document.getElementById('channelListModalBody');
+      const filter = (document.getElementById('channelListFilterInput').value || '').trim().toLowerCase();
+
+      if (!state.connected) {
+        body.innerHTML = '<div class="p-6 text-center text-xs text-slate-400">Conéctate primero a un servidor IRC para consultar la lista de canales en vivo (<code class="font-mono">/LIST</code>).</div>';
+        return;
+      }
+
+      if (state.listLoading) {
+        body.innerHTML = '<div class="p-6 text-center text-xs text-emerald-400 font-mono animate-pulse">Consultando comando /LIST en el servidor IRC...</div>';
+        return;
+      }
+
+      const items = state.serverChannelsList.filter(item =>
+        !filter || item.channel.toLowerCase().includes(filter) || item.topic.toLowerCase().includes(filter)
+      );
+
+      if (items.length === 0) {
+        body.innerHTML = '<div class="p-6 text-center text-xs text-slate-400">No se encontraron canales públicos que coincidan.</div>';
+        return;
+      }
+
+      body.innerHTML = '';
+      for (const ch of items.slice(0, 150)) {
+        const row = document.createElement('div');
+        row.className = 'p-2.5 hover:bg-slate-800/70 rounded-xl flex items-center justify-between gap-3 transition';
+        row.innerHTML = `
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2">
+              <span class="font-mono font-bold text-xs sm:text-sm text-emerald-400">${escapeHtml(ch.channel)}</span>
+              <span class="text-[11px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">${ch.users} usuarios</span>
+            </div>
+            <p class="text-xs text-slate-400 truncate mt-0.5">${escapeHtml(ch.topic || 'Sin tema')}</p>
+          </div>
+          <button type="button" onclick="joinFromListModal('${escapeHtml(ch.channel)}')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium shrink-0 transition">
+            Entrar
+          </button>
+        `;
+        body.appendChild(row);
+      }
+    }
+
+    function joinFromListModal(chan) {
+      closeChannelListModal();
+      joinChannelByName(chan);
+    }
+
+    // User WHOIS & Quick Action Modal
+    function openUserActionModal(nick) {
+      const cleanNick = nick.replace(/^[~&@%+]+/, '');
+      state.inspectedNick = cleanNick;
+      document.getElementById('modalUserNick').textContent = cleanNick;
+      document.getElementById('modalUserAvatar').textContent = cleanNick.slice(0, 2).toUpperCase();
+      document.getElementById('modalUserHost').textContent = state.connected ? `Servidor: ${state.serverHost}` : 'Sin conexión';
+      document.getElementById('whoisDetailsBox').textContent = 'Pulsa "Consultar WHOIS" para obtener información en tiempo real del servidor.';
+      document.getElementById('userActionModal').classList.remove('hidden');
+      updateWhoisModalIfOpen(cleanNick);
+    }
+
+    function closeUserActionModal() {
+      document.getElementById('userActionModal').classList.add('hidden');
+      state.inspectedNick = null;
+    }
+
+    function sendWhoisFromModal() {
+      if (!state.inspectedNick || !state.connected) return;
+      state.whoisData[state.inspectedNick.toLowerCase()] = [];
+      document.getElementById('whoisDetailsBox').textContent = `Solicitando WHOIS ${state.inspectedNick} al servidor...`;
+      sendRawIRC(`WHOIS ${state.inspectedNick}`);
+    }
+
+    function updateWhoisModalIfOpen(nick) {
+      if (!state.inspectedNick || state.inspectedNick.toLowerCase() !== nick.toLowerCase()) return;
+      const lines = state.whoisData[nick.toLowerCase()] || [];
+      if (lines.length > 0) {
+        document.getElementById('whoisDetailsBox').innerHTML = lines.map(l => `<div>• ${escapeHtml(l)}</div>`).join('');
+      }
+    }
+
+    function startPrivateChatFromModal() {
+      if (!state.inspectedNick) return;
+      const nick = state.inspectedNick;
+      closeUserActionModal();
+      const buf = ensureBuffer(nick, nick, 'query');
+      switchBuffer(buf.id);
+      document.getElementById('chatInput').focus();
+    }
+
+    function mentionUserFromModal() {
+      if (!state.inspectedNick) return;
+      const nick = state.inspectedNick;
+      closeUserActionModal();
+      const input = document.getElementById('chatInput');
+      input.value = `${nick}: ${input.value}`;
+      input.focus();
+    }
+
+    function sendCtcpPingFromModal() {
+      if (!state.inspectedNick || !state.connected) return;
+      const nick = state.inspectedNick;
+      sendRawIRC(`PRIVMSG ${nick} :\x01PING ${Date.now()}\x01`);
+      showToast(`CTCP PING enviado a ${nick}`, 'info');
+      closeUserActionModal();
+    }
+
+    // Custom Dialog Modal (replaces native prompt/alert)
+    function openDialogModal({ title, desc, defaultValue = '', placeholder = '', onConfirm }) {
+      document.getElementById('dialogModalTitle').textContent = title;
+      document.getElementById('dialogModalDesc').textContent = desc;
+      const input = document.getElementById('dialogModalInput');
+      input.value = defaultValue;
+      input.placeholder = placeholder;
+      state.dialogCallback = onConfirm;
+      document.getElementById('dialogModal').classList.remove('hidden');
+      setTimeout(() => input.focus(), 50);
+    }
+
+    function closeDialogModal() {
+      document.getElementById('dialogModal').classList.add('hidden');
+      state.dialogCallback = null;
+    }
+
+    function submitDialogModal(e) {
+      e.preventDefault();
+      const val = document.getElementById('dialogModalInput').value.trim();
+      const cb = state.dialogCallback;
+      closeDialogModal();
+      if (cb) cb(val);
+    }
+
+    function promptChangeNick() {
+      openDialogModal({
+        title: 'Cambiar Nickname (/NICK)',
+        desc: 'Ingresa tu nuevo apodo para la sesión IRC actual:',
+        defaultValue: state.nick,
+        placeholder: 'NuevoNick',
+        onConfirm: (newNick) => {
+          if (!newNick) return;
+          const clean = newNick.replace(/\s+/g, '_');
+          if (state.connected) {
+            sendRawIRC(`NICK ${clean}`);
+          } else {
+            state.nick = clean;
+            document.getElementById('nickInput').value = clean;
+            updateConnectionUI();
+          }
+        }
+      });
+    }
+
+    function openNewDmModal() {
+      openDialogModal({
+        title: 'Nuevo Mensaje Privado (/QUERY)',
+        desc: 'Ingresa el nickname del usuario o servicio (ej. NickServ) con quien deseas conversar:',
+        placeholder: 'Nickname',
+        onConfirm: (targetNick) => {
+          if (!targetNick) return;
+          const buf = ensureBuffer(targetNick, targetNick, 'query');
+          switchBuffer(buf.id);
+        }
+      });
+    }
+
+    function openTopicModal() {
+      const buf = state.buffers.get(state.activeBufferId);
+      if (!buf || buf.type !== 'channel') {
+        openConnectModal();
+        return;
+      }
+      openDialogModal({
+        title: `Tema de ${buf.name} (/TOPIC)`,
+        desc: 'Consulta o actualiza el topic del canal en el servidor (requiere permisos si el canal tiene modo +t):',
+        defaultValue: buf.topic || '',
+        placeholder: 'Nuevo tema del canal...',
+        onConfirm: (newTopic) => {
+          if (state.connected && newTopic !== buf.topic) {
+            sendRawIRC(`TOPIC ${buf.name} :${newTopic}`);
+          }
+        }
+      });
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      const colors = {
+        success: 'bg-emerald-950/95 border-emerald-500/50 text-emerald-200',
+        error: 'bg-rose-950/95 border-rose-500/50 text-rose-200',
+        warn: 'bg-amber-950/95 border-amber-500/50 text-amber-200',
+        info: 'bg-slate-900/95 border-slate-700 text-slate-200'
+      };
+      toast.className = `px-3.5 py-2 rounded-xl border text-xs font-medium shadow-xl backdrop-blur-md transition-all duration-300 ${colors[type] || colors.info}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 2800);
+    }
+
+    // Initialize viewport scroll listener & app state
+    window.addEventListener('DOMContentLoaded', () => {
+      initState();
+      const viewport = document.getElementById('messagesViewport');
+      viewport.addEventListener('scroll', () => {
+        const isNearBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight < 90;
+        if (isNearBottom) {
+          document.getElementById('scrollToBottomBtn').classList.add('hidden');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
